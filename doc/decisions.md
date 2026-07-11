@@ -272,3 +272,15 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Rely on conversational context or define terms independently in each document. Conversation context is temporary; local definitions drift and make cross-component contracts harder to understand.
 
 **Consequences:** Naming becomes part of the information architecture and can guide schemas, interfaces, prompts, and tests. Glossary changes require attention because they may signal a domain-model or public-contract change rather than a prose edit.
+
+### 2026-07-11: Invoke the System director through rate-limited event hooks
+
+**Status:** Accepted
+
+**Context:** Invoking the System director after every player action would add latency and encourage constant intervention even when the world has no need for creative direction. Unspecified invocation timing would also make behavior difficult to test and explain.
+
+**Decision:** Invoke the System director only when an explicit hook configured by a rule or scenario package becomes eligible. Hooks may respond to world creation, matching canonical events, scenario milestones, or elapsed simulation time. Each hook declares simulation-time frequency or count limits, and each eligibility decision is recorded in the simulation-step trace.
+
+**Alternatives considered:** Invoke after every player action, or let application code call the System director opportunistically. Both approaches obscure causality, add unnecessary LLM calls, and weaken scenario control.
+
+**Consequences:** Creative direction becomes event-driven, rate-limited, and reproducible at the eligibility layer. Packages control when intervention is appropriate, while the simulation arbiter still validates every resulting action proposal.

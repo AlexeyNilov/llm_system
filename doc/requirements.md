@@ -249,3 +249,17 @@ This helps ensure requirements are:
 **SCHEDULE-005:** The system shall record scheduling and ordering metadata in the simulation-step trace.
 
 **SCHEDULE-006:** Given the same committed state and scheduled activities, the scheduler shall produce the same activity order.
+
+### System director eligibility
+
+**DIRECTOR-001:** The system shall invoke the System director only when an explicit configured hook becomes eligible.
+
+**DIRECTOR-002:** Rule or scenario packages shall be able to configure System director hooks for world creation, matching canonical events, scenario milestones, or elapsed simulation-time intervals.
+
+**DIRECTOR-003:** A System director hook shall declare limits that prevent invocation more frequently than its configured minimum simulation-time interval or maximum count.
+
+**DIRECTOR-004:** When no System director hook is eligible, the system shall not invoke the System director.
+
+**DIRECTOR-005:** When a System director hook becomes eligible, the simulation-step trace shall record the hook identifier and eligibility reason.
+
+**DIRECTOR-006:** System director eligibility shall not bypass simulation arbiter validation of any resulting action proposal.

@@ -148,7 +148,9 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 ### System director
 
 * Acts as the hidden creative portion of a game master.
-* Receives a curated world-level context when an explicit scheduler hook makes it eligible.
+* Is invoked only when a package-configured hook becomes eligible through world creation, a matching canonical event, a scenario milestone, or elapsed simulation time.
+* Applies hook-specific simulation-time frequency or count limits and records each eligibility reason.
+* Receives a curated world-level context after eligibility is established.
 * Proposes complications, opportunities, objectives, or supported world events.
 * Cannot execute proposals, rewrite rules during play, or communicate mechanical facts directly to the player.
 
@@ -327,7 +329,6 @@ Tests should assert structured behavior and canonical facts, not exact generated
 The following choices remain unresolved and must be considered separately:
 
 * the fiction and exact stakes of the first scenario;
-* System director eligibility and proposal cadence;
 * belief-revision ownership and rules;
 * context budgets and episodic-memory retrieval policy;
 * structured-output behavior of the deployed local model; and
