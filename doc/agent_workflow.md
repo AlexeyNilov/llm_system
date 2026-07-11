@@ -115,7 +115,7 @@ Use these statuses:
 5. **Blocked**: A named external condition or unresolved design gap prevents progress.
 6. **Done**: Review findings are resolved and the integrator has accepted the result.
 
-Only the architect or integrator promotes a task to Ready or Done.
+Only the architect or integrator promotes a task to Ready or Done. An execution agent may move a Ready task to In progress and then to Review or Blocked; it must never mark its own work Done.
 
 ## Writing a task brief
 
@@ -222,9 +222,18 @@ The integrator:
 Start a fresh implementation chat with a short instruction:
 
 ```text
-Delegate doc/tasks/TASK-001-structured-output-preflight.md to the
-project custom agent terra_experimenter. Do not pass this chat history.
-Wait for it to finish, then review its evidence and handoff against the task brief.
+This is delegation only, not integration.
+
+Delegate <READY_TASK_PATH> to the custom agent named by the task brief.
+Do not pass prior chat history.
+
+The execution agent may set the task to In progress, then Review or Blocked.
+Neither the execution agent nor this parent task may mark it Done, review or
+accept the result, update the roadmap or governance documents, stage files,
+or commit changes.
+
+Wait for the execution agent, then return its handoff and changed-file list
+without adding an acceptance judgment. Integration will happen separately.
 ```
 
 The task file, repository state, and resulting diff carry the context. The planning transcript does not.

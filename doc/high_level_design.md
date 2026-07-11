@@ -176,6 +176,7 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 
 * Provides one application-owned interface to the local OpenAI-compatible LLM and embedding services.
 * Applies role-specific prompts, structured-output schemas, timeouts, and error handling.
+* Disables Gemma thinking for functional roles with `chat_template_kwargs.enable_thinking=false` and never treats `reasoning_content` as functional output.
 * Validates functional outputs through strict Pydantic models and permits at most one schema-guided repair attempt.
 * Produces role-specific clarification, fallback, no-op, or skip results after failed repair.
 * Records original output, validation errors, repair output, and final disposition in the simulation-step trace.

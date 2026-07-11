@@ -368,3 +368,15 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Use the planning agent, rely on inherited model selection, or embed the entire task inside the custom-agent instructions. The planning agent is unnecessarily broad; inheritance does not guarantee the requested model; embedding tasks would mix stable role configuration with changing work.
 
 **Consequences:** A fresh Codex task can select a predictable lower-cost experiment role without receiving this planning transcript. The agent still inherits repository safety boundaries and must stop on design gaps or unauthorized mutations.
+
+### 2026-07-11: Disable Gemma thinking for functional LLM roles
+
+**Status:** Accepted
+
+**Context:** With thinking enabled, four of five provisional player-interpreter trials exhausted 600 completion tokens inside `reasoning_content` and emitted empty `message.content`. Successful NPC trials also spent most output tokens on hidden reasoning. Functional roles require short validated data rather than an internal reasoning transcript.
+
+**Decision:** For functional calls to the local Gemma service, send `chat_template_kwargs.enable_thinking=false` at request time. Use `message.content` as the candidate structured output and never substitute `reasoning_content`. Continue to use JSON response formatting only as syntactic assistance, strict Pydantic validation as the authority boundary, one repair attempt, and role-specific safe failure.
+
+**Alternatives considered:** Increase output-token limits, parse `reasoning_content`, or leave thinking enabled for all roles. Larger limits waste latency without guaranteeing content; reasoning transcripts are not the functional contract; always-on thinking caused measured failures.
+
+**Consequences:** In the controlled preflight, thinking-disabled player and NPC fixtures were strict-valid in all ten trials, used far fewer completion tokens, and returned substantially faster. The gateway must still handle models or servers that ignore the extension and must trace the request setting and final disposition.

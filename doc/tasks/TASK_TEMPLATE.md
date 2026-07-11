@@ -2,6 +2,8 @@
 
 **Status:** Planned | Ready | In progress | Review | Blocked | Done
 
+Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
+
 **Owner:** Unassigned
 
 **Role:** Explorer | Experimenter | Implementer | Scenario author | Reviewer

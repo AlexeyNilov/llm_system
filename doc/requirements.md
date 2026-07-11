@@ -336,6 +336,8 @@ This helps ensure requirements are:
 
 **LLM-008:** The simulation-step trace shall retain each original functional LLM output, validation errors, repair output when attempted, and final disposition.
 
+**LLM-009:** When calling the local Gemma model for a functional LLM role, the model gateway shall request `chat_template_kwargs.enable_thinking=false` and shall treat absent or invalid `message.content` as a failed functional output rather than using `reasoning_content` as the result.
+
 ### Development inspection
 
 **INSPECT-001:** The initial version shall provide a Streamlit development inspection page separate from the player interface.

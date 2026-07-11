@@ -1,8 +1,8 @@
 # TASK-001A: Compare structured output with thinking disabled
 
-**Status:** Ready
+**Status:** Done
 
-**Owner:** Unassigned
+**Owner:** terra_experimenter
 
 **Role:** Experimenter
 
@@ -93,12 +93,18 @@ Stop and report a design gap if the request-time flag is rejected, meaningful co
 
 ## Handoff report
 
-**Result:** Pending
+**Result:** Complete — controlled thinking-disabled comparison captured and the preflight recommendation revised from the combined evidence.
 
-**Changed files:** Pending
+**Changed files:** `doc/experiments/structured_output_preflight.md`; this task brief (permitted Status, Owner, and Handoff report fields only).
 
-**Verification:** Pending
+**Verification:** Temporary standard-library validator checked all 12 new captures: player `json_object` 5/5 strict-valid, NPC `json_object` 5/5 strict-valid, thinking-disabled NPC repair 1/1 strict-valid, and thinking-disabled player `json_schema` probe 1/1 strict-valid. The report records response wrappers, usage, latency, finish reasons, and absent reasoning content. Baseline-aware targeted status/diff inspection confirmed this task changed only the permitted files; `git diff --check` passed.
 
-**Deviations:** Pending
+**Deviations:** No application, server, governance, or custom-agent configuration changes. The `json_schema` probe was one conforming request only and is explicitly not claimed as evidence of server-side enforcement.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** The request extension was accepted by the local service and no design gap blocked measurement. Gateway implementation should retain strict Pydantic validation, one repair, and safe failure if a future model or server does not honor disabled thinking.
+
+## Integrator review
+
+**Disposition:** Accepted.
+
+The integrator independently inspected all 12 raw captures under `/tmp/structured_output_thinking_disabled/`. All five player trials, five NPC trials, the repair trial, and the `json_schema` probe finished with `stop`, contained strict-valid `message.content`, and contained no `reasoning_content`. The report accurately preserves the limits of the single `json_schema` probe and does not claim server-side schema enforcement.

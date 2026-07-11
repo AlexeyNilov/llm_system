@@ -1,6 +1,6 @@
 # TASK-001: Measure local structured-output behavior
 
-**Status:** Review
+**Status:** Done
 
 **Owner:** terra_experimenter
 
@@ -113,3 +113,5 @@ Fill this section without rewriting the task contract.
 The raw captures show that every tested response contains substantial `message.reasoning_content`. Four of five player trials exhausted all 600 completion tokens in reasoning, returned `finish_reason: "length"`, and emitted empty `message.content`. This matches the previously reproduced Gemma/llama.cpp failure addressed in `/home/lexa/an/git/llmops/src/llmops/use_cases/cognitive_map.py` by sending `chat_template_kwargs.enable_thinking=false`.
 
 The report is accepted as a thinking-enabled baseline, but its recommendation to avoid `reasoning_content` without testing the supported thinking-disable request is not yet sufficient for gateway design. Complete [`TASK-001A`](TASK-001A-disable-thinking-comparison.md), then update the report recommendation from the controlled comparison. Keep this task in Review until that follow-up is integrated.
+
+**Final disposition:** Accepted by the integrator after TASK-001A independently confirmed that request-time thinking disable eliminates the observed reasoning-channel exhaustion for both fixtures.
