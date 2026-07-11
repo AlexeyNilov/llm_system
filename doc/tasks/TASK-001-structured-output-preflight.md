@@ -1,8 +1,8 @@
 # TASK-001: Measure local structured-output behavior
 
-**Status:** Ready
+**Status:** Review
 
-**Owner:** Unassigned
+**Owner:** terra_experimenter
 
 **Role:** Experimenter
 
@@ -96,12 +96,20 @@ Stop and report a design gap if meaningful measurement requires changing server 
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Complete — reachable local service, structured-output and repair evidence captured in `doc/experiments/structured_output_preflight.md`.
 
-**Changed files:** Pending
+**Changed files:** `doc/experiments/structured_output_preflight.md`; this task brief (permitted status, owner, and handoff fields only).
 
-**Verification:** Pending
+**Verification:** Temporary standard-library validator checked all 14 captures: player `json_object` 1/5 valid, NPC `json_object` 5/5 valid, prompt-only controls 0/1 each, and schema-guided NPC repair 1/1 valid. `git diff --check` passed; targeted status/diff inspection recorded only the permitted task files as this task's changes (the worktree also contained pre-existing changes outside scope).
 
-**Deviations:** Pending
+**Deviations:** No application or governance changes. `json_schema` request forms were accepted but did not demonstrate native schema enforcement; report recommends `json_object` only as a syntactic assist.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** Gateway implementation must retain strict Pydantic validation, bounded repair, and safe failures. Decide its timeout/token policy with the observed hidden-reasoning exhaustion in mind.
+
+## Integrator review
+
+**Disposition:** Changes requested before Done.
+
+The raw captures show that every tested response contains substantial `message.reasoning_content`. Four of five player trials exhausted all 600 completion tokens in reasoning, returned `finish_reason: "length"`, and emitted empty `message.content`. This matches the previously reproduced Gemma/llama.cpp failure addressed in `/home/lexa/an/git/llmops/src/llmops/use_cases/cognitive_map.py` by sending `chat_template_kwargs.enable_thinking=false`.
+
+The report is accepted as a thinking-enabled baseline, but its recommendation to avoid `reasoning_content` without testing the supported thinking-disable request is not yet sufficient for gateway design. Complete [`TASK-001A`](TASK-001A-disable-thinking-comparison.md), then update the report recommendation from the controlled comparison. Keep this task in Review until that follow-up is integrated.

@@ -18,7 +18,8 @@ Sequence the initial vertical slice by dependency and control when work is ready
 
 | Task | Status | Dependency | Outcome |
 | --- | --- | --- | --- |
-| [`TASK-001`](tasks/TASK-001-structured-output-preflight.md) | Ready | None | Evidence for local structured-output and repair behavior |
+| [`TASK-001`](tasks/TASK-001-structured-output-preflight.md) | Review | None | Thinking-enabled structured-output baseline |
+| [`TASK-001A`](tasks/TASK-001A-disable-thinking-comparison.md) | Ready | TASK-001 | Controlled request-time thinking-disable comparison |
 | TASK-002: Python project scaffold | Planned | None | Package layout, `pyproject.toml`, Make targets, and test skeleton |
 
 TASK-002 remains Planned until the architect fixes Python-version and dependency-management choices in its task brief.
@@ -65,7 +66,7 @@ TASK-002 remains Planned until the architect fixes Python-version and dependency
 | Planned task | Depends on |
 | --- | --- |
 | Rule-driven caretaker policy | Actor runtime contracts, Greybridge package |
-| Local model gateway | TASK-001, TASK-002 |
+| Local model gateway | TASK-001A, TASK-002 |
 | Player input interpreter | Local model gateway, action contracts |
 | Memory-free LLM courier policy | Local model gateway, actor runtime |
 | Narrator | Perception snapshots, local model gateway |
