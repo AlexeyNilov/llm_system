@@ -88,6 +88,10 @@ An immutable, durable record that something canonically occurred or was resolved
 
 Information through which an actor may learn about consequences. Feedback is filtered through perception and may be incomplete, delayed, misleading, or absent; it is not direct access to an outcome.
 
+### Functional LLM role
+
+An LLM-backed component whose output may request later behavior rather than merely present confirmed information. The player input interpreter, LLM-assisted NPC decision policy, and System director are functional LLM roles and require structured output.
+
 ### Game package
 
 A versioned, validated collection of external game definitions loaded by the simulation kernel. Rule packs and scenario packs are game packages.
@@ -195,6 +199,10 @@ The diegetic, player-visible LitRPG interface that presents arbiter-confirmed me
 ### System notification
 
 An arbiter-confirmed structured mechanical message presented through the System interface, such as an ability change, status effect, objective offer, or reward.
+
+### Structured output
+
+Generated data required to conform to an explicit strict Pydantic model before application logic can use it. Invalid structured output receives at most one repair attempt and is never partially accepted or recovered from prose.
 
 ### Turn coordinator
 

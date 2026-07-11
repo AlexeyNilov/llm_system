@@ -308,3 +308,27 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Include all memories, use semantic similarity alone, or make the vector index authoritative. Full history does not scale; similarity alone is an incomplete relevance model; an authoritative vector index weakens durability and auditability.
 
 **Consequences:** Memory selection can be inspected and tuned as context engineering. The initial vertical slice postpones episodic memory and Qdrant integration, so its LLM-assisted NPC cannot rely on prior conversations or observations and must not receive chat history disguised as memory.
+
+### 2026-07-11: Require structured functional LLM outputs with bounded repair
+
+**Status:** Accepted
+
+**Context:** Player interpretation, NPC decisions, and System director proposals can affect later canonical resolution. Loosely formatted prose and best-effort parsing create ambiguous operations and allow malformed output to cross the simulation trust boundary.
+
+**Decision:** Require strict Pydantic-validated output from every functional LLM role. On validation failure, allow one repair attempt using the same context envelope, schema, and validation errors. A second failure produces a role-specific safe result: player clarification, configured NPC no-op or deterministic fallback, or skipped System director action proposal. The narrator remains prose-producing because its output is presentation only.
+
+**Alternatives considered:** Parse operations from prose, retry indefinitely, or accept partially valid output. Prose parsing is brittle; unlimited repair adds latency and loops; partial acceptance makes behavior difficult to reason about.
+
+**Consequences:** Malformed model output cannot directly affect canonical state. Original output, errors, repair output, and final disposition become part of the simulation-step trace. Local model support for the required structured-output protocol must be verified empirically before implementation depends on it.
+
+### 2026-07-11: Use Storm at Greybridge as the initial scenario
+
+**Status:** Accepted
+
+**Context:** The vertical slice needs concrete content that exercises spatial perception, asymmetric information, two decision policies, action-driven time, scheduled pressure, optional System director intervention, rule-governed uncertainty, progression, and multiple player choices without combat or long-term NPC memory.
+
+**Decision:** Set the initial scenario at a remote waystation beside an unstable bridge during rising floodwater. The player and an injured LLM-assisted courier begin at the waystation with medicine. A rule-driven caretaker at the bridge can perceive structural damage hidden from them. A scheduled flood threatens the route, and a world-creation System director hook may propose an optional crossing objective. Fieldcraft supports inspection, reinforcement, safe crossing, and visible progression.
+
+**Alternatives considered:** Begin with an abstract test room, a combat encounter, or a conversation-only scene. A test room lacks meaningful stakes; combat exceeds scope; conversation alone does not exercise the location graph, scheduling, object interactions, or environmental consequences.
+
+**Consequences:** One small scenario can test the complete initial architecture through several valid branches. Because memory and mutable beliefs are postponed, the scenario must rely on current observations, identity, goals, and current plans rather than sustained conversational recall.

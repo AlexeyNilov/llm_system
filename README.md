@@ -10,6 +10,7 @@ The project is designed as a practical laboratory for information architecture, 
 * [Domain glossary](doc/glossary.md)
 * [Requirements](doc/requirements.md)
 * [Architecture decisions](doc/decisions.md)
+* [Initial scenario](doc/initial_scenario.md)
 * [Postponed ideas](doc/ideas.md)
 
 ## Local LLM setup: 

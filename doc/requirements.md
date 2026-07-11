@@ -246,6 +246,24 @@ This helps ensure requirements are:
 
 **SLICE-010:** The initial vertical slice shall not provide prior conversation history to an NPC as an undeclared substitute for episodic memory.
 
+### Initial scenario
+
+**SCENARIO-001:** The initial scenario shall be Storm at Greybridge, centered on a remote waystation, an unstable bridge, and its far bank.
+
+**SCENARIO-002:** The player and an injured LLM-assisted courier carrying medicine shall begin at the waystation.
+
+**SCENARIO-003:** A rule-driven caretaker at the bridge shall initially observe structural damage unavailable to the player and courier.
+
+**SCENARIO-004:** A scheduled flood event shall make crossing the bridge more dangerous or impossible according to canonical bridge state and loaded rules.
+
+**SCENARIO-005:** A world-creation System director hook shall be able to propose an optional objective concerning the courier or medicine crossing before the route closes.
+
+**SCENARIO-006:** The scenario shall permit materially different outcomes, including the courier crossing, only the medicine crossing, the player crossing alone, the bridge being reinforced, or the route closing without a crossing.
+
+**SCENARIO-007:** The scenario shall not designate one mandatory outcome as the only valid continuation of the world.
+
+**SCENARIO-008:** The initial rule pack shall support a Fieldcraft check and a player-visible Fieldcraft progression event within the scenario.
+
 ### Primary persistence
 
 **STORE-001:** The initial version shall persist authoritative world and character data in SQLite.
@@ -299,3 +317,21 @@ This helps ensure requirements are:
 **DIRECTOR-005:** When a System director hook becomes eligible, the simulation-step trace shall record the hook identifier and eligibility reason.
 
 **DIRECTOR-006:** System director eligibility shall not bypass simulation arbiter validation of any resulting action proposal.
+
+### LLM output contracts
+
+**LLM-001:** The system shall accept output from the player input interpreter, LLM-assisted NPC decision policy, or System director only after it conforms to the role's explicit strict Pydantic model.
+
+**LLM-002:** The narrator may return prose, but its output shall remain presentation derived from a supplied perception snapshot.
+
+**LLM-003:** When a functional LLM output fails validation, the system shall allow at most one repair attempt using the same context envelope, required schema, and validation errors.
+
+**LLM-004:** When player input interpretation remains invalid after repair, the system shall request clarification without advancing simulation time.
+
+**LLM-005:** When an NPC decision remains invalid after repair, the system shall apply the configured safe no-op or deterministic fallback without accepting the invalid output.
+
+**LLM-006:** When a System director output remains invalid after repair, the system shall skip the action proposal without changing canonical world state.
+
+**LLM-007:** The system shall not derive canonical operations from unstructured generated prose using regular expressions or other best-effort extraction.
+
+**LLM-008:** The simulation-step trace shall retain each original functional LLM output, validation errors, repair output when attempted, and final disposition.

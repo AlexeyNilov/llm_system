@@ -8,7 +8,7 @@ Build a persistent, inspectable Python simulation in which a human player and au
 
 The project is also a laboratory for information architecture, context engineering, local LLM integration, agent design, and LLM-assisted programming.
 
-This document consolidates the architecture. Canonical terminology belongs in [`glossary.md`](glossary.md), observable behavior belongs in [`requirements.md`](requirements.md), architectural rationale belongs in [`decisions.md`](decisions.md), and postponed possibilities belong in [`ideas.md`](ideas.md).
+This document consolidates the architecture. Canonical terminology belongs in [`glossary.md`](glossary.md), observable behavior belongs in [`requirements.md`](requirements.md), architectural rationale belongs in [`decisions.md`](decisions.md), the initial playable content belongs in [`initial_scenario.md`](initial_scenario.md), and postponed possibilities belong in [`ideas.md`](ideas.md).
 
 ## Core constraints
 
@@ -175,6 +175,9 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 
 * Provides one application-owned interface to the local OpenAI-compatible LLM and embedding services.
 * Applies role-specific prompts, structured-output schemas, timeouts, and error handling.
+* Validates functional outputs through strict Pydantic models and permits at most one schema-guided repair attempt.
+* Produces role-specific clarification, fallback, no-op, or skip results after failed repair.
+* Records original output, validation errors, repair output, and final disposition in the simulation-step trace.
 * Keeps provider details outside simulation and actor-domain logic.
 * Makes LLM calls replaceable by deterministic fakes in tests.
 
@@ -257,12 +260,12 @@ For the player, human cognition replaces NPC sensemaking and intent selection. T
 5. Ask the scheduler for newly eligible activities in deterministic order.
 6. Build bounded contexts and obtain NPC or System director action proposals as required.
 7. Validate and resolve each proposal through the arbiter.
-8. Produce observations for every affected observer and update character memories through their own boundary; later belief revisions use their separate validated boundary.
+8. Produce observations for every affected observer. After the vertical slice, episodic memory and belief revisions use their own validated boundaries.
 9. Derive the player's perception snapshot and confirmed System notifications.
 10. Persist canonical transitions, event history, character information, and step trace before reporting completion.
 11. Narrate the committed perception and style confirmed System notifications for Streamlit.
 
-If interpretation fails, the application asks for clarification without advancing time. If an NPC or System director LLM call fails, an explicit policy selects a retry, rule-based fallback, or no-op. Presentation failure must not undo an already committed simulation step; presentation can be regenerated from committed facts.
+If a functional LLM output fails schema validation, the model receives at most one repair attempt using the same context envelope, schema, and validation errors. A second failure asks the player for clarification, applies the NPC's configured safe no-op or deterministic fallback, or skips the System director action proposal. Invalid prose is never mined for canonical operations. Presentation failure must not undo an already committed simulation step; presentation can be regenerated from committed facts.
 
 ## Persistence and consistency
 
@@ -336,6 +339,4 @@ Tests should assert structured behavior and canonical facts, not exact generated
 
 The following choices remain unresolved and must be considered separately:
 
-* the fiction and exact stakes of the first scenario;
-* structured-output behavior of the deployed local model; and
 * the first development inspection interface.

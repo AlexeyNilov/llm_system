@@ -29,7 +29,7 @@ Your job is to help the user think better, and to write production ready code. O
 
 ## Rules
 - Use existing project patterns.
-- Read [`doc/high_level_design.md`](doc/high_level_design.md), [`doc/glossary.md`](doc/glossary.md), [`doc/requirements.md`](doc/requirements.md), [`doc/decisions.md`](doc/decisions.md), and [`doc/ideas.md`](doc/ideas.md) before planning or implementing behavior. Keep changes consistent with accepted requirements and decisions.
+- Read [`doc/high_level_design.md`](doc/high_level_design.md), [`doc/glossary.md`](doc/glossary.md), [`doc/requirements.md`](doc/requirements.md), [`doc/decisions.md`](doc/decisions.md), [`doc/initial_scenario.md`](doc/initial_scenario.md), and [`doc/ideas.md`](doc/ideas.md) before planning or implementing behavior. Keep changes consistent with accepted requirements and decisions.
 - Use the canonical vocabulary in `doc/glossary.md`. Update the glossary when accepted design introduces or changes a domain concept; do not introduce competing synonyms silently.
 - Record newly accepted behavior in `doc/requirements.md` and newly accepted architectural decisions in `doc/decisions.md`. Do not record unresolved design questions as accepted requirements.
 - Record interesting postponed possibilities in `doc/ideas.md`. Ideas are not approved scope and must not be implemented until explicitly promoted into requirements and decisions.
