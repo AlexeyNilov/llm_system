@@ -335,3 +335,17 @@ This helps ensure requirements are:
 **LLM-007:** The system shall not derive canonical operations from unstructured generated prose using regular expressions or other best-effort extraction.
 
 **LLM-008:** The simulation-step trace shall retain each original functional LLM output, validation errors, repair output when attempted, and final disposition.
+
+### Development inspection
+
+**INSPECT-001:** The initial version shall provide a Streamlit development inspection page separate from the player interface.
+
+**INSPECT-002:** The inspection page shall be read-only with respect to canonical world and character state.
+
+**INSPECT-003:** The inspection page shall present simulation steps as an ordered timeline with player interpretation, scheduler ordering, context manifests, functional LLM outputs, validation results, random draws, canonical events, state transitions, observations, narration, and System notifications when present.
+
+**INSPECT-004:** The inspection page shall allow comparison of canonical world state with a selected character's perception snapshot for the same committed simulation step.
+
+**INSPECT-005:** The inspection page shall expose stable identifiers and provenance needed to trace information between stages.
+
+**INSPECT-006:** World reset shall remain a separate explicit development operation and shall not be performed through direct state editing on the inspection page.

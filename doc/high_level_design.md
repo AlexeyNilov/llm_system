@@ -93,6 +93,7 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 * Displays narrated perceptions and distinct System notifications.
 * Accepts free-form player thoughts and attempted actions.
 * Shows progress and failures without claiming uncommitted outcomes.
+* Provides a separate read-only development page for simulation-step inspection.
 * Does not contain simulation or answer-generation business logic.
 
 ### FastAPI application API
@@ -309,6 +310,8 @@ Development tooling should prioritize answering:
 
 This trace supports debugging, context-engineering experiments, deterministic replay of the non-LLM stages, and later decision-making debriefs.
 
+The initial inspection interface is a separate read-only Streamlit page. It presents an ordered simulation-step timeline with expandable stage records and supports side-by-side comparison of canonical world state with a selected character's perception snapshot. It exposes stable identifiers and provenance but cannot edit state; reset remains an explicit development operation.
+
 ## Testing strategy
 
 Follow test-driven development at each boundary:
@@ -326,6 +329,8 @@ Tests should assert structured behavior and canonical facts, not exact generated
 
 ## Implementation sequence
 
+[`roadmap.md`](roadmap.md) owns detailed dependency order and task readiness. The sequence below remains the architectural milestone view.
+
 1. Define package and domain schemas through failing contract tests.
 2. Implement the pure simulation kernel, clock, location graph, actions, events, and perception.
 3. Add primary persistence, restart recovery, reset, and step traces.
@@ -337,6 +342,4 @@ Tests should assert structured behavior and canonical facts, not exact generated
 
 ## Open design choices
 
-The following choices remain unresolved and must be considered separately:
-
-* the first development inspection interface.
+No unresolved high-level design choices currently block decomposition of the initial vertical slice. Implementation may expose narrower contract questions, which must be resolved through requirements and decisions rather than silently assumed.

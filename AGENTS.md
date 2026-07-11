@@ -29,10 +29,12 @@ Your job is to help the user think better, and to write production ready code. O
 
 ## Rules
 - Use existing project patterns.
-- Read [`doc/high_level_design.md`](doc/high_level_design.md), [`doc/glossary.md`](doc/glossary.md), [`doc/requirements.md`](doc/requirements.md), [`doc/decisions.md`](doc/decisions.md), [`doc/initial_scenario.md`](doc/initial_scenario.md), and [`doc/ideas.md`](doc/ideas.md) before planning or implementing behavior. Keep changes consistent with accepted requirements and decisions.
-- Use the canonical vocabulary in `doc/glossary.md`. Update the glossary when accepted design introduces or changes a domain concept; do not introduce competing synonyms silently.
-- Record newly accepted behavior in `doc/requirements.md` and newly accepted architectural decisions in `doc/decisions.md`. Do not record unresolved design questions as accepted requirements.
-- Record interesting postponed possibilities in `doc/ideas.md`. Ideas are not approved scope and must not be implemented until explicitly promoted into requirements and decisions.
+- Follow [`doc/agent_workflow.md`](doc/agent_workflow.md) for delegated work, task lifecycle, context routing, review, and handoff.
+- When assigned a task brief, read `AGENTS.md`, the task brief, and only the project context named by its context manifest before task-local code exploration. Do not load every planning document by default.
+- Non-trivial delegated implementation requires a Ready task brief under `doc/tasks/`. If implementation exposes a design gap, stop that path and return the choice to the architect or integrator.
+- Planning and integration work must consult the relevant portions of [`doc/high_level_design.md`](doc/high_level_design.md), [`doc/glossary.md`](doc/glossary.md), [`doc/requirements.md`](doc/requirements.md), [`doc/decisions.md`](doc/decisions.md), [`doc/initial_scenario.md`](doc/initial_scenario.md), [`doc/roadmap.md`](doc/roadmap.md), and [`doc/ideas.md`](doc/ideas.md).
+- Use the canonical vocabulary in `doc/glossary.md`. Update governance documents only when the task explicitly authorizes it or the user accepts the change.
+- `doc/ideas.md` is not approved implementation scope unless an idea is explicitly promoted into requirements and decisions.
 - `.env` is local-only and may contain user-specific credentials; never commit it.
 - After significant changes, bump the project version in `pyproject.toml` using semantic versioning.
 

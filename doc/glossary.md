@@ -104,6 +104,10 @@ A relatively persistent desired condition that helps shape an actor's intents. G
 
 An actor's desired immediate change or purpose. An intent describes what the actor wants; an action proposal describes the attempted means.
 
+### Inspection page
+
+A separate read-only Streamlit development view over simulation-step traces, canonical state, and character perception snapshots. It is not part of the player experience and cannot edit canonical state.
+
 ### Location
 
 A structured node in the spatial graph. Connections define possible traversal between locations.
@@ -183,6 +187,10 @@ The stable Python domain core containing the simulation arbiter, time and schedu
 ### Simulation step
 
 One traceable application operation beginning with player input and ending when resulting canonical changes and actor information are committed, after which player presentation can be produced. A failed or clarification-only attempt need not advance simulation time.
+
+### Simulation-step trace
+
+The durable, ordered evidence linking one attempted simulation step's input, interpretation, eligibility, context manifests, proposals, validation, random draws, outcomes, state transitions, observations, and presentation artifacts.
 
 ### Simulation time
 

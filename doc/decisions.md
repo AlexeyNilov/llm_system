@@ -332,3 +332,27 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Begin with an abstract test room, a combat encounter, or a conversation-only scene. A test room lacks meaningful stakes; combat exceeds scope; conversation alone does not exercise the location graph, scheduling, object interactions, or environmental consequences.
 
 **Consequences:** One small scenario can test the complete initial architecture through several valid branches. Because memory and mutable beliefs are postponed, the scenario must rely on current observations, identity, goals, and current plans rather than sustained conversational recall.
+
+### 2026-07-11: Provide a separate read-only inspection page
+
+**Status:** Accepted
+
+**Context:** The project is intended to teach context engineering and agentic-system design. Player-facing narration hides the intermediate information needed to explain eligibility, context selection, model proposals, validation, state transitions, and perception boundaries.
+
+**Decision:** Add a separate read-only Streamlit development page that presents each simulation-step trace as an ordered causal timeline. It exposes context manifests, functional LLM output and repair, scheduling, validation, random draws, canonical changes, observations, and presentation. It supports comparison between canonical world state and one character's perception snapshot, but cannot edit state directly.
+
+**Alternatives considered:** Mix diagnostics into the player interface, rely only on application logs, or provide a general state editor. Mixed diagnostics damage the experience; logs poorly express linked domain records; direct editing bypasses canonical authority.
+
+**Consequences:** Information flow becomes inspectable without weakening the simulation arbiter. Trace records need stable identifiers and provenance. Reset remains a separate explicit development operation.
+
+### 2026-07-11: Delegate through repository task briefs
+
+**Status:** Accepted
+
+**Context:** The planning conversation contains accepted choices, rejected alternatives, speculation, and obsolete assumptions. Passing it wholesale to implementation agents would pollute their context, while relying on chat history would make project knowledge unavailable to fresh agents and separate chats.
+
+**Decision:** Treat repository artifacts as durable project memory and a bounded task brief as the unit of delegation. Each Ready task declares an exact context manifest, fixed assumptions, scope, acceptance criteria, verification, stop conditions, and handoff format. Delegated agents do not update governance artifacts unless explicitly authorized. Create detailed briefs just in time after their dependencies stabilize.
+
+**Alternatives considered:** Pass the complete planning transcript, give each agent the entire documentation set, or delegate from a short untracked prompt. Full history and full documentation create context pollution; untracked prompts lose decisions and traceability.
+
+**Consequences:** Fresh and lower-cost agents can execute narrow work without reconstructing the project. The architect and integrator own ambiguity resolution and task readiness. Custom agents and repo skills are introduced only after real repeated work shows stable role or workflow requirements.

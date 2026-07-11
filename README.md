@@ -11,6 +11,9 @@ The project is designed as a practical laboratory for information architecture, 
 * [Requirements](doc/requirements.md)
 * [Architecture decisions](doc/decisions.md)
 * [Initial scenario](doc/initial_scenario.md)
+* [Agent workflow](doc/agent_workflow.md)
+* [Roadmap](doc/roadmap.md)
+* [Task template](doc/tasks/TASK_TEMPLATE.md)
 * [Postponed ideas](doc/ideas.md)
 
 ## Local LLM setup: 
