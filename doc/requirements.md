@@ -93,3 +93,79 @@ This helps ensure requirements are:
 **PACK-005:** When a selected package is incompatible with an existing world, the system shall require an explicit world reset or migration rather than silently applying the package.
 
 **PACK-006:** The simulation kernel shall expose only explicit, supported operations to rule and scenario packs.
+
+### Player experience
+
+**PLAY-001:** The system shall allow the player to express attempted actions in free-form text.
+
+**PLAY-002:** When the player expresses an attempted action, the system shall interpret it as a structured intention supported by the loaded rule pack or report that it cannot be performed.
+
+**PLAY-003:** The system shall not require the player to follow a predetermined sequence of scenario events.
+
+**PLAY-004:** When the System director presents an objective or opportunity, the player shall remain free to pursue, ignore, or oppose it subject to world consequences.
+
+**PLAY-005:** The system shall resolve player intentions using the loaded mechanics and canonical world state before narrating their outcomes.
+
+**PLAY-006:** When a scenario-level conflict succeeds or fails, the world shall remain capable of continuing unless a rule explicitly ends the simulation.
+
+**PLAY-007:** The initial vertical slice shall include at least one player-visible progression event governed by the loaded rule pack.
+
+### Player-visible System interface
+
+**UI-001:** The system shall keep the internal System director hidden from the player.
+
+**UI-002:** When the simulation arbiter produces a player-visible mechanical fact, the System interface shall present that fact to the player as an in-world notification.
+
+**UI-003:** The System interface shall not present an ability change, status effect, reward, or other mechanical outcome unless it is present in arbiter-confirmed state or events.
+
+**UI-004:** When an LLM styles a System notification, it shall preserve the notification's arbiter-confirmed factual payload.
+
+**UI-005:** The narrator shall describe perceived world events separately from player-visible System notifications.
+
+**UI-006:** When the System interface presents an optional objective, it shall not treat that objective as accepted without a player decision.
+
+### Spatial world model
+
+**SPACE-001:** The system shall represent traversable world topology as a graph of structured locations and explicit connections.
+
+**SPACE-002:** The system shall record the canonical location of each spatial character and object.
+
+**SPACE-003:** When a character attempts to move, the simulation shall permit movement only through a connection whose requirements are satisfied.
+
+**SPACE-004:** The system shall derive character perception deterministically from canonical location, connection, entity, environmental, and visibility state.
+
+**SPACE-005:** When requesting a world description from the narrator, the system shall provide only the perception snapshot available to the observing character.
+
+**SPACE-006:** The narrator shall not add locations, connections, characters, objects, or spatial relationships that are absent from the supplied perception snapshot.
+
+**SPACE-007:** The initial spatial model shall use coarse within-location relationships rather than requiring exact geometric coordinates.
+
+### Character knowledge and memory
+
+**KNOW-001:** The system shall keep canonical world state separate from each character's perceptions, memories, and beliefs.
+
+**KNOW-002:** When a character perceives an event or state, the system shall record an observation containing the perceived information, simulation time, source, and relevant confidence or salience metadata.
+
+**KNOW-003:** The system shall preserve episodic memory records in durable primary storage independently of any vector retrieval index.
+
+**KNOW-004:** The system shall allow a character's beliefs to be incomplete, uncertain, or inconsistent with canonical world state.
+
+**KNOW-005:** When assembling character decision context, the system shall select from that character's current perception, identity, goals, plans, beliefs, and episodic memories without exposing unavailable canonical facts.
+
+**KNOW-006:** When a vector index is unavailable or rebuilt, durable character memory records shall remain intact.
+
+### Actor cognition and action loop
+
+**LOOP-001:** When canonical state or events may be observable by a character, the system shall apply that character's perceptual constraints before producing observations.
+
+**LOOP-002:** When an NPC performs sensemaking, the system shall limit its inputs to current observations and character-available identity, goals, plans, beliefs, and memories.
+
+**LOOP-003:** NPC sensemaking shall produce character-internal appraisal or belief changes and shall not modify canonical world state.
+
+**LOOP-004:** When an NPC selects an intent, its decision process shall express any attempted means as a structured action proposal.
+
+**LOOP-005:** When an actor submits an action proposal, the simulation arbiter shall validate and resolve it into an outcome before applying canonical state transitions or events.
+
+**LOOP-006:** When an outcome produces information available to a character, that information shall re-enter the character loop through perceptual filtering rather than direct access to canonical outcome data.
+
+**LOOP-007:** The system shall leave player sensemaking and intent under human control and shall not infer them as canonical facts beyond what the player explicitly expresses.

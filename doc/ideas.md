@@ -74,3 +74,23 @@ This file is a parking lot for promising possibilities that are not part of the 
 **Why postponed:** These features require identity, concurrency, compatibility, and lifecycle policies that do not help validate the initial single-world loop.
 
 **Revisit when:** The single persistent world is reliable and a specific use case justifies one of these lifecycle models.
+
+### IDEA-006: Use scenarios for experiential decision-making practice
+
+**Status:** Backlog
+
+**Opportunity:** Place participants in situations with incomplete information, competing priorities, social consequences, and no obvious correct answer. Use the simulation history to support reflection on what they perceived, chose, and caused.
+
+**Why postponed:** A credible learning tool needs explicit learning goals, thoughtful debriefing, privacy boundaries, and evidence that its feedback is useful rather than merely persuasive narration.
+
+**Revisit when:** The simulation can reliably preserve information boundaries, resolve consequences, and expose an inspectable decision and event history.
+
+### IDEA-007: Generate location graphs from maps and imagery
+
+**Status:** Backlog
+
+**Opportunity:** Use visual-language and geospatial processing to identify candidate regions, landmarks, routes, barriers, and spatial relationships in an existing game map, conventional map, or satellite image. Produce a draft location graph with source references, confidence, and an editable visual representation.
+
+**Why postponed:** Image interpretation is ambiguous, and useful extraction requires stable location and connection schemas plus measurable graph-validation criteria. Generated topology must not become canonical without review.
+
+**Revisit when:** A hand-authored location graph supports the complete vertical slice and the project can validate connectivity, reachability, required metadata, and scenario compatibility.

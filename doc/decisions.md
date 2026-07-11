@@ -128,3 +128,63 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Hard-code each game's rules and scenario in the application, or build a universal rule language before implementing the core simulation. Hard-coding impedes experimentation; a universal language would dominate the project before its required semantics are known.
 
 **Consequences:** Common mechanics and content can change independently of the kernel, while state-transition invariants remain testable in Python. Some unusual mechanics may later need explicit Python extension points. Package schemas, validation, compatibility rules, and provenance become important parts of the information architecture.
+
+### 2026-07-11: Build an open simulation with a lightweight game layer
+
+**Status:** Accepted
+
+**Context:** A fixed plot or command menu would make behavior easier to constrain, but would undermine experimentation and autonomous consequences. A completely unstructured conversational sandbox would offer freedom without legible mechanics, stakes, or a recognizably LitRPG experience.
+
+**Decision:** The player interacts through free-form intentions in an open simulation. Scenario packs provide situations, pressures, and opportunities rather than mandatory plots. Rule packs provide lightweight, visible mechanics such as abilities, resources, action resolution, and progression. The System director may offer objectives, but the player can ignore or oppose them and experience the resulting consequences.
+
+**Alternatives considered:** Build a scripted game with a prescribed story, or build a mechanics-free narrative sandbox. The scripted approach limits emergence; the sandbox makes outcomes difficult to understand and weakens the role of the System.
+
+**Consequences:** The intention interpreter must map open-ended input onto supported operations without inventing mechanics. Local conflicts can succeed or fail while the persistent world continues. The initial vertical slice must demonstrate both meaningful freedom and at least one visible progression event.
+
+### 2026-07-11: Separate the hidden director from the visible System interface
+
+**Status:** Accepted
+
+**Context:** LitRPG conventions benefit from a System that communicates abilities, status, progression, and objectives to the player. If the creative System director speaks directly, however, generated language could be mistaken for an authoritative mechanical outcome.
+
+**Decision:** The System director remains an internal creative agent. A separate diegetic System interface presents player-visible mechanical facts confirmed by the simulation arbiter. An LLM may style those notifications but cannot change their factual payload. The narrator remains responsible for perceived world events.
+
+**Alternatives considered:** Hide all mechanics behind narration, or allow the System director to address the player directly. Hidden mechanics weaken the LitRPG experience; direct director speech conflates creative proposals with canonical facts.
+
+**Consequences:** System notifications need structured factual payloads distinct from their presentation. Mechanical communication can be tested without testing generated prose. Objectives offered through the interface remain optional until accepted by the player.
+
+### 2026-07-11: Model space as a location graph with deterministic perception
+
+**Status:** Accepted
+
+**Context:** The simulation needs movement, visibility, travel time, barriers, and descriptions of a character's surroundings. Letting an LLM invent space on demand would undermine canonical truth, while exact continuous geometry would add pathfinding and measurement complexity unnecessary for the initial experience.
+
+**Decision:** Represent world topology as structured location nodes connected by explicit traversal edges. Characters and objects have canonical locations. A deterministic perception component derives what an observer can detect from world state, and the narrator turns only that perception snapshot into prose. Within-location positioning initially uses coarse relationships rather than exact coordinates.
+
+**Alternatives considered:** Use an LLM-generated map implicit in narrative history, or begin with a coordinate grid or continuous geometry. Narrative maps are inconsistent; geometric maps introduce complexity before the simulation requires precise distance.
+
+**Consequences:** Scenario maps can be validated using graph properties such as reachability and connectivity. Connections can carry direction, duration, requirements, and state. Optional coordinates may later support visual presentation or import workflows without becoming the initial source of mechanical truth.
+
+### 2026-07-11: Separate truth, perception, memory, and belief
+
+**Status:** Accepted
+
+**Context:** NPCs need to remember, infer, misunderstand, learn, and potentially be deceived without changing what is canonically true. Treating retrieved text as truth would collapse those distinctions and leak unavailable information into decisions.
+
+**Decision:** Maintain separate representations for canonical world state, current character perception, durable episodic memories, and mutable beliefs. Character decision context combines only character-available information with identity, goals, and plans. Vector search may select relevant memories, but its index is derived and rebuildable rather than authoritative.
+
+**Alternatives considered:** Give NPCs canonical state directly, or treat a vector database as the canonical memory store. Direct access creates impossible knowledge; vector retrieval does not provide an adequate durable or auditable source of truth.
+
+**Consequences:** NPCs can hold false or uncertain beliefs while the simulation remains consistent. Observations and memories need provenance and simulation-time metadata. Primary persistence owns memory records, while Qdrant can be used as an optional retrieval projection.
+
+### 2026-07-11: Use an explicit cognition and action loop
+
+**Status:** Accepted
+
+**Context:** Actors need a consistent path from world events to perception, interpretation, choice, action, consequence, and learning. Without explicit boundaries, canonical facts can leak into character reasoning and generated intentions can be mistaken for completed actions.
+
+**Decision:** Model NPC behavior as canonical reality, perceptual filtering, observation and memory, sensemaking, intent, structured action proposal, arbiter resolution, outcome, and renewed perceptual filtering. Feedback is actor-specific evidence about an outcome and does not bypass perception. For the player, the human owns sensemaking and intent; the application interprets only explicitly supplied thoughts and attempted actions.
+
+**Alternatives considered:** Use a single LLM call from world state directly to narrative and state changes, or give actors direct outcome feedback. A single call collapses responsibilities; direct feedback gives actors knowledge they may not possess.
+
+**Consequences:** Each stage has explicit inputs and outputs and can be tested or inspected independently. Character traits and limitations can affect the appropriate stage. Player motives must not be silently invented by the application.
