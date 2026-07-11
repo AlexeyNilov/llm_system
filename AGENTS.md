@@ -29,7 +29,8 @@ Your job is to help the user think better, and to write production ready code. O
 
 ## Rules
 - Use existing project patterns.
-- Read [`doc/decisions.md`](doc/decisions.md) before proposing or implementing architectural changes. Keep changes consistent with accepted decisions, and record newly accepted architectural decisions there.
+- Read [`doc/requirements.md`](doc/requirements.md) and [`doc/decisions.md`](doc/decisions.md) before planning or implementing behavior. Keep changes consistent with accepted requirements and decisions.
+- Record newly accepted behavior in `doc/requirements.md` and newly accepted architectural decisions in `doc/decisions.md`. Do not record unresolved design questions as accepted requirements.
 - `.env` is local-only and may contain user-specific credentials; never commit it.
 - After significant changes, bump the project version in `pyproject.toml` using semantic versioning.
 
