@@ -224,7 +224,8 @@ Start a fresh implementation chat with a short instruction:
 ```text
 This is delegation only, not integration.
 
-Delegate <READY_TASK_PATH> to the custom agent named by the task brief.
+Delegate <READY_TASK_PATH> to a fresh subagent using the Agent configuration
+specified by the task brief. `Default` means no custom-agent profile.
 Do not pass prior chat history.
 
 The execution agent may set the task to In progress, then Review or Blocked.

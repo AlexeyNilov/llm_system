@@ -351,3 +351,17 @@ This helps ensure requirements are:
 **INSPECT-005:** The inspection page shall expose stable identifiers and provenance needed to trace information between stages.
 
 **INSPECT-006:** World reset shall remain a separate explicit development operation and shall not be performed through direct state editing on the inspection page.
+
+### Development foundation
+
+**DEV-001:** The initial application shall target Python 3.12 and shall reject installation on a different Python minor version.
+
+**DEV-002:** The project shall use `uv` to create its development environment and shall commit `uv.lock` so the declared environment can be reproduced.
+
+**DEV-003:** The Python distribution `llm-system` shall expose its import package from `src/llm_system` rather than from the repository root.
+
+**DEV-004:** The initial scaffold shall use Hatchling as its build backend and shall contain no application runtime dependencies before a feature requires them.
+
+**DEV-005:** The project shall provide Make targets named `install`, `test`, `format`, `format-check`, `lint`, `mypy`, and `check` as the stable local and delegated-agent development interface.
+
+**DEV-006:** When `make check` is run against the initial scaffold, it shall verify formatting, linting, static types, and tests without requiring the local LLM, embeddings service, Qdrant, FastAPI, or Streamlit.

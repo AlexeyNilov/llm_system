@@ -380,3 +380,15 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Increase output-token limits, parse `reasoning_content`, or leave thinking enabled for all roles. Larger limits waste latency without guaranteeing content; reasoning transcripts are not the functional contract; always-on thinking caused measured failures.
 
 **Consequences:** In the controlled preflight, thinking-disabled player and NPC fixtures were strict-valid in all ten trials, used far fewer completion tokens, and returned substantially faster. The gateway must still handle models or servers that ignore the extension and must trace the request setting and final disposition.
+
+### 2026-07-11: Standardize the initial Python project foundation
+
+**Status:** Accepted
+
+**Context:** Delegated implementation needs one reproducible runtime, dependency workflow, package layout, and quality-gate interface before domain contracts are introduced. The development machine already provides Python 3.12 and `uv`, while the repository currently has no Python package metadata or application dependencies.
+
+**Decision:** Target Python 3.12 exclusively for the initial application, recording `3.12` in `.python-version` and `>=3.12,<3.13` in project metadata. Use `uv` for environments and dependency locking, commit `uv.lock`, use Hatchling with a `src/llm_system` package layout, and initialize the `llm-system` distribution at version `0.1.0`. Begin with no runtime dependencies and only `pytest`, Ruff, and mypy as development dependencies. Expose installation, testing, formatting, linting, type-checking, and aggregate checks through stable Make targets.
+
+**Alternatives considered:** Support several Python minor versions immediately, use Poetry or pip-managed requirements files, use setuptools or a flat package layout, or declare the anticipated application stack up front. Multi-version support adds a test matrix before distribution is a goal; Poetry and parallel requirements files add another project model; setuptools is more machinery than this package needs; a flat layout can hide packaging errors; speculative dependencies obscure which feature justified each library.
+
+**Consequences:** Fresh sessions and delegated agents can reconstruct and verify the same small environment with `uv sync` and Make. The application is intentionally constrained to Python 3.12 until a later accepted change widens or advances the runtime. Pydantic, PyYAML, FastAPI, Streamlit, database helpers, and model clients must be introduced by the tasks that first require them.
