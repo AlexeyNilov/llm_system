@@ -8,7 +8,7 @@ Build a persistent, inspectable Python simulation in which a human player and au
 
 The project is also a laboratory for information architecture, context engineering, local LLM integration, agent design, and LLM-assisted programming.
 
-This document consolidates the architecture. Observable behavior belongs in [`requirements.md`](requirements.md), architectural rationale belongs in [`decisions.md`](decisions.md), and postponed possibilities belong in [`ideas.md`](ideas.md).
+This document consolidates the architecture. Canonical terminology belongs in [`glossary.md`](glossary.md), observable behavior belongs in [`requirements.md`](requirements.md), architectural rationale belongs in [`decisions.md`](decisions.md), and postponed possibilities belong in [`ideas.md`](ideas.md).
 
 ## Core constraints
 
@@ -30,14 +30,14 @@ The first vertical slice contains:
 * one rule-driven NPC and one LLM-assisted NPC;
 * one scheduled environmental event;
 * incomplete or mistaken character knowledge;
-* one optional System objective;
+* one optional objective presented by the System interface;
 * basic observation, movement, conversation, object interaction, helping, and waiting;
 * one skill check and one visible progression event; and
 * persistence across service restarts.
 
 Combat, multiple worlds, real-time progression, GraphRAG, generated game packages, generated maps, and learning-mode evaluation are outside the initial scope.
 
-## System structure
+## Logical architecture
 
 ```mermaid
 flowchart TD
@@ -119,13 +119,16 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 * Owns the canonical state-transition boundary.
 * Validates proposals against current state and loaded rules.
 * Resolves actions, produces outcomes, advances simulation time, and emits canonical events.
+* Owns seeded randomness for explicit rule-governed checks and records every canonical draw.
 * Rejects unsupported or impossible operations without accepting generated narrative as fact.
 
 ### Clock and scheduler
 
 * Maintains discrete simulation time.
-* Makes NPCs, scheduled events, and director hooks eligible when time advances.
-* Orders eligible work deterministically under an explicit ordering policy.
+* Makes NPCs, scheduled events, and System director hooks eligible when time advances.
+* Orders eligible work by simulation time, phase priority, and stable insertion sequence.
+* Resolves same-time environmental events before NPC activities and System director hooks.
+* Submits activities serially and records their ordering metadata in the step trace.
 * Does not run background ticks while awaiting player input.
 
 ### Perception engine
@@ -154,14 +157,15 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 * Gives the narrator only the player's structured perception snapshot.
 * Gives the visible System interface only arbiter-confirmed notification payloads.
 * Allows LLM-generated style without allowing factual changes.
-* Keeps ordinary world narration distinct from diegetic System messages.
+* Keeps ordinary world narration distinct from diegetic System notifications.
 
 ### Package loader and validator
 
-* Loads versioned rule and scenario packages.
+* Safely parses YAML rule and scenario packages into strict Pydantic models.
 * Validates schema, references, graph connectivity, supported operations, and compatibility before use.
 * Records exact package identities and versions in world metadata.
 * Requires reset or explicit migration for incompatible package changes.
+* Rejects executable YAML constructs and never exposes raw package mappings to simulation logic.
 
 ### Model gateway
 
@@ -183,7 +187,7 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 | Rule and scenario package source | Versioned package files | Authoritative definitions |
 | Vector embeddings and Qdrant collections | Rebuildable indexer | Derived |
 | LLM proposals and validation results | Step trace | Evidence, not canonical until resolved |
-| Narration and styled System messages | Presentation trace | Derived presentation |
+| Narration and styled System notifications | Presentation trace | Derived presentation |
 
 ### Principal records
 
@@ -241,22 +245,28 @@ For the player, human cognition replaces NPC sensemaking and intent selection. T
 3. Validate the player proposal. Pure thought does not advance time.
 4. Resolve an accepted consequential action and advance time by its duration.
 5. Ask the scheduler for newly eligible activities in deterministic order.
-6. Build bounded contexts and obtain NPC or director proposals as required.
+6. Build bounded contexts and obtain NPC or System director action proposals as required.
 7. Validate and resolve each proposal through the arbiter.
 8. Produce observations for every affected observer and update character memories or beliefs through their own boundary.
 9. Derive the player's perception snapshot and confirmed System notifications.
 10. Persist canonical transitions, event history, character information, and step trace before reporting completion.
 11. Narrate the committed perception and style confirmed System notifications for Streamlit.
 
-If interpretation fails, the application asks for clarification without advancing time. If an NPC or director LLM fails, an explicit policy selects a retry, rule-based fallback, or no-op. Presentation failure must not undo an already committed simulation step; presentation can be regenerated from committed facts.
+If interpretation fails, the application asks for clarification without advancing time. If an NPC or System director LLM call fails, an explicit policy selects a retry, rule-based fallback, or no-op. Presentation failure must not undo an already committed simulation step; presentation can be regenerated from committed facts.
 
 ## Persistence and consistency
 
-Primary persistence must support an atomic boundary for a completed simulation step or an equivalent mechanism that prevents partially committed canonical outcomes. The world records the package versions under which it runs.
+SQLite is the authoritative store for the initial local, single-world deployment. A completed simulation step commits its canonical transitions, events, character information, and trace atomically so partially committed outcomes cannot be presented as complete. The world records the package versions under which it runs.
 
 Qdrant stores only rebuildable retrieval projections. Losing the vector collection may reduce memory retrieval quality temporarily but must not erase character history.
 
-The initial primary storage technology is intentionally undecided. A repository boundary should keep domain logic independent of that choice; SQLite is the simplest candidate for a local single-world deployment, but requires an explicit decision before implementation.
+Repository boundaries keep domain logic independent of SQLite details and preserve a migration path if later concurrency requirements justify a different database.
+
+## Randomness and replay
+
+Rules are deterministic unless they explicitly request an uncertain check. The arbiter owns the world pseudorandom generator, persists its seed and state, and records each draw's purpose, parameters, and result with the resolved event. LLM output never substitutes for a canonical draw.
+
+Replaying committed proposals with recorded draws reproduces canonical resolution even if model output or a future pseudorandom implementation differs. Unit tests inject specified draw results; seeded end-to-end flows test integration without making exact generator sequences a domain contract.
 
 ## Observability and evaluation
 
@@ -266,7 +276,7 @@ Every attempted step should be inspectable as a causal chain:
 player input
   -> interpretation
   -> context manifests
-  -> actor and director proposals
+  -> actor and System director action proposals
   -> validation and resolution
   -> state transitions and events
   -> observations and memory changes
@@ -291,6 +301,7 @@ This trace supports debugging, context-engineering experiments, deterministic re
 Follow test-driven development at each boundary:
 
 * Pure kernel tests verify actions, time, scheduling, graph traversal, and perception without an LLM.
+* Resolution tests inject explicit random results for success, failure, and boundary behavior.
 * Package contract tests reject invalid schemas, references, operations, and unreachable required locations.
 * Decision-policy contract tests verify that every policy returns proposals and cannot mutate state.
 * Context tests verify inclusion, exclusion, provenance, and information boundaries.
@@ -308,7 +319,7 @@ Tests should assert structured behavior and canonical facts, not exact generated
 4. Add the FastAPI turn boundary and a minimal Streamlit client using deterministic presentation.
 5. Add the rule-driven NPC and the complete scheduled actor loop.
 6. Add the model gateway, player interpreter, LLM-assisted NPC, memory retrieval, and narrator.
-7. Add the hidden director, visible System interface, skill check, and progression event.
+7. Add the hidden System director, visible System interface, skill check, and progression event.
 8. Validate the complete vertical slice before promoting any backlog idea.
 
 ## Open design choices
@@ -316,11 +327,7 @@ Tests should assert structured behavior and canonical facts, not exact generated
 The following choices remain unresolved and must be considered separately:
 
 * the fiction and exact stakes of the first scenario;
-* the primary persistence technology and transaction model;
-* the initial rule and scenario package serialization format;
-* deterministic versus seeded-random action resolution;
-* scheduler ordering for simultaneous activities;
-* director eligibility and proposal cadence;
+* System director eligibility and proposal cadence;
 * belief-revision ownership and rules;
 * context budgets and episodic-memory retrieval policy;
 * structured-output behavior of the deployed local model; and

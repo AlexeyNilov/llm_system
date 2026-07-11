@@ -66,15 +66,15 @@ This helps ensure requirements are:
 
 **NPC-007:** When an NPC action or its consequences are outside the player's perception, the system shall not reveal them directly to the player.
 
-### System direction and simulation authority
+### System director and simulation authority
 
 **AUTH-001:** The simulation arbiter shall be the only component authorized to apply transitions to canonical world state.
 
-**AUTH-002:** When the System director creates a world-level proposal, it shall express that proposal using a structured intention or event type.
+**AUTH-002:** When the System director creates a world-level proposal, it shall express that proposal as a structured action proposal using a supported operation.
 
-**AUTH-003:** When the System director submits a proposal, the simulation arbiter shall validate and resolve it before applying any resulting state transition.
+**AUTH-003:** When the System director submits an action proposal, the simulation arbiter shall validate and resolve it before applying any resulting state transition.
 
-**AUTH-004:** When a System director proposal violates the loaded rules or refers to an unsupported operation, the proposal shall not change canonical world state.
+**AUTH-004:** When a System director action proposal violates the loaded rules or refers to an unsupported operation, the action proposal shall not change canonical world state.
 
 **AUTH-005:** When requesting a System director decision, the system shall provide a deliberately selected and inspectable world-level context.
 
@@ -94,6 +94,16 @@ This helps ensure requirements are:
 
 **PACK-006:** The simulation kernel shall expose only explicit, supported operations to rule and scenario packs.
 
+**PACK-007:** Rule and scenario packages shall use YAML as their human-authored serialization format.
+
+**PACK-008:** Each package shall declare an explicit schema version, package identifier, and package version.
+
+**PACK-009:** Each addressable package record shall use a stable explicit identifier for cross-references.
+
+**PACK-010:** Before package data reaches simulation logic, the system shall safely parse it and validate it into strict Pydantic models.
+
+**PACK-011:** The package loader shall reject executable YAML constructs, invalid types, unresolved references, and unsupported operations before creating or resuming a world.
+
 ### Player experience
 
 **PLAY-001:** The system shall allow the player to express attempted actions in free-form text.
@@ -102,7 +112,7 @@ This helps ensure requirements are:
 
 **PLAY-003:** The system shall not require the player to follow a predetermined sequence of scenario events.
 
-**PLAY-004:** When the System director presents an objective or opportunity, the player shall remain free to pursue, ignore, or oppose it subject to world consequences.
+**PLAY-004:** When the System interface presents an objective or opportunity proposed by the System director, the player shall remain free to pursue, ignore, or oppose it subject to world consequences.
 
 **PLAY-005:** The system shall resolve player intentions using the loaded mechanics and canonical world state before narrating their outcomes.
 
@@ -199,3 +209,43 @@ This helps ensure requirements are:
 **SLICE-006:** The initial playable scenario shall preserve canonical state and event history across an application restart.
 
 **SLICE-007:** Combat mechanics shall remain outside the initial vertical slice.
+
+### Primary persistence
+
+**STORE-001:** The initial version shall persist authoritative world and character data in SQLite.
+
+**STORE-002:** When a simulation step completes, the system shall commit its canonical state transitions and events atomically before reporting completion.
+
+**STORE-003:** The SQLite store shall preserve world metadata, simulation time, canonical entities and locations, committed events, character memories and beliefs, and simulation-step traces across application restarts.
+
+**STORE-004:** When an authoritative SQLite transaction fails, the system shall not report the associated simulation step as completed.
+
+**STORE-005:** Qdrant shall remain a derived retrieval index and shall not be required to recover authoritative world or character history.
+
+### Outcome randomness
+
+**RANDOM-001:** The simulation shall resolve outcomes deterministically unless a loaded rule explicitly requires a random check.
+
+**RANDOM-002:** The simulation arbiter shall be the only component authorized to draw randomness used by canonical outcome resolution.
+
+**RANDOM-003:** The system shall persist the world random seed and generator state required for continued reproducible resolution.
+
+**RANDOM-004:** When the arbiter draws a random value, the resulting event history shall record the draw's purpose, parameters, and result.
+
+**RANDOM-005:** LLM components shall not generate or replace canonical random results.
+
+**RANDOM-006:** The arbiter shall accept an injected random source so tests can exercise specified outcomes without depending on a pseudorandom implementation sequence.
+
+### Activity scheduling
+
+**SCHEDULE-001:** The scheduler shall order eligible activities by simulation time, explicit phase priority, and stable insertion sequence.
+
+**SCHEDULE-002:** For activities due at the same simulation time, the default phase order shall be scheduled environmental events, NPC activities, and System director hooks.
+
+**SCHEDULE-003:** The system shall resolve the triggering player action before processing activities made eligible by that action's time advancement.
+
+**SCHEDULE-004:** The scheduler shall submit eligible activities to the simulation arbiter serially and shall not permit simultaneous canonical state mutation.
+
+**SCHEDULE-005:** The system shall record scheduling and ordering metadata in the simulation-step trace.
+
+**SCHEDULE-006:** Given the same committed state and scheduled activities, the scheduler shall produce the same activity order.

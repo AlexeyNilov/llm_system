@@ -111,11 +111,11 @@ Use a lightweight Architecture Decision Record (ADR) style:
 
 **Context:** A traditional game master combines creative direction, rule interpretation, and authority over the game world. Giving all three responsibilities to an LLM would allow creative output to silently override rules and canonical state.
 
-**Decision:** The LLM-assisted System director acts as the creative part of a game master and proposes world-level developments using structured operations. A deterministic simulation arbiter owns rule enforcement and canonical state, and validates and resolves every director proposal before it can take effect. Director context is broad but deliberately selected and inspectable.
+**Decision:** The LLM-assisted System director acts as the creative part of a game master and proposes world-level developments using structured operations. A deterministic simulation arbiter owns rule enforcement and canonical state, and validates and resolves every System director action proposal before it can take effect. System director context is broad but deliberately selected and inspectable.
 
 **Alternatives considered:** Let the System director directly narrate changes into existence or act as both creative agent and final authority. This is flexible, but makes outcomes inconsistent, difficult to test, and difficult to distinguish from hallucination.
 
-**Consequences:** Creative direction and mechanical authority can be evaluated independently. Player, NPC, and System proposals share a validation boundary. The rules may be loaded or changed through an explicit lifecycle, but the director cannot rewrite them while resolving play.
+**Consequences:** Creative direction and mechanical authority can be evaluated independently. Player, NPC, and System director action proposals share a validation boundary. The rules may be loaded or changed through an explicit lifecycle, but the System director cannot rewrite them while resolving play.
 
 ### 2026-07-11: Separate the simulation kernel from game packages
 
@@ -135,17 +135,17 @@ Use a lightweight Architecture Decision Record (ADR) style:
 
 **Context:** A fixed plot or command menu would make behavior easier to constrain, but would undermine experimentation and autonomous consequences. A completely unstructured conversational sandbox would offer freedom without legible mechanics, stakes, or a recognizably LitRPG experience.
 
-**Decision:** The player interacts through free-form intentions in an open simulation. Scenario packs provide situations, pressures, and opportunities rather than mandatory plots. Rule packs provide lightweight, visible mechanics such as abilities, resources, action resolution, and progression. The System director may offer objectives, but the player can ignore or oppose them and experience the resulting consequences.
+**Decision:** The player interacts through free-form intentions in an open simulation. Scenario packs provide situations, pressures, and opportunities rather than mandatory plots. Rule packs provide lightweight, visible mechanics such as abilities, resources, action resolution, and progression. The System director may propose objectives for presentation by the System interface, but the player can ignore or oppose them and experience the resulting consequences.
 
-**Alternatives considered:** Build a scripted game with a prescribed story, or build a mechanics-free narrative sandbox. The scripted approach limits emergence; the sandbox makes outcomes difficult to understand and weakens the role of the System.
+**Alternatives considered:** Build a scripted game with a prescribed story, or build a mechanics-free narrative sandbox. The scripted approach limits emergence; the sandbox makes outcomes difficult to understand and weakens the role of the player-visible System interface.
 
 **Consequences:** The intention interpreter must map open-ended input onto supported operations without inventing mechanics. Local conflicts can succeed or fail while the persistent world continues. The initial vertical slice must demonstrate both meaningful freedom and at least one visible progression event.
 
-### 2026-07-11: Separate the hidden director from the visible System interface
+### 2026-07-11: Separate the hidden System director from the visible System interface
 
 **Status:** Accepted
 
-**Context:** LitRPG conventions benefit from a System that communicates abilities, status, progression, and objectives to the player. If the creative System director speaks directly, however, generated language could be mistaken for an authoritative mechanical outcome.
+**Context:** LitRPG conventions benefit from a System interface that communicates abilities, status, progression, and objectives to the player. If the creative System director speaks directly, however, generated language could be mistaken for an authoritative mechanical outcome.
 
 **Decision:** The System director remains an internal creative agent. A separate diegetic System interface presents player-visible mechanical facts confirmed by the simulation arbiter. An LLM may style those notifications but cannot change their factual payload. The narrator remains responsible for perceived world events.
 
@@ -212,3 +212,63 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Begin with combat, or build isolated technical components without a playable scenario. Combat expands scope sharply; disconnected components do not validate their integration into a coherent experience.
 
 **Consequences:** The vertical slice can test every major information and authority boundary with limited mechanics. Combat remains a future rule-pack extension rather than a kernel concern.
+
+### 2026-07-11: Use SQLite as the initial authoritative store
+
+**Status:** Accepted
+
+**Context:** The initial deployment is local, single-player, and single-world, but requires transactional persistence, restart recovery, event history, character memory, and inspectable traces. A separate database service would add operations without addressing a current concurrency or scale requirement.
+
+**Decision:** Use SQLite as the authoritative store for initial world and character data. Commit completed simulation steps atomically. Treat Qdrant as a rebuildable retrieval projection over durable memory data rather than an authoritative store.
+
+**Alternatives considered:** Begin with PostgreSQL, use Qdrant as the primary memory store, or persist ad hoc JSON files. PostgreSQL is premature operational complexity; Qdrant is not the canonical record; multiple JSON files make transactional consistency and querying harder.
+
+**Consequences:** Local setup and inspection remain simple while the simulation gains transactional guarantees. Persistence access must remain behind repository boundaries so a later concurrency requirement can justify a different database without changing domain logic.
+
+### 2026-07-11: Author game packages in YAML and validate with Pydantic
+
+**Status:** Accepted
+
+**Context:** Rule and scenario packages must be comfortable to hand-author, inspect, diff, and eventually generate, while the simulation kernel requires strict typed inputs. JSON is verbose for substantial scenario content, and raw YAML mappings are too permissive to form a runtime boundary.
+
+**Decision:** Use YAML as the package authoring format. Safely parse package files and validate them into strict Pydantic models before simulation logic can access them. Require explicit schema versions, package identities and versions, stable record identifiers, valid cross-references, and supported operations. Do not permit executable YAML constructs.
+
+**Alternatives considered:** Use JSON, TOML, or unvalidated YAML dictionaries at runtime. JSON is less author-friendly for narrative content; TOML is awkward for deeply nested world data; raw dictionaries allow ambiguous types and delayed failures.
+
+**Consequences:** Authors and future generation tools get readable source files, while the kernel receives typed trusted models. Package validation becomes an early implementation boundary and requires high-signal schema and reference tests.
+
+### 2026-07-11: Use recorded seeded randomness only for explicit checks
+
+**Status:** Accepted
+
+**Context:** Uncertainty can make checks and consequences interesting, but uncontrolled randomness makes failures difficult to reproduce and lets generated narration obscure why an outcome occurred.
+
+**Decision:** Resolve outcomes deterministically unless a rule explicitly requests a random check. The simulation arbiter owns a seeded pseudorandom source, persists its state, and records the purpose, parameters, and result of every canonical draw. LLMs cannot supply random outcomes. The arbiter accepts an injected random source for tests.
+
+**Alternatives considered:** Make all outcomes deterministic, use unrecorded process randomness, or let an LLM choose uncertain results. Fully deterministic play reduces uncertainty; unrecorded and LLM-selected outcomes cannot be reliably replayed or audited.
+
+**Consequences:** Canonical outcomes can be explained and reproduced. Unit tests can force boundary results through an injected source, while seeded integration tests can verify longer stable flows without coupling every unit test to one pseudorandom algorithm.
+
+### 2026-07-11: Serialize eligible activities deterministically
+
+**Status:** Accepted
+
+**Context:** Multiple environmental events, NPCs, and System director hooks may become eligible when one player action advances simulation time. True simultaneous mutation would require conflict-resolution semantics and make causal ordering harder to inspect.
+
+**Decision:** Resolve scheduled activities serially in a deterministic queue ordered by simulation time, phase priority, and stable insertion sequence. At the same time, scheduled environmental events precede NPC activity, which precedes System director hooks. The triggering player action resolves before the activities made eligible by its time advancement. Record ordering metadata in the step trace.
+
+**Alternatives considered:** Allow concurrent state mutation, or rely on incidental database or collection ordering. Concurrency creates avoidable conflicts; incidental ordering is not reproducible or meaningful.
+
+**Consequences:** Each activity sees a defined committed predecessor state, and causal chains can be replayed. The initial model does not provide true simultaneity; a future rule set requiring simultaneous declarations would need an explicit proposal-batch and conflict-resolution design.
+
+### 2026-07-11: Maintain a canonical domain glossary
+
+**Status:** Accepted
+
+**Context:** The architecture uses familiar terms with narrow meanings, including System director, System interface, intent, action proposal, outcome, event, perception, observation, memory, and belief. Without explicit definitions, documentation, prompts, schemas, code, and tests can silently use incompatible concepts.
+
+**Decision:** Maintain `doc/glossary.md` as the canonical domain vocabulary. Project artifacts use its terms consistently and update it when accepted design introduces or changes a concept. Avoid ambiguous bare terms such as System and director in technical writing.
+
+**Alternatives considered:** Rely on conversational context or define terms independently in each document. Conversation context is temporary; local definitions drift and make cross-component contracts harder to understand.
+
+**Consequences:** Naming becomes part of the information architecture and can guide schemas, interfaces, prompts, and tests. Glossary changes require attention because they may signal a domain-model or public-contract change rather than a prose edit.

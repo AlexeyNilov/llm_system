@@ -7,6 +7,7 @@ The project is designed as a practical laboratory for information architecture, 
 ## Documentation
 
 * [High-level design](doc/high_level_design.md)
+* [Domain glossary](doc/glossary.md)
 * [Requirements](doc/requirements.md)
 * [Architecture decisions](doc/decisions.md)
 * [Postponed ideas](doc/ideas.md)
