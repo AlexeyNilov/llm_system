@@ -4,6 +4,29 @@ An experimental persistent simulation in which a human player and autonomous NPC
 
 The project is designed as a practical laboratory for information architecture, context engineering, agentic systems, and local LLM-assisted programming.
 
+## Development setup
+
+Prerequisites: Python 3.12 and [uv](https://docs.astral.sh/uv/).
+
+Create the locked development environment:
+
+```bash
+make install
+```
+
+Use the Make interface for local verification:
+
+```bash
+make test
+make format
+make format-check
+make lint
+make mypy
+make check
+```
+
+`make check` verifies formatting, linting, static types, and tests. It does not require any local model or service to be running.
+
 ## Documentation
 
 * [High-level design](doc/high_level_design.md)
