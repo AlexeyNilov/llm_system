@@ -29,13 +29,15 @@ The first vertical slice contains:
 * three connected locations;
 * one rule-driven NPC and one LLM-assisted NPC;
 * one scheduled environmental event;
-* incomplete or mistaken character knowledge;
+* a hidden fact exposed through different character observations;
 * one optional objective presented by the System interface;
 * basic observation, movement, conversation, object interaction, helping, and waiting;
 * one skill check and one visible progression event; and
 * persistence across service restarts.
 
-Combat, multiple worlds, real-time progression, GraphRAG, generated game packages, generated maps, and learning-mode evaluation are outside the initial scope.
+Combat, episodic memory retrieval, Qdrant integration, mutable belief state and belief revision, multiple worlds, real-time progression, GraphRAG, generated game packages, generated maps, and learning-mode evaluation are outside the initial scope.
+
+The initial LLM-assisted NPC receives its identity, current perception, goals, and current plan. It does not receive prior conversation history as an undeclared substitute for memory, so the scenario must not depend on reliable recall across player turns.
 
 ## Logical architecture
 
@@ -143,7 +145,7 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 * Builds bounded decision context from identity, goals, plans, current perception, beliefs, and selected memories.
 * Runs the configured rule-based, scripted, LLM-assisted, or hybrid policy.
 * Produces structured intentions and action proposals only.
-* Records observations and manages belief or appraisal updates separately from canonical state.
+* Records observations and, after the vertical slice, manages validated belief or appraisal updates separately from canonical state.
 
 ### System director
 
@@ -222,6 +224,12 @@ Every LLM call receives a role-specific context envelope. A context envelope sho
 
 Context assembly is an application capability, not prompt-string concatenation scattered across components. A development trace should make included and excluded sources inspectable.
 
+### Post-slice memory retrieval
+
+When episodic memory is enabled after the vertical slice, NPC context uses a bounded hybrid policy. Configured high-salience memories, recent memories, and semantically relevant Qdrant results compete for explicit source and total context budgets. Results are filtered by NPC ownership, deduplicated, and retain stable identifiers and provenance.
+
+Qdrant failure falls back to recent and high-salience records from primary persistence. It reduces semantic recall quality but does not prevent NPC decisions or erase history.
+
 ## Actor loop
 
 ```text
@@ -249,7 +257,7 @@ For the player, human cognition replaces NPC sensemaking and intent selection. T
 5. Ask the scheduler for newly eligible activities in deterministic order.
 6. Build bounded contexts and obtain NPC or System director action proposals as required.
 7. Validate and resolve each proposal through the arbiter.
-8. Produce observations for every affected observer and update character memories or beliefs through their own boundary.
+8. Produce observations for every affected observer and update character memories through their own boundary; later belief revisions use their separate validated boundary.
 9. Derive the player's perception snapshot and confirmed System notifications.
 10. Persist canonical transitions, event history, character information, and step trace before reporting completion.
 11. Narrate the committed perception and style confirmed System notifications for Streamlit.
@@ -320,16 +328,14 @@ Tests should assert structured behavior and canonical facts, not exact generated
 3. Add primary persistence, restart recovery, reset, and step traces.
 4. Add the FastAPI turn boundary and a minimal Streamlit client using deterministic presentation.
 5. Add the rule-driven NPC and the complete scheduled actor loop.
-6. Add the model gateway, player interpreter, LLM-assisted NPC, memory retrieval, and narrator.
+6. Add the model gateway, player interpreter, memory-free LLM-assisted NPC, and narrator.
 7. Add the hidden System director, visible System interface, skill check, and progression event.
-8. Validate the complete vertical slice before promoting any backlog idea.
+8. Validate the complete vertical slice before adding episodic memory retrieval or promoting any backlog idea.
 
 ## Open design choices
 
 The following choices remain unresolved and must be considered separately:
 
 * the fiction and exact stakes of the first scenario;
-* belief-revision ownership and rules;
-* context budgets and episodic-memory retrieval policy;
 * structured-output behavior of the deployed local model; and
 * the first development inspection interface.

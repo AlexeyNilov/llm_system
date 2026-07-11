@@ -207,7 +207,7 @@ Use a lightweight Architecture Decision Record (ADR) style:
 
 **Context:** The first playable scenario must exercise the architectural boundaries without requiring a large game-mechanics subsystem. Combat would introduce targeting, range, health, damage, equipment, incapacitation, death, and balance before the core actor loop is validated.
 
-**Decision:** Build a compact non-combat scenario with three connected locations, one player, one rule-driven NPC, one LLM-assisted NPC, a scheduled environmental event, incomplete or mistaken knowledge, an optional objective, basic world interactions, a skill check, visible progression, and restart persistence.
+**Decision:** Build a compact non-combat scenario with three connected locations, one player, one rule-driven NPC, one LLM-assisted NPC, a scheduled environmental event, asymmetrically available information, an optional objective, basic world interactions, a skill check, visible progression, and restart persistence. Mutable belief state and belief revision are not part of this slice.
 
 **Alternatives considered:** Begin with combat, or build isolated technical components without a playable scenario. Combat expands scope sharply; disconnected components do not validate their integration into a coherent experience.
 
@@ -284,3 +284,27 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Invoke after every player action, or let application code call the System director opportunistically. Both approaches obscure causality, add unnecessary LLM calls, and weaken scenario control.
 
 **Consequences:** Creative direction becomes event-driven, rate-limited, and reproducible at the eligibility layer. Packages control when intervention is appropriate, while the simulation arbiter still validates every resulting action proposal.
+
+### 2026-07-11: Validate and retain NPC belief revisions
+
+**Status:** Accepted
+
+**Context:** Beliefs are authoritative only as character-internal state and may be false, but LLM-generated sensemaking still must not write durable data without a typed, inspectable boundary. Belief change also loses explanatory value if the previous belief and its basis are overwritten.
+
+**Decision:** NPC sensemaking produces structured belief revision proposals for adding, reinforcing, weakening, replacing, retracting, or expressing uncertainty about beliefs. The actor runtime validates ownership, source references, supported operations, and confidence bounds before applying a revision to that NPC alone. Preserve revision history and never infer player beliefs automatically.
+
+**Alternatives considered:** Let sensemaking overwrite beliefs directly, require every belief to match canonical truth, or omit revision history. Direct writes weaken validation; truth matching prevents mistaken beliefs; overwriting history makes character reasoning difficult to inspect.
+
+**Consequences:** NPC belief evolution can be audited without granting it canonical authority. Rule-based and LLM-assisted sensemaking can share one contract. Implementation is postponed until after the initial vertical slice, which uses asymmetric observations and hidden facts without mutable belief state.
+
+### 2026-07-11: Use bounded hybrid memory retrieval after the vertical slice
+
+**Status:** Accepted
+
+**Context:** Supplying an NPC's complete episodic history would exceed useful context, while semantic search alone can omit recent or highly significant experiences. Qdrant availability must not determine whether durable character history exists.
+
+**Decision:** When episodic memory is enabled, assemble bounded NPC context from configured high-salience, recent, and semantically relevant memories. Deduplicate results, retain stable identifiers and provenance, enforce explicit source and total budgets, and filter all retrieval by NPC ownership. If Qdrant is unavailable, fall back to recent and high-salience durable memories.
+
+**Alternatives considered:** Include all memories, use semantic similarity alone, or make the vector index authoritative. Full history does not scale; similarity alone is an incomplete relevance model; an authoritative vector index weakens durability and auditability.
+
+**Consequences:** Memory selection can be inspected and tuned as context engineering. The initial vertical slice postpones episodic memory and Qdrant integration, so its LLM-assisted NPC cannot rely on prior conversations or observations and must not receive chat history disguised as memory.

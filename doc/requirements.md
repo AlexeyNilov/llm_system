@@ -164,6 +164,36 @@ This helps ensure requirements are:
 
 **KNOW-006:** When a vector index is unavailable or rebuilt, durable character memory records shall remain intact.
 
+### Episodic-memory retrieval
+
+**MEMORY-001:** When assembling NPC decision context with memory enabled, the system shall apply a bounded retrieval policy rather than include all episodic memories.
+
+**MEMORY-002:** The memory-enabled decision context shall prioritize configured high-salience memories, recent memories, and semantically relevant memories within a hard context budget.
+
+**MEMORY-003:** The memory retrieval policy shall deduplicate selected memories and preserve each included memory's stable identifier and provenance.
+
+**MEMORY-004:** Semantic memory retrieval shall search only memories available to the NPC whose context is being assembled.
+
+**MEMORY-005:** When Qdrant is unavailable, context assembly shall fall back to recent and high-salience memories without losing durable episodic memory records.
+
+**MEMORY-006:** Memory context limits and source allocations shall be explicit configuration rather than hidden prompt behavior.
+
+### Belief revision
+
+**BELIEF-001:** When NPC sensemaking proposes a belief change, it shall express the change as a structured belief revision proposal rather than writing belief state directly.
+
+**BELIEF-002:** A belief revision proposal shall identify its NPC owner, requested operation, affected belief, confidence, and available observations, memories, or beliefs used as its basis.
+
+**BELIEF-003:** Before applying a belief revision proposal, the actor runtime shall validate ownership, referenced information, supported operations, and confidence bounds.
+
+**BELIEF-004:** An accepted belief revision shall change only the owning NPC's internal belief state and shall not change canonical world state.
+
+**BELIEF-005:** The system shall retain belief revision history, including the proposal basis and validation result.
+
+**BELIEF-006:** The system shall support deterministic and LLM-assisted belief revision through the same structured boundary.
+
+**BELIEF-007:** The system shall not infer or revise player beliefs automatically.
+
 ### Actor cognition and action loop
 
 **LOOP-001:** When canonical state or events may be observable by a character, the system shall apply that character's perceptual constraints before producing observations.
@@ -198,7 +228,7 @@ This helps ensure requirements are:
 
 **SLICE-001:** The initial playable scenario shall contain three connected locations, one player, one rule-driven NPC, and one LLM-assisted NPC.
 
-**SLICE-002:** The initial playable scenario shall include one scheduled environmental event and at least one hidden fact or mistaken character belief.
+**SLICE-002:** The initial playable scenario shall include one scheduled environmental event and at least one hidden fact available to different characters through different observations.
 
 **SLICE-003:** The initial playable scenario shall allow the System interface to present at least one optional objective.
 
@@ -209,6 +239,12 @@ This helps ensure requirements are:
 **SLICE-006:** The initial playable scenario shall preserve canonical state and event history across an application restart.
 
 **SLICE-007:** Combat mechanics shall remain outside the initial vertical slice.
+
+**SLICE-008:** Mutable NPC belief state and belief revision shall remain outside the initial vertical slice.
+
+**SLICE-009:** Episodic memory retrieval and Qdrant integration shall remain outside the initial vertical slice.
+
+**SLICE-010:** The initial vertical slice shall not provide prior conversation history to an NPC as an undeclared substitute for episodic memory.
 
 ### Primary persistence
 

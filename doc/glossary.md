@@ -36,6 +36,10 @@ A character's situation-specific interpretation, such as perceived danger, urgen
 
 A mutable claim a character currently accepts with some confidence. A belief may be incomplete, uncertain, false, or inconsistent with another character's belief.
 
+### Belief revision proposal
+
+A structured, untrusted request from NPC sensemaking to add, reinforce, weaken, replace, retract, or express uncertainty about an NPC belief. The actor runtime validates it before changing that NPC's internal state. Belief revision is outside the initial vertical slice.
+
 ### Canonical
 
 Authoritative for simulation truth. A statement becomes canonical only through validated package loading or an arbiter-controlled state transition. Generated prose is never canonical by itself.
@@ -52,6 +56,10 @@ An actor represented inside the simulated world with a location, perceptions, me
 
 A role-specific, inspectable input assembled for an LLM call. It identifies the role, simulation and trace context, selected information, allowed operations, output schema, package versions, and provenance references.
 
+### Context budget
+
+An explicit limit and allocation controlling how much information from each source may enter a context envelope. It is configuration, not an implicit prompt-building side effect.
+
 ### Decision context
 
 The bounded information available to an NPC decision policy: identity, goals, plans, current perception, selected beliefs, and selected memories. It excludes unavailable canonical facts.
@@ -67,6 +75,10 @@ A rebuildable projection used to accelerate retrieval. The Qdrant memory index i
 ### Episodic memory
 
 A durable character-specific record of a perceived or experienced episode, including simulation time and provenance. Episodic memory records what the character experienced, not necessarily what was canonically true.
+
+### Episodic-memory retrieval policy
+
+The bounded selection process that combines high-salience, recent, and semantically relevant episodic memories for one NPC while enforcing ownership, deduplication, provenance, and context budgets. It is outside the initial vertical slice.
 
 ### Event
 
