@@ -23,3 +23,4 @@ The project is designed as a practical laboratory for information architecture, 
 
 ## Fastapi and Streamlit chat example
 * See /an/git/llmops/
+* /home/lexa/an/git/llmops/src/llmops/use_cases/cognitive_map.py
