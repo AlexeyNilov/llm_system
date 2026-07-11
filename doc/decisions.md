@@ -188,3 +188,27 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Use a single LLM call from world state directly to narrative and state changes, or give actors direct outcome feedback. A single call collapses responsibilities; direct feedback gives actors knowledge they may not possess.
 
 **Consequences:** Each stage has explicit inputs and outputs and can be tested or inspected independently. Character traits and limitations can affect the appropriate stage. Player motives must not be silently invented by the application.
+
+### 2026-07-11: Make NPC decision policies interchangeable
+
+**Status:** Accepted
+
+**Context:** Not every actor benefits from open-ended LLM reasoning. Simple creatures, routine behaviors, and strong archetypes can be represented more coherently and cheaply with limited action sets, priorities, schedules, or deterministic rules.
+
+**Decision:** NPC decision-making uses a common contract from bounded decision context to structured action proposal. An NPC may use a rule-based, scripted, LLM-assisted, or hybrid policy. Prefer rule-based behavior when it adequately represents the actor. Archetypes provide defaults that individual NPC definitions may override. Every policy remains subject to arbiter validation and cannot modify canonical state.
+
+**Alternatives considered:** Use an LLM for every NPC, or hard-code one global behavior system. Universal LLM use adds latency and weakens predictability; one fixed behavior system cannot represent both simple and socially complex actors well.
+
+**Consequences:** LLM calls can be reserved for decisions that require richer interpretation. Different policies can be compared under the same inputs and tested against the same output contract. Behavioral simplicity is modeled through actual constraints rather than prompts asking a model to reason poorly.
+
+### 2026-07-11: Validate the architecture with a non-combat vertical slice
+
+**Status:** Accepted
+
+**Context:** The first playable scenario must exercise the architectural boundaries without requiring a large game-mechanics subsystem. Combat would introduce targeting, range, health, damage, equipment, incapacitation, death, and balance before the core actor loop is validated.
+
+**Decision:** Build a compact non-combat scenario with three connected locations, one player, one rule-driven NPC, one LLM-assisted NPC, a scheduled environmental event, incomplete or mistaken knowledge, an optional objective, basic world interactions, a skill check, visible progression, and restart persistence.
+
+**Alternatives considered:** Begin with combat, or build isolated technical components without a playable scenario. Combat expands scope sharply; disconnected components do not validate their integration into a coherent experience.
+
+**Consequences:** The vertical slice can test every major information and authority boundary with limited mechanics. Combat remains a future rule-pack extension rather than a kernel concern.

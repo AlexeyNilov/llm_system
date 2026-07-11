@@ -169,3 +169,33 @@ This helps ensure requirements are:
 **LOOP-006:** When an outcome produces information available to a character, that information shall re-enter the character loop through perceptual filtering rather than direct access to canonical outcome data.
 
 **LOOP-007:** The system shall leave player sensemaking and intent under human control and shall not infer them as canonical facts beyond what the player explicitly expresses.
+
+### NPC decision policies
+
+**POLICY-001:** The system shall support interchangeable NPC decision policies that accept bounded character decision context and return a structured action proposal.
+
+**POLICY-002:** The system shall support NPC decisions produced by deterministic rules without requiring an LLM call.
+
+**POLICY-003:** The system shall support NPC decisions produced by an LLM within the same proposal and validation boundary as rule-based decisions.
+
+**POLICY-004:** The system shall allow an NPC decision policy to combine explicit behavioral constraints with LLM-assisted choice.
+
+**POLICY-005:** No NPC decision policy shall modify canonical world state directly.
+
+**POLICY-006:** The system shall allow individual NPC configuration to override behavioral defaults inherited from an archetype.
+
+### Initial vertical slice
+
+**SLICE-001:** The initial playable scenario shall contain three connected locations, one player, one rule-driven NPC, and one LLM-assisted NPC.
+
+**SLICE-002:** The initial playable scenario shall include one scheduled environmental event and at least one hidden fact or mistaken character belief.
+
+**SLICE-003:** The initial playable scenario shall allow the System interface to present at least one optional objective.
+
+**SLICE-004:** The initial playable scenario shall support observing, moving, speaking, taking an object, using an object, helping a character, and waiting.
+
+**SLICE-005:** The initial playable scenario shall include at least one rule-governed skill check and one player-visible progression event.
+
+**SLICE-006:** The initial playable scenario shall preserve canonical state and event history across an application restart.
+
+**SLICE-007:** Combat mechanics shall remain outside the initial vertical slice.
