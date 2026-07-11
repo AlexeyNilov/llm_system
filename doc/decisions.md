@@ -356,3 +356,15 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Pass the complete planning transcript, give each agent the entire documentation set, or delegate from a short untracked prompt. Full history and full documentation create context pollution; untracked prompts lose decisions and traceability.
 
 **Consequences:** Fresh and lower-cost agents can execute narrow work without reconstructing the project. The architect and integrator own ambiguity resolution and task readiness. Custom agents and repo skills are introduced only after real repeated work shows stable role or workflow requirements.
+
+### 2026-07-11: Configure a Terra experimenter for evidence tasks
+
+**Status:** Accepted
+
+**Context:** Ready preflight tasks need reproducible environment evidence but do not require the planning agent's broader context. The user wants these bounded tasks to use GPT-5.6 Terra with high reasoning while retaining permission to write an authorized report and task handoff.
+
+**Decision:** Add the project custom agent `terra_experimenter` under `.codex/agents/`. Configure it with `gpt-5.6-terra`, high reasoning, and workspace-write sandboxing. Restrict its instructions to Ready evidence or experiment task briefs and their explicitly authorized files. Task briefs remain the source of task-specific context.
+
+**Alternatives considered:** Use the planning agent, rely on inherited model selection, or embed the entire task inside the custom-agent instructions. The planning agent is unnecessarily broad; inheritance does not guarantee the requested model; embedding tasks would mix stable role configuration with changing work.
+
+**Consequences:** A fresh Codex task can select a predictable lower-cost experiment role without receiving this planning transcript. The agent still inherits repository safety boundaries and must stop on design gaps or unauthorized mutations.

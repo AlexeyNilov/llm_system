@@ -6,6 +6,8 @@
 
 **Role:** Experimenter
 
+**Agent:** `terra_experimenter`
+
 **Depends on:** None
 
 ## Objective

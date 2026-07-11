@@ -6,6 +6,8 @@
 
 **Role:** Explorer | Experimenter | Implementer | Scenario author | Reviewer
 
+**Agent:** Named custom agent or `Default`
+
 **Depends on:** Task IDs or `None`
 
 ## Objective

@@ -43,6 +43,14 @@ Use for one bounded outcome. A task brief contains the context manifest, scope, 
 
 Use `.codex/agents/*.toml` only when the same role repeatedly benefits from stable model, reasoning, sandbox, tool, or behavioral settings. Prefer read-only custom agents for exploration and review. Do not create a custom agent merely to give one task a name.
 
+Current project custom agents:
+
+| Agent | Configuration | Use |
+| --- | --- | --- |
+| `terra_experimenter` | GPT-5.6 Terra, high reasoning, workspace-write | Ready evidence and preflight tasks that authorize a report file |
+
+The custom agent supplies role and runtime configuration, not task context. It must still receive a Ready task brief.
+
 ### Skill
 
 Use a repo-local `.agents/skills/<skill-name>/SKILL.md` when a repeatable project workflow has stable triggers and procedures. Skills may add scripts, references, or assets through progressive disclosure. Do not use a skill to carry one task's changing context or duplicate repository documentation.
@@ -214,10 +222,9 @@ The integrator:
 Start a fresh implementation chat with a short instruction:
 
 ```text
-Execute doc/tasks/TASK-001-structured-output-preflight.md.
-Follow AGENTS.md and the task's context manifest.
-Do not broaden scope or change governance documents.
-Return the required handoff report when complete.
+Delegate doc/tasks/TASK-001-structured-output-preflight.md to the
+project custom agent terra_experimenter. Do not pass this chat history.
+Wait for it to finish, then review its evidence and handoff against the task brief.
 ```
 
 The task file, repository state, and resulting diff carry the context. The planning transcript does not.
