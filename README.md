@@ -56,6 +56,20 @@ mutable availability, conditions, visibility, and other runtime state belong to
 later state models. Spatial graph validation and scenario-content loading are not
 implemented yet.
 
+## Entity definitions
+
+`EntityDefinition` is a strict immutable union of `ObjectDefinition`,
+`PlayerCharacterDefinition`, and `NpcCharacterDefinition`. Objects reference an
+object archetype and have one initial placement: either a location or a
+possessing character, never both. Characters reference character archetypes and
+start at a location.
+
+NPC definitions additionally carry an identity summary, authored ordered goals,
+an optional initial plan, and a rule, LLM, or hybrid decision-policy reference.
+These are package definitions, not mutable runtime state. Duplicate identifiers,
+player count, and location, possession, archetype, and policy-reference
+resolution remain deferred to scenario validation.
+
 ## Documentation
 
 * [High-level design](doc/high_level_design.md)

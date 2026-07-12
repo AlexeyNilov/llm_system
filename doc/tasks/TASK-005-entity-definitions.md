@@ -1,10 +1,10 @@
 # TASK-005: Define immutable scenario entities
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
-**Owner:** Unassigned
+**Owner:** Default implementer
 
 **Role:** Implementer
 
@@ -125,12 +125,18 @@ Stop and report a design gap if implementation requires adding a dependency, add
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Ready for review
 
-**Changed files:** Pending
+**Changed files:** `README.md`; `pyproject.toml`; `uv.lock`; `src/llm_system/game_packages/_types.py`; `src/llm_system/game_packages/entities.py`; `src/llm_system/game_packages/spatial.py`; `src/llm_system/game_packages/__init__.py`; `tests/test_entity_definitions.py`; `tests/test_package.py`; and this task record.
 
-**Verification:** Pending
+**Verification:** Initial red state: `uv run pytest tests/test_entity_definitions.py` failed during collection with `ImportError: cannot import name 'DecisionPolicyReference'`. Final: focused entity tests (10 passed); `make format`; `make lint`; `make mypy`; `make test` (45 passed); `make check` (45 passed); `uv lock --check`; and `git diff --check` all passed. `uv.lock` differs only in the editable root-package version from `0.3.0` to `0.4.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** Semantic entity validation remains intentionally deferred: identifier uniqueness, player count, and all referenced-record resolution.
+
+## Integrator review
+
+**Disposition:** Accepted.
+
+The integrator independently inspected the entity, character, placement, goal, policy-reference, union, and collection contracts. Review added focused coverage for the public `CharacterDefinition` union, invalid discriminators, required NPC goals, blank plans, all supported policy types, and deliberately unresolved possession, goal, archetype, location, and policy references. One avoidable test type suppression was removed, and the shared internal strict-model base was renamed so auxiliary records are not mislabeled as entities. `uv sync --locked`, `make format`, `make check`, `uv lock --check`, and `git diff --check` succeeded on Python 3.12.3; the final suite contains 55 passing tests. The only lockfile change is the editable root package version from `0.3.0` to `0.4.0`.
