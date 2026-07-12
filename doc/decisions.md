@@ -464,3 +464,15 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Fail on the first issue, use free-form error strings, require identifiers to be globally unique, infer reference targets across namespaces, validate against a mismatched rule package, require strong graph connectivity, treat unused definitions as errors, or combine policy-registry readiness with package relationships. These choices respectively slow authoring, weaken tooling, create naming friction, introduce ambiguity, generate cascades, forbid intentional one-way routes, confuse correctness with linting, or mix distinct validation authorities.
 
 **Consequences:** Package authors and future generation tools receive stable multi-issue feedback, while later code can require a relationally validated pair. `ValidatedGamePackages` is deliberately not proof of executable policy availability, supported operations, persistent-world compatibility, general playability, or readiness for world creation; those remain later validation layers.
+
+### 2026-07-12: Author Greybridge first as a validated content foundation
+
+**Status:** Accepted
+
+**Context:** The current package schemas can express Greybridge's topology, cast, objects, placements, NPC motivations, and policy references, but not actions, Fieldcraft, bridge condition, perception facts, scheduled flood activity, director hooks, objectives, checks, or progression. Waiting for every mechanic would leave the loading and semantic-validation pipeline without real authored content, while inventing placeholder dictionaries or hiding mechanics in prose would undermine the typed boundary.
+
+**Decision:** Author `greybridge-rules` version `0.1.0` and `storm-at-greybridge` version `0.1.0` as the first repository content foundation. Include exactly the currently representable three-location bidirectional graph, player, courier, caretaker, medicine, reinforcement materials, archetype catalogs, NPC goals and plans, and LLM/rule policy declarations. Use 60-second traversal between waystation and span and 120-second traversal between span and far bank in both directions. Load and semantically validate the real YAML files in repository tests. Do not add unsupported fields or describe this package version as playable or complete.
+
+**Alternatives considered:** Delay all content until mechanics exist, add free-form extension mappings, encode state and rules in names or narrative fields, call the rule package generic core rules, or treat the skeleton as a complete scenario. These choices respectively postpone end-to-end evidence, weaken validation, confuse prose with authority, claim unproven reuse, or conceal major missing systems.
+
+**Consequences:** The project gains one inspectable real package pair that exercises manifests, typed entrypoints, dependency matching, references, topology, and validation. Later schema versions can extend the package from concrete evidence. Package discovery, wheel data distribution, world creation, and the remaining vertical-slice mechanics stay separate tasks.

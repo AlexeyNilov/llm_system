@@ -344,6 +344,14 @@ This helps ensure requirements are:
 
 **SCENARIO-008:** The initial rule pack shall support a Fieldcraft check and a player-visible Fieldcraft progression event within the scenario.
 
+**SCENARIO-009:** The first authored content foundation shall use rule package `greybridge-rules` version `0.1.0` and scenario package `storm-at-greybridge` version `0.1.0`, with the scenario manifest pinning that exact rule identity.
+
+**SCENARIO-010:** The Greybridge content foundation shall define the waystation, span, and far bank as three locations connected in both directions, with 60-second waystation-span traversal and 120-second span-far-bank traversal.
+
+**SCENARIO-011:** The Greybridge content foundation shall include one player at the waystation, the injured LLM-assisted courier at the waystation, the rule-driven caretaker at the span, medicine possessed by the courier, and reinforcement materials at the waystation, with all archetype and policy references resolving through the paired rule package.
+
+**SCENARIO-012:** Until dedicated schemas exist, the Greybridge content foundation shall not encode Fieldcraft, actions, bridge damage, perceptible facts, scheduled flood activity, System director hooks, objectives, progression, or other mechanics as unknown fields or misleading substitutes, and shall not be described as a complete playable scenario.
+
 ### Primary persistence
 
 **STORE-001:** The initial version shall persist authoritative world and character data in SQLite.

@@ -8,6 +8,12 @@ Storm at Greybridge is a compact non-combat situation designed to validate the c
 
 The scenario must remain playable without episodic memory, mutable beliefs, prior chat history, or Qdrant.
 
+## Package implementation stages
+
+The first authored package version is a validated content foundation, not the complete playable vertical slice. `greybridge-rules` version `0.1.0` and `storm-at-greybridge` version `0.1.0` express only the concepts supported by content schema version 1: archetype and policy catalogs, the location graph, entities, initial placement and possession, and NPC identity, goals, plans, and policy references.
+
+Fieldcraft, supported actions, bridge condition and perceptible facts, the scheduled flood surge, System director hooks, optional objectives, checks, progression, and mutable runtime state remain requirements for later schema and kernel tasks. They must not be approximated through unknown YAML fields, overloaded names, or narrative text treated as mechanics.
+
 ## Premise
 
 Floodwater is rising around a remote waystation and its aging bridge. An injured courier carries medicine needed beyond the far bank. The bridge caretaker can currently see structural damage that is not visible from the waystation. A coming surge may make the crossing dangerous or close the route entirely.
