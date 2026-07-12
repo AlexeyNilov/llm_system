@@ -20,7 +20,7 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | --- | --- | --- | --- |
 | [`TASK-001`](tasks/TASK-001-structured-output-preflight.md) | Done | None | Thinking-enabled structured-output baseline |
 | [`TASK-001A`](tasks/TASK-001A-disable-thinking-comparison.md) | Done | TASK-001 | Controlled request-time thinking-disable comparison |
-| [`TASK-002`](tasks/TASK-002-python-project-scaffold.md) | Ready | None | Reproducible Python package and executable quality gates |
+| [`TASK-002`](tasks/TASK-002-python-project-scaffold.md) | Done | None | Reproducible Python package and executable quality gates |
 
 ### M2: Packages and domain contracts
 

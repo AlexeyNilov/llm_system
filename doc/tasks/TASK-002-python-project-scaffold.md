@@ -1,6 +1,6 @@
 # TASK-002: Create the Python project scaffold
 
-**Status:** Review
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -100,6 +100,12 @@ Fill this section without rewriting the task contract.
 
 **Verification:** Added the package-boundary test, then temporarily removed `src/llm_system/__init__.py`; `uv run pytest -q` failed as expected with `assert None is not None` for `llm_system.__file__`. Restored the initializer. `uv sync --locked`, `make test`, `make format`, `make format-check`, `make lint`, `make mypy`, `make check`, `git diff --check`, and `uv lock --check` all succeeded. The final suite collected one test and it passed; mypy reported no issues in two source files.
 
-**Deviations:** None.
+**Deviations:** The required test-first order was not demonstrated. The implementer added the package-boundary test and then temporarily removed the already-created initializer to reproduce a red result. This confirms that the test detects the missing package boundary, but it is post-hoc failure evidence rather than strict TDD. The integrator accepted this one-time process deviation because the final scaffold is contract-complete and the ordering cannot be repaired retroactively without recreating identical work.
 
 **Design gaps or follow-ups:** None.
+
+## Integrator review
+
+**Disposition:** Accepted with the recorded TDD process deviation.
+
+The integrator independently inspected the committed diff and confirmed that the Python constraint, `uv` lock, Hatchling `src` package, empty runtime dependency set, development dependency group, Make targets, package-boundary test, and README instructions match the task contract. `uv sync --locked`, `make format`, `make check`, `uv lock --check`, and `git diff --check` all succeeded on Python 3.12.3 without using an external service. The worktree remained clean after verification.
