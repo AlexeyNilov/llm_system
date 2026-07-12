@@ -57,14 +57,6 @@ Your job is to help the user think better, and to write production ready code. O
 
 ## Tooling
 
-### On Windows, PowerShell
-- Use Ruff for formatting and linting:
-  - `.\.venv\Scripts\ruff.exe format --check .`
-  - `.\.venv\Scripts\ruff.exe check .`
-- Use mypy for type checking:
-  - `.\.venv\Scripts\mypy.exe`
-
-### On Linux
 - Use Ruff for formatting and linting:
   - `make format`
   - `make lint`

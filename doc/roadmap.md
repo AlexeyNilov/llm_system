@@ -29,7 +29,8 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | Task | Status | Depends on |
 | --- | --- | --- |
 | [`TASK-003`](tasks/TASK-003-game-package-manifests.md): Rule and scenario package manifests | Done | TASK-002 |
-| Location, connection, entity, and character models | Planned | TASK-003 |
+| [`TASK-004`](tasks/TASK-004-spatial-definitions.md): Location, connection, and spatial-graph definitions | Ready | TASK-003 |
+| Entity and character definitions | Planned | TASK-004 |
 | Cross-reference and graph validation | Planned | Domain models |
 | Minimal Greybridge rule and scenario package skeletons | Planned | Stable package schemas |
 

@@ -52,6 +52,14 @@ The authoritative current state of the simulated world, including simulation tim
 
 An actor represented inside the simulated world with a location, perceptions, memories, beliefs, and other character-specific state. The player character and NPCs are characters.
 
+### Connection
+
+A directed edge in the spatial graph defining one possible traversal from a source location to a destination location. Reverse travel requires a separate connection.
+
+### Connection definition
+
+An immutable scenario-package record containing a connection's stable identity, name, endpoints, and base traversal duration. Mutable availability and conditions belong to connection state.
+
 ### Context envelope
 
 A role-specific, inspectable input assembled for an LLM call. It identifies the role, simulation and trace context, selected information, allowed operations, output schema, package versions, and provenance references.
@@ -111,6 +119,10 @@ A separate read-only Streamlit development view over simulation-step traces, can
 ### Location
 
 A structured node in the spatial graph. Connections define possible traversal between locations.
+
+### Location definition
+
+An immutable scenario-package record containing a location's stable identity and name. Perceptible features and mutable conditions are modeled separately rather than embedded in a free-form description.
 
 ### Narrator
 
@@ -194,7 +206,11 @@ The durable, ordered evidence linking one attempted simulation step's input, int
 
 ### Simulation time
 
-The world clock advanced by consequential actions or explicit waiting. It is independent of wall-clock time.
+The world clock advanced by consequential actions or explicit waiting. It is independent of wall-clock time and uses integer seconds as its canonical unit.
+
+### Spatial graph definition
+
+The immutable ordered collection of authored location and directed-connection definitions from which initial spatial world state can be created.
 
 ### System director
 

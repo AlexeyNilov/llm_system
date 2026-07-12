@@ -162,6 +162,20 @@ This helps ensure requirements are:
 
 **SPACE-007:** The initial spatial model shall use coarse within-location relationships rather than requiring exact geometric coordinates.
 
+**SPACE-008:** Scenario packages shall represent stable authored topology using immutable location, connection, and spatial-graph definitions that remain separate from mutable runtime location and connection state.
+
+**SPACE-009:** Each location definition shall contain a stable lowercase kebab-case identifier and a non-blank human-readable name, without embedding free-form perceptual facts or mutable state.
+
+**SPACE-010:** Each connection definition shall represent one directed edge with a stable identifier, non-blank name, source location identifier, destination location identifier, and base traversal duration.
+
+**SPACE-011:** Simulation durations shall use non-negative integer seconds as the canonical unit, and each traversable connection's base traversal duration shall be strictly positive.
+
+**SPACE-012:** A spatial-graph definition shall preserve authored location and connection order while exposing immutable collections to downstream code.
+
+**SPACE-013:** The initial spatial-definition schema shall not include coordinates, implicit bidirectional expansion, connection requirements, availability, damage, visibility, or other mutable runtime state.
+
+**SPACE-014:** Before a spatial graph becomes canonical world state, graph validation shall reject duplicate location or connection identifiers, missing connection endpoints, and self-loop connections; parallel directed connections with distinct identifiers may remain valid.
+
 ### Character knowledge and memory
 
 **KNOW-001:** The system shall keep canonical world state separate from each character's perceptions, memories, and beliefs.

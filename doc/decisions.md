@@ -404,3 +404,15 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Keep authored YAML inside the Python package, overwrite each package identifier with only its latest version, allow scenario dependency ranges, support multiple entrypoint files with merge semantics, or expose PyYAML and Pydantic errors directly. These choices respectively mix code and content lifecycles, prevent exact restart compatibility, require dependency resolution, introduce undefined merge behavior, or leak implementation libraries across the application boundary.
 
 **Consequences:** Multiple exact package versions can coexist, scenario compatibility is deterministic, and downstream code receives a trusted typed manifest rather than raw mappings. Pydantic and PyYAML become justified runtime dependencies. Prerelease versions, dependency ranges, content parsing, dependency resolution, includes, and multi-file composition require later schema-versioned decisions rather than implicit loader behavior.
+
+### 2026-07-12: Separate authored spatial definitions from runtime state
+
+**Status:** Accepted
+
+**Context:** Scenario packages need stable graph topology, while floods, damage, barriers, and other world events must change canonical state without mutating loaded package definitions. Free-form location descriptions would also bundle perceptible and hidden facts into text that the deterministic perception engine could not filter safely.
+
+**Decision:** Model authored topology with strict frozen `LocationDefinition`, `ConnectionDefinition`, and `SpatialGraphDefinition` records. A location initially contains only a stable lowercase kebab-case identifier and non-blank name. Each connection is one explicit directed edge with its own identifier, name, source and destination identifiers, and strictly positive `base_traversal_seconds`. Canonical simulation durations use integer seconds. The graph accepts authored YAML-style order and exposes immutable ordered collections. Runtime availability, requirements, damage, visibility, coordinates, and perceptible features are separate later contracts.
+
+**Alternatives considered:** Combine definitions and mutable state, use implicit bidirectional edges, derive connection identifiers from endpoints, represent time as configurable ticks or floating-point minutes, or put canonical details in prose descriptions. These choices blur package and world ownership, hide directional behavior, prevent parallel routes, make duration semantics ambiguous, or weaken deterministic perceptual filtering.
+
+**Consequences:** Packages remain immutable inputs while runtime state can evolve through the simulation arbiter. Reverse travel requires a second explicit connection and may have different timing or later conditions. Semantic graph validation remains a separate boundary that checks identifier uniqueness, endpoint existence, self-loops, and reachability after structural models are available.

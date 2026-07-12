@@ -207,7 +207,8 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 The design requires stable identifiers and explicit schemas for these concepts:
 
 * `World`: package versions, simulation time, lifecycle metadata.
-* `Location` and `Connection`: graph topology, traversal requirements, duration, state.
+* `LocationDefinition`, `ConnectionDefinition`, and `SpatialGraphDefinition`: immutable authored topology with directed edges and integer-second base traversal durations.
+* `LocationState` and `ConnectionState`: mutable canonical availability, conditions, requirements, and other runtime facts, defined separately from package topology.
 * `Entity` and `Character`: canonical physical state and references to character-specific state.
 * `ActionProposal`: actor, intent, supported operation, arguments, and context trace.
 * `Outcome` and `Event`: resolution result, state changes, time, participants, and provenance.

@@ -47,7 +47,7 @@ Current project custom agents:
 
 | Agent | Configuration | Use |
 | --- | --- | --- |
-| `terra_experimenter` | GPT-5.6 Terra, high reasoning, workspace-write | Ready evidence and preflight tasks that authorize a report file |
+| `terra_experimenter` | GPT-5.6 Terra, medium reasoning, workspace-write | Ready evidence and preflight tasks that authorize a report file |
 
 The custom agent supplies role and runtime configuration, not task context. It must still receive a Ready task brief.
 
