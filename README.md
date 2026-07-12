@@ -104,6 +104,45 @@ parallel directed connections with distinct IDs are valid.
 supported operations, persistent-world compatibility, playability, or
 world-creation readiness. Those remain later explicit validation boundaries.
 
+## Actor action contracts
+
+`llm_system.simulation` exposes strict, immutable structured-output contracts
+for the seven initial actor operations: observe, move, speak, take, use, help,
+and wait. An `ActorActionProposal` is deliberately an untrusted payload with
+only an operation and its typed arguments. It has no actor identity, proposal
+identity, provenance, intent, or reasoning fields.
+
+The application creates an `ActorActionSubmission` around that payload with
+injected UUID proposal, simulation-step, and decision-context identities; the
+intended actor; and either player-interpreter or NPC-policy provenance. For
+example:
+
+```python
+from uuid import uuid4
+
+from llm_system.simulation import (
+    ActorActionSubmission,
+    PlayerInterpreterActionSource,
+    WaitActionProposal,
+)
+
+submission = ActorActionSubmission(
+    proposal_id=uuid4(),
+    simulation_step_id=uuid4(),
+    decision_context_id=uuid4(),
+    source=PlayerInterpreterActionSource(
+        source_type="player_interpreter",
+        interpreter_id="local-parser",
+    ),
+    actor_id="marin",
+    proposal=WaitActionProposal(operation="wait", duration_seconds=30),
+)
+```
+
+These are contracts, not executable actions or proof of authority. They do not
+resolve references, validate source authorization, mutate state, produce
+outcomes or events, or define world-action and scheduled-activity submissions.
+
 ## Scenario-pack definitions
 
 `ScenarioPackDefinition` is the strict immutable content-schema-version-1 root

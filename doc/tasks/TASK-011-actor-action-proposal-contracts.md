@@ -1,6 +1,6 @@
 # TASK-011: Define actor action proposal and trusted submission contracts
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -132,12 +132,44 @@ Stop and report a design gap if implementation requires choosing operation resol
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented strict immutable actor action proposal, typed target,
+source provenance, and trusted actor submission contracts. The public
+`llm_system.simulation` boundary exposes the seven closed operation variants,
+the closed observation/use target unions, the initial player-interpreter and
+NPC-policy source union, and `ActorActionSubmission`.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/actions.py`,
+`src/llm_system/simulation/__init__.py`, `tests/test_actions.py`,
+`tests/test_package.py`, `pyproject.toml`, `uv.lock`, `README.md`, and this
+task brief.
 
-**Verification:** Pending
+**Verification:** Initial red state: `uv run pytest tests/test_actions.py`
+failed during collection with `ModuleNotFoundError: No module named
+'llm_system.simulation'` before production contract creation. Focused tests:
+`uv run pytest tests/test_actions.py` passed (6 tests). Version red state:
+`uv run pytest tests/test_package.py` failed while installed metadata was
+`0.9.0`; after `uv sync --locked`, focused action and version tests passed (7
+tests). Final checks passed: `uv sync --locked`; `make format`; `make lint`;
+`make mypy`; `make test` (106 passed); `make check` (format, lint, mypy, and
+106 tests); `uv lock --check`; and `git diff --check`. The only `uv.lock`
+change is the editable root package version from `0.9.0` to `0.10.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** Source authorization, reference resolution,
+operation resolution, world-action submissions, and scheduled-activity sources
+remain intentionally deferred to their owning contracts.
+
+## Integrator review
+
+**Disposition:** Accepted.
+
+The integrator reviewed every public model and union against the task contract,
+confirmed that generated payloads cannot supply trusted submission metadata, and
+verified that model construction performs neither authorization nor reference
+resolution. Review strengthened the structured-output evidence by round-tripping
+a submission through strict JSON validation and made the operation-discriminator
+schema assertion exact. The M3 roadmap table was also corrected to keep task
+status separate from dependency information. Focused tests and all repository
+quality gates passed; the final suite contains 106 passing tests. The only
+`uv.lock` change is the editable root-package version from `0.9.0` to `0.10.0`.
