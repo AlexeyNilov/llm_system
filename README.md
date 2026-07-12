@@ -143,6 +143,31 @@ These are contracts, not executable actions or proof of authority. They do not
 resolve references, validate source authorization, mutate state, produce
 outcomes or events, or define world-action and scheduled-activity submissions.
 
+## Runtime-state contracts
+
+`llm_system.simulation` also exposes strict, immutable runtime-state contracts
+for the minimal changing facts in a canonical snapshot: simulation time,
+character locations, object placement or possession, and connection
+availability. The snapshot is an ID-linked overlay on immutable package
+definitions; it does not copy authored names, topology, durations, archetypes,
+goals, plans, or package identity.
+
+```python
+from llm_system.simulation import CharacterState, WorldState
+
+state = WorldState(
+    simulation_time_seconds=0,
+    characters=(CharacterState(character_id="marin", location_id="waystation"),),
+    objects=(),
+    connections=(),
+)
+```
+
+Structural construction permits empty collections, duplicates, and unresolved
+but well-shaped references. It is not proof that the snapshot is world-ready:
+package-aware completeness, uniqueness, and reference validation belong to a
+separate boundary.
+
 ## Scenario-pack definitions
 
 `ScenarioPackDefinition` is the strict immutable content-schema-version-1 root

@@ -1,9 +1,9 @@
 from typing import Annotated, Literal
 from uuid import UUID
 
-from pydantic import AfterValidator, BaseModel, ConfigDict, Field, StringConstraints
+from pydantic import AfterValidator, Field
 
-AuthoredId = Annotated[str, StringConstraints(pattern=r"^[a-z0-9]+(?:-[a-z0-9]+)*$")]
+from llm_system.simulation._types import AuthoredId, _StrictContract
 
 
 def _validate_non_blank(value: str) -> str:
@@ -18,10 +18,6 @@ NonBlankText = Annotated[
     AfterValidator(_validate_non_blank),
 ]
 PositiveSeconds = Annotated[int, Field(gt=0)]
-
-
-class _StrictContract(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
 
 class SurroundingsTarget(_StrictContract):

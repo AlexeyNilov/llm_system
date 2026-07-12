@@ -19,17 +19,32 @@ from llm_system.simulation.actions import (
     UseTarget,
     WaitActionProposal,
 )
+from llm_system.simulation.state import (
+    CharacterState,
+    ConnectionState,
+    ObjectAtLocation,
+    ObjectPlacement,
+    ObjectPossessedByCharacter,
+    ObjectState,
+    WorldState,
+)
 
 __all__ = [
     "ActorActionProposal",
     "ActorActionSource",
     "ActorActionSubmission",
+    "CharacterState",
     "CharacterTarget",
+    "ConnectionState",
     "ConnectionTarget",
     "HelpActionProposal",
     "LocationTarget",
     "MoveActionProposal",
     "NpcPolicyActionSource",
+    "ObjectAtLocation",
+    "ObjectPlacement",
+    "ObjectPossessedByCharacter",
+    "ObjectState",
     "ObjectTarget",
     "ObservationTarget",
     "ObserveActionProposal",
@@ -40,4 +55,5 @@ __all__ = [
     "UseActionProposal",
     "UseTarget",
     "WaitActionProposal",
+    "WorldState",
 ]

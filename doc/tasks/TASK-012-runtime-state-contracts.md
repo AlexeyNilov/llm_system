@@ -1,6 +1,6 @@
 # TASK-012: Define canonical runtime-state structural contracts
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -114,12 +114,26 @@ Stop and report a design gap if implementation requires package-aware validation
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented strict immutable runtime-state structural contracts and public imports. Runtime snapshots remain package-independent and do not claim world readiness.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/_types.py`, `src/llm_system/simulation/actions.py`, `src/llm_system/simulation/state.py`, `src/llm_system/simulation/__init__.py`, `tests/test_runtime_state.py`, `tests/test_package.py`, `README.md`, `pyproject.toml`, `uv.lock`, and this task brief.
 
-**Verification:** Pending
+**Verification:** Initial red state: `uv run pytest tests/test_runtime_state.py` failed during collection with `ImportError: cannot import name 'CharacterState' from 'llm_system.simulation'`. Focused green: `uv run pytest tests/test_runtime_state.py tests/test_actions.py` (11 passed). Final green: `uv sync --locked`; `make format`; `make lint`; `make mypy`; `make test` (111 passed); `make check` (111 passed); `uv lock --check`; and `git diff --check`. Confirmed the only `uv.lock` diff is the editable root-package version from `0.10.0` to `0.11.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None. Package-aware world-readiness validation remains intentionally deferred.
+
+## Integrator review
+
+**Disposition:** Accepted.
+
+The integrator reviewed the runtime-state vocabulary, strict scalar behavior,
+placement discriminator, tuple-backed snapshot collections, public exports, and
+the private simulation constraint refactor against the task brief. Structural
+construction remains deliberately independent of package completeness,
+uniqueness, and reference validity, and existing actor-action behavior is
+unchanged. `uv sync --locked`, focused tests, `make format`, `make lint`, `make
+mypy`, `make test`, `make check`, `uv lock --check`, and `git diff --check` all
+passed; the final suite contains 111 tests. The only `uv.lock` change is the
+editable root-package version from `0.10.0` to `0.11.0`.
