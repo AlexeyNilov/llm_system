@@ -1,6 +1,6 @@
 # TASK-008: Load complete typed game packages
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -121,12 +121,18 @@ Stop and report a design gap if implementation requires exposing a partial resul
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Complete typed game-package loading implementation ready for review.
 
-**Changed files:** Pending
+**Changed files:** `README.md`; `doc/tasks/TASK-008-typed-game-package-loading.md`; `pyproject.toml`; `uv.lock`; `src/llm_system/game_packages/__init__.py`; `src/llm_system/game_packages/errors.py`; `src/llm_system/game_packages/loaded.py`; `src/llm_system/game_packages/loader.py`; `tests/test_game_packages.py`; `tests/test_package.py`.
 
-**Verification:** Pending
+**Verification:** Initial red state: `uv run pytest tests/test_game_packages.py::test_load_game_package_returns_frozen_rule_manifest_definition_pair -q` failed during collection with `ImportError: cannot import name 'LoadedRulePackage'`. Final checks passed: focused loader tests (20 passed), `uv sync --locked`, `make format`, `make lint`, `make mypy`, `make test` (85 passed), `make check`, `uv lock --check`, and `git diff --check`. `uv.lock` changed only the editable root `llm-system` version from `0.6.0` to `0.7.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** Dependency resolution and semantic validation remain intentionally deferred.
+
+## Integrator review
+
+**Disposition:** Accepted.
+
+The integrator independently confirmed atomic manifest-and-entrypoint loading, concrete rule and scenario wrapper pairing, manifest-directed schema selection, safe path and YAML handling, error chaining, public API replacement, and deliberate dependency-resolution deferral. Review added direct wrapper-immutability evidence and separated missing-manifest from malformed-manifest behavior into distinct tests. `uv sync --locked`, `make format`, `make lint`, `make mypy`, `make test`, `make check`, `uv lock --check`, and `git diff --check` succeeded on Python 3.12.3; the final suite contains 86 passing tests. The only lockfile change is the editable root package version from `0.6.0` to `0.7.0`.

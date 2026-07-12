@@ -33,7 +33,7 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | [`TASK-005`](tasks/TASK-005-entity-definitions.md): Object, player-character, NPC-character, and entity-collection definitions | Done | TASK-004 |
 | [`TASK-006`](tasks/TASK-006-rule-pack-definition.md): Rule-pack archetype and policy reference catalogs | Done | TASK-005 |
 | [`TASK-007`](tasks/TASK-007-scenario-pack-definition.md): Scenario-pack entrypoint root definition | Done | TASK-006 |
-| [`TASK-008`](tasks/TASK-008-typed-game-package-loading.md): Typed rule and scenario entrypoint loading | Ready | TASK-007 |
+| [`TASK-008`](tasks/TASK-008-typed-game-package-loading.md): Typed rule and scenario entrypoint loading | Done | TASK-007 |
 | Cross-reference and graph validation | Planned | Typed content loading |
 | Minimal Greybridge rule and scenario package skeletons | Planned | Cross-package validation |
 

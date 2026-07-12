@@ -1,4 +1,4 @@
-from llm_system.game_packages.errors import PackageManifestError
+from llm_system.game_packages.errors import GamePackageLoadError
 from llm_system.game_packages.entities import (
     CharacterDefinition,
     DecisionPolicyReference,
@@ -12,7 +12,12 @@ from llm_system.game_packages.entities import (
     PlayerCharacterDefinition,
     PossessedPlacementDefinition,
 )
-from llm_system.game_packages.loader import load_package_manifest
+from llm_system.game_packages.loaded import (
+    LoadedGamePackage,
+    LoadedRulePackage,
+    LoadedScenarioPackage,
+)
+from llm_system.game_packages.loader import load_game_package
 from llm_system.game_packages.models import (
     PackageManifest,
     RulePackageManifest,
@@ -33,7 +38,10 @@ from llm_system.game_packages.spatial import (
 
 __all__ = [
     "PackageManifest",
-    "PackageManifestError",
+    "GamePackageLoadError",
+    "LoadedGamePackage",
+    "LoadedRulePackage",
+    "LoadedScenarioPackage",
     "CharacterDefinition",
     "CharacterArchetypeDefinition",
     "ConnectionDefinition",
@@ -55,5 +63,5 @@ __all__ = [
     "ScenarioPackDefinition",
     "ScenarioPackageManifest",
     "SpatialGraphDefinition",
-    "load_package_manifest",
+    "load_game_package",
 ]

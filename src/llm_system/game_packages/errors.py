@@ -1,2 +1,2 @@
-class PackageManifestError(Exception):
-    """Raised when a game package manifest cannot be trusted."""
+class GamePackageLoadError(Exception):
+    """Raised when a game package cannot be structurally trusted."""

@@ -37,11 +37,19 @@ game_packages/
   scenarios/<package-id>/<package-version>/manifest.yaml
 ```
 
-Use `llm_system.game_packages.load_package_manifest()` to safely load the strict,
-immutable rule or scenario manifest. It validates package identity against the
-directory and verifies that the one YAML entrypoint remains a regular file inside
-the package. Entrypoint content parsing and scenario dependency resolution are not
-implemented yet.
+Use `llm_system.game_packages.load_game_package()` to safely load one complete,
+strict immutable game package. It validates the manifest and its YAML entrypoint
+atomically, validates package identity against the directory, and returns either a
+`LoadedRulePackage` pairing `RulePackageManifest` with `RulePackDefinition` or a
+`LoadedScenarioPackage` pairing `ScenarioPackageManifest` with
+`ScenarioPackDefinition`. The validated manifest type is the sole selector for
+the entrypoint schema, and every loading failure is reported through
+`GamePackageLoadError`.
+
+Loading one scenario preserves its exact required-rule-pack reference but does
+not locate or resolve that dependency. Duplicate and cross-package references,
+graph invariants, compatibility, supported operations, and playability remain
+semantic validation responsibilities outside this structural loading boundary.
 
 ## Scenario-pack definitions
 
