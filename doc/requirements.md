@@ -272,6 +272,40 @@ This helps ensure requirements are:
 
 **STATE-020:** The initial runtime-state contracts shall not represent unplaced, destroyed, consumed, hidden, quantified, conditioned, or nested objects, and shall not represent character or connection conditions beyond the accepted minimal fields.
 
+**STATE-021:** Successful relational world-state validation shall return an immutable `ValidatedWorldState` pairing exactly one `ValidatedGamePackages` value with exactly one `WorldState` snapshot.
+
+**STATE-022:** `ValidatedWorldState` shall guarantee complete and unique character, object, and connection overlays; matching runtime and authored definition identities; and valid current location and character-possessor references.
+
+**STATE-023:** The simulation arbiter shall accept a `ValidatedWorldState` rather than an unvalidated runtime snapshot and package pair.
+
+**STATE-024:** `ValidatedWorldState` shall not imply decision-policy implementation availability, supported rule mechanics, persistence compatibility, or scenario playability.
+
+**STATE-025:** Failed relational world-state validation shall raise one application-owned error containing deterministic structured issues and shall not return a partial validated wrapper.
+
+**STATE-026:** World-state validation shall use separate `WorldStateValidationIssueCode`, `WorldStateValidationIssue`, and `WorldStateValidationError` contracts rather than package-authoring validation issue types.
+
+**STATE-027:** Initial world-state validation issue codes shall be exactly `duplicate-state-id`, `missing-state`, `unexpected-state`, and `unknown-runtime-reference`.
+
+**STATE-028:** Every world-state validation issue shall contain its stable code, deterministic runtime-state path, and non-blank human-readable message.
+
+**STATE-029:** World-state validation shall aggregate independent root defects while suppressing dependent reference conclusions when a runtime record cannot be identified uniquely and authoritatively.
+
+**STATE-030:** World-state validation shall process character, object, and connection overlay namespaces in that order, then validate current runtime references from uniquely identified expected records.
+
+**STATE-031:** Within an overlay namespace, duplicate issues shall follow first-duplicate encounter order, missing-state issues shall follow authored definition order, and unexpected-state issues shall follow runtime tuple order.
+
+**STATE-032:** Runtime-reference issues shall follow character then object runtime tuple order and shall be checked only for records whose own identifiers are expected and unique.
+
+**STATE-033:** A current character or object location shall reference an authored location, and a current object possessor shall reference an authored character.
+
+**STATE-034:** A valid authored possessor whose character-state overlay is missing shall produce the applicable `missing-state` issue and shall not also produce `unknown-runtime-reference` for the possession reference.
+
+**STATE-035:** World-state validation issue paths shall describe fields in the supplied runtime snapshot using collection names, zero-based tuple indexes, and field names, such as `characters[0].location_id` or `objects[1].placement.character_id`.
+
+**STATE-036:** A missing-state issue shall use the affected runtime collection path because no runtime tuple position exists, and its message shall identify the missing authored identifier.
+
+**STATE-037:** The public validation operation shall have the contract `validate_world_state(packages: ValidatedGamePackages, state: WorldState) -> ValidatedWorldState`.
+
 ### Character knowledge and memory
 
 **KNOW-001:** The system shall keep canonical world state separate from each character's perceptions, memories, and beliefs.

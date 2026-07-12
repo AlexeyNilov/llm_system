@@ -280,6 +280,10 @@ The immutable ordered collection of authored location and directed-connection de
 
 One immutable loaded rule-and-scenario pair that has passed the defined dependency, namespace-uniqueness, reference, player-count, and directed-topology checks. It is not proof of policy implementation availability, supported mechanics, persistent-world compatibility, or general playability.
 
+### Validated world state
+
+An immutable pairing of one **validated game packages** value with one structurally valid runtime snapshot after relational world-state validation proves complete unique overlays and valid current references. It does not by itself prove policy implementation availability, supported mechanics, persistence compatibility, or scenario playability.
+
 ### System director
 
 The hidden LLM-assisted creative component analogous to the creative portion of a game master. It proposes supported world-level developments but cannot change canonical state or communicate mechanical facts directly to the player.

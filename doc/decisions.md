@@ -656,3 +656,51 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Combine structural models and package-aware validation, put all state and validation into one large task, or defer world-readiness checks to individual operation resolvers. These choices respectively couple constructors to external context, broaden delegation scope, or duplicate incomplete checks across operations.
 
 **Consequences:** TASK-012 remains a small stable public-contract task, and world-readiness failures gain their own deterministic semantic boundary. Structurally constructed snapshots are not proof that a world is ready for resolution.
+
+### 2026-07-12: Require a narrow validated-world-state wrapper at the arbiter boundary
+
+**Status:** Accepted
+
+**Context:** Structural runtime models deliberately allow duplicates, omissions, and unresolved references. Passing a raw snapshot and package pair to every resolver would require repeated defensive checks and would not let type signatures distinguish relationally coherent state from merely well-shaped data.
+
+**Decision:** Relational validation returns an immutable `ValidatedWorldState` pairing one `ValidatedGamePackages` value with one `WorldState`. It guarantees complete unique overlays, matching runtime and authored record identities, and valid current location and character-possessor references. The simulation arbiter later requires this wrapper. Validation failure raises one application-owned error containing deterministic structured issues and returns no partial wrapper. The wrapper does not imply policy implementation availability, supported mechanics, persistence compatibility, or scenario playability.
+
+**Alternatives considered:** Pass raw packages and state to the arbiter, return a boolean, mutate the snapshot during validation, or call the result fully world-ready for every application concern. These choices respectively repeat trust checks, discard diagnostic and type information, hide repairs, or overstate a narrow relational guarantee.
+
+**Consequences:** Downstream kernel code receives one explicit relational trust boundary and validation remains pure. A separate issue model is needed, and later readiness layers must retain names that do not confuse their stronger guarantees with this wrapper.
+
+### 2026-07-12: Give world-state validation its own structured issue vocabulary
+
+**Status:** Accepted
+
+**Context:** Package validation diagnoses authored content, while world-state validation diagnoses a runtime snapshot's relationship to already validated definitions. Reusing one issue type would blur which trust boundary failed. Free-form errors or uncontrolled cascades would also make repair and inspection unreliable.
+
+**Decision:** Define separate strict immutable `WorldStateValidationIssueCode`, `WorldStateValidationIssue`, and `WorldStateValidationError` contracts. The initial codes are exactly `duplicate-state-id`, `missing-state`, `unexpected-state`, and `unknown-runtime-reference`. Each issue carries a deterministic runtime-state path and non-blank human message. Aggregate independent root defects but suppress reference conclusions that depend on selecting one authoritative record from duplicates or otherwise invalid state identity.
+
+**Alternatives considered:** Reuse package issue classes, throw the first error, use messages without codes, or report every mechanically discoverable consequence. These choices respectively conflate boundaries, slow diagnosis, weaken tooling, or produce misleading cascades.
+
+**Consequences:** Callers can distinguish content defects from snapshot defects and present stable multi-issue feedback. The validator needs explicit deterministic ordering and gating rules rather than relying on incidental traversal behavior.
+
+### 2026-07-12: Order world-state issues by namespace, authorship, and runtime occurrence
+
+**Status:** Accepted
+
+**Context:** Multi-issue validation is only reproducible and useful for repair if ordering and dependent-check suppression are explicit. Runtime tuple order, authored definition order, and duplicate ambiguity each carry different diagnostic meaning.
+
+**Decision:** Validate character, object, and connection overlays in that order, then current references for uniquely identified expected records. Within each namespace, report duplicates by first duplicate encounter, missing records in authored definition order, and unexpected records in runtime tuple order. Reference issues follow character then object runtime tuple order. Validate current locations against authored locations and object possessors against authored characters. Skip references from duplicated or unexpected owning records. If a possessor is an authored character whose runtime overlay is missing, report only the missing overlay rather than also calling the possession reference unknown.
+
+**Alternatives considered:** Sort every issue lexically, use set iteration order, validate references from ambiguous duplicate records, or treat missing runtime possessor state as an unknown authored reference. These choices respectively discard meaningful source order, introduce nondeterminism, create cascades, or confuse completeness with reference identity.
+
+**Consequences:** The same invalid snapshot produces the same concise issue sequence, authored omissions are easy to repair in content order, and runtime paths still identify the exact offending occurrence.
+
+### 2026-07-12: Address world-state issues with runtime field paths
+
+**Status:** Accepted
+
+**Context:** Inspection and repair tooling need stable paths into the supplied snapshot. Missing records have no tuple position, while package-definition paths would point outside the artifact being validated.
+
+**Decision:** Use runtime field paths composed of collection names, zero-based tuple indexes, placement nesting, and field names. Duplicate, unexpected, and reference issues point to exact fields such as `characters[2].character_id` or `objects[1].placement.character_id`. Missing-state issues use the collection path, such as `characters`, and identify the absent authored ID in the human message. Expose `validate_world_state(packages: ValidatedGamePackages, state: WorldState) -> ValidatedWorldState` as the public boundary.
+
+**Alternatives considered:** Invent indexes for missing records, address package definitions, use JSON Pointer immediately, or return paths as unstructured prose. These choices respectively misrepresent supplied data, target the wrong artifact, add unused encoding complexity, or weaken tooling.
+
+**Consequences:** Every issue path either locates a supplied field or honestly names the collection where a record is absent. The function signature makes validated definitions an explicit prerequisite and returns the narrow trusted wrapper.
