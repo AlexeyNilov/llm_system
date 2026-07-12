@@ -45,7 +45,7 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | --- | --- | --- |
 | [`TASK-011`](tasks/TASK-011-actor-action-proposal-contracts.md): Actor action proposal and trusted submission contracts | Done | M2 domain models |
 | [`TASK-012`](tasks/TASK-012-runtime-state-contracts.md): Canonical runtime-state structural contracts | Done | TASK-011, M2 domain models |
-| [`TASK-013`](tasks/TASK-013-world-state-validation.md): World-state relational validation | Ready | TASK-012, TASK-009 |
+| [`TASK-013`](tasks/TASK-013-world-state-validation.md): World-state relational validation | Done | TASK-012, TASK-009 |
 | Outcome, state-change, and canonical-event contracts | Planned | TASK-011, world-readiness validation |
 | Simulation arbiter and supported operations | Planned | Action, runtime-state, outcome, state-change, and event contracts |
 | Recorded random source | Planned | Simulation arbiter |

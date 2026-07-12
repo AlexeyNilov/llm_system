@@ -28,6 +28,13 @@ from llm_system.simulation.state import (
     ObjectState,
     WorldState,
 )
+from llm_system.simulation.validation import (
+    ValidatedWorldState,
+    WorldStateValidationError,
+    WorldStateValidationIssue,
+    WorldStateValidationIssueCode,
+    validate_world_state,
+)
 
 __all__ = [
     "ActorActionProposal",
@@ -55,5 +62,10 @@ __all__ = [
     "UseActionProposal",
     "UseTarget",
     "WaitActionProposal",
+    "ValidatedWorldState",
     "WorldState",
+    "WorldStateValidationError",
+    "WorldStateValidationIssue",
+    "WorldStateValidationIssueCode",
+    "validate_world_state",
 ]

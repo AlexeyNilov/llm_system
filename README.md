@@ -168,6 +168,26 @@ but well-shaped references. It is not proof that the snapshot is world-ready:
 package-aware completeness, uniqueness, and reference validation belong to a
 separate boundary.
 
+## Relational world-state validation
+
+Use `llm_system.simulation.validate_world_state()` to compare one structural
+`WorldState` with a `ValidatedGamePackages` pair. On success it returns a frozen
+`ValidatedWorldState` that preserves both input objects and guarantees exactly
+one runtime overlay for each authored character, object, and connection, plus
+current location and object-possession references that resolve to authored
+definitions.
+
+```python
+from llm_system.simulation import validate_world_state
+
+validated_world = validate_world_state(validated_packages, state)
+```
+
+Failure raises `WorldStateValidationError` with an ordered immutable tuple of
+structured runtime-state issues. This narrow relational boundary does not
+initialize a world, supply default availability, validate policy implementations
+or mechanics, establish persistence compatibility, or prove scenario playability.
+
 ## Scenario-pack definitions
 
 `ScenarioPackDefinition` is the strict immutable content-schema-version-1 root

@@ -1,6 +1,6 @@
 # TASK-013: Validate runtime state against game packages
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -124,12 +124,27 @@ Stop and report a design gap if implementation requires another issue code, diff
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the public relational world-state validation boundary. It returns an identity-preserving immutable wrapper on complete coherent overlays and otherwise raises deterministic structured runtime-state issues.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/validation.py`; `src/llm_system/simulation/__init__.py`; `tests/test_world_state_validation.py`; `README.md`; `pyproject.toml`; `uv.lock`; `tests/test_package.py`; `doc/tasks/TASK-013-world-state-validation.md`.
 
-**Verification:** Pending
+**Verification:** Initial red: `uv run pytest tests/test_world_state_validation.py` failed during collection with `ImportError: cannot import name 'WorldStateValidationError' from 'llm_system.simulation'`. Final: focused validation tests passed (7); `uv sync --locked`, `make format`, `make lint`, `make mypy`, `make test` (118 passed), `make check` (118 passed), `uv lock --check`, and `git diff --check` passed. Confirmed the only `uv.lock` diff is the editable root package version from `0.11.0` to `0.12.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.
+
+## Integrator review
+
+**Disposition:** Accepted after correction.
+
+The integrator reviewed the validated wrapper, issue contracts, overlay and
+reference checks, public exports, and documentation against the fixed ordering,
+path, and cascade rules. Review found that interleaved duplicate identifiers
+were reported in identifier-group order rather than first-duplicate encounter
+order. The validator now records duplicates during runtime tuple traversal, and
+a regression test covers interleaved character duplicates. Focused tests, `uv
+sync --locked`, `make format`, `make lint`, `make mypy`, `make test`, `make
+check`, `uv lock --check`, and `git diff --check` all passed; the final suite
+contains 119 tests. The only `uv.lock` change is the editable root-package
+version from `0.11.0` to `0.12.0`.
