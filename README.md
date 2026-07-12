@@ -43,6 +43,20 @@ directory and verifies that the one YAML entrypoint remains a regular file insid
 the package. Entrypoint content parsing and scenario dependency resolution are not
 implemented yet.
 
+## Scenario-pack definitions
+
+`ScenarioPackDefinition` is the strict immutable content-schema-version-1 root
+for scenario-pack entrypoints. It has exactly two explicit aggregate sections:
+`spatial_graph` with authored `locations` and `connections`, and
+`entity_collection` with authored `entities`. Empty aggregates are structurally
+valid; they do not establish a playable scenario.
+
+This contract does not load YAML entrypoints or perform relational validation.
+Connection endpoints, entity placements, archetype and policy references,
+uniqueness, graph invariants, and player-count requirements remain deferred to
+semantic validation. It also does not define events, director hooks, objectives,
+or mechanics.
+
 ## Rule-pack definitions
 
 `RulePackDefinition` is the strict immutable content-schema-version-1 root for

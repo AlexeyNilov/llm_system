@@ -24,6 +24,7 @@ from llm_system.game_packages.rules import (
     ObjectArchetypeDefinition,
     RulePackDefinition,
 )
+from llm_system.game_packages.scenarios import ScenarioPackDefinition
 from llm_system.game_packages.spatial import (
     ConnectionDefinition,
     LocationDefinition,
@@ -51,6 +52,7 @@ __all__ = [
     "PossessedPlacementDefinition",
     "RulePackageManifest",
     "RulePackDefinition",
+    "ScenarioPackDefinition",
     "ScenarioPackageManifest",
     "SpatialGraphDefinition",
     "load_package_manifest",
