@@ -185,10 +185,24 @@ application-supplied event and outcome UUIDs plus its non-negative occurrence
 time. Target and placement payloads reuse the existing typed contracts, and
 failed actions reuse the public seven-value `ActorActionOperation` vocabulary.
 
-These contracts do not aggregate outcomes, apply changes, compare a delta with
-a world snapshot, validate event/outcome causation, enforce uniqueness across a
-collection, or provide persistence. Events contain no visibility, observer, or
-narration decisions; those remain perception and presentation concerns.
+`Outcome` aggregates those leaves as a strict immutable union with separate
+`RejectedOutcome`, `FailedOutcome`, and `SucceededOutcome` variants. Every
+variant requires application-supplied outcome and proposal UUIDs, one atomic
+completion time, and a formatted resolver-owned reason code. Rejection means
+the proposal was not attempted and structurally has no effect fields. Failure
+means a valid attempt did not achieve its goal, while success means it did;
+both valid-attempt variants require callers to supply explicit state-change and
+event tuples, even when either tuple is intentionally empty.
+
+Outcome construction guarantees that nested events share the outcome identity
+and completion time, event IDs are unique within the outcome, and no affected
+character location, object placement, connection availability, or simulation
+time appears in more than one state change. It does not apply changes, inspect
+a world snapshot or proposal, validate before values or time deltas, infer
+agreement between changes and events, resolve references, authorize sources,
+or commit effects. Those state-dependent guarantees belong to the simulation
+arbiter. Events also contain no visibility, observer, or narration decisions;
+those remain perception and presentation concerns.
 
 ## Relational world-state validation
 

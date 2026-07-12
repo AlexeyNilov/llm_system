@@ -1,6 +1,6 @@
 # TASK-015: Define outcome contracts and aggregate consistency
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -115,12 +115,28 @@ Stop and report a design gap if implementation requires world or proposal lookup
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented strict immutable rejected, failed, and succeeded outcome contracts, including explicit valid-attempt effects and context-free aggregate consistency validation.
 
-**Changed files:** Pending
+**Changed files:** `README.md`; `doc/tasks/TASK-015-outcome-contracts.md`; `pyproject.toml`; `src/llm_system/simulation/__init__.py`; `src/llm_system/simulation/outcomes.py`; `tests/test_outcomes.py`; `tests/test_package.py`; `uv.lock`.
 
-**Verification:** Pending
+**Verification:** Initial red: `uv run pytest tests/test_outcomes.py -q` failed during collection because `FailedOutcome` was not exported. Focused green: `uv run pytest tests/test_outcomes.py -q` passed 6 tests; after formatting and metadata updates, `uv run pytest tests/test_outcomes.py tests/test_package.py -q` passed 7 tests. Final green: `uv sync --locked`; `make format`; `make lint`; `make mypy`; `make test` (132 passed); `make check` (132 passed); `uv lock --check`; and `git diff --check`. Confirmed the only `uv.lock` change is the editable `llm-system` root version from `0.13.0` to `0.14.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.
+
+## Integrator review
+
+**Disposition:** Accepted.
+
+The integrator independently reviewed all outcome variants, reason-code
+constraints, explicit effect requirements, event causation and time checks,
+event-ID uniqueness, change conflict keys, public exports, and documentation.
+No production defect was found. Review corrected the nested-event regression
+tests to use strict JSON validation; their prior strict Python inputs could fail
+on UUID strings and list-to-tuple conversion before exercising the intended
+aggregate validators. Fourteen focused tests passed, followed by `uv sync
+--locked`, `make format`, `make lint`, `make mypy`, `make test`, `make check`,
+`uv lock --check`, and `git diff --check`; the full suite contains 132 passing
+tests. The only `uv.lock` change is the editable root-package version from
+`0.13.0` to `0.14.0`.

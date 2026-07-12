@@ -38,6 +38,13 @@ from llm_system.simulation.events import (
     ObjectTakenEvent,
     ObjectUsedEvent,
 )
+from llm_system.simulation.outcomes import (
+    FailedOutcome,
+    Outcome,
+    OutcomeReasonCode,
+    RejectedOutcome,
+    SucceededOutcome,
+)
 from llm_system.simulation.state import (
     CharacterState,
     ConnectionState,
@@ -73,6 +80,7 @@ __all__ = [
     "ConnectionState",
     "ConnectionAvailabilityChanged",
     "ConnectionTarget",
+    "FailedOutcome",
     "HelpActionProposal",
     "LocationTarget",
     "MoveActionProposal",
@@ -85,12 +93,16 @@ __all__ = [
     "ObjectTakenEvent",
     "ObjectTarget",
     "ObjectUsedEvent",
+    "Outcome",
+    "OutcomeReasonCode",
     "ObservationTarget",
     "ObserveActionProposal",
     "PlayerInterpreterActionSource",
+    "RejectedOutcome",
     "SpeakActionProposal",
     "SimulationTimeChanged",
     "StateChange",
+    "SucceededOutcome",
     "SurroundingsTarget",
     "TakeActionProposal",
     "UseActionProposal",
