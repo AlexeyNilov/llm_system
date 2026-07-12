@@ -219,8 +219,13 @@ The design requires stable identifiers and explicit schemas for these concepts:
 * `ValidationIssue` and `GamePackageValidationError`: immutable deterministic semantic authoring feedback with stable codes and authored-field paths.
 * `ValidatedGamePackages`: immutable loaded rule-and-scenario pair after dependency, uniqueness, reference, player-count, and topology validation, but before implementation-registry and world-readiness checks.
 * `EntityState` and `CharacterState`: mutable canonical placement, possession, condition, goals, plans, and references to character-specific internal state, defined separately from package records.
-* `ActionProposal`: actor, intent, supported operation, arguments, and context trace.
-* `Outcome` and `Event`: resolution result, state changes, time, participants, and provenance.
+* `WorldState`: an immutable validated snapshot of current canonical facts. The arbiter applies a complete typed change set to produce a replacement snapshot rather than mutating its input in place.
+* `ActionProposal`: an untrusted closed discriminated union with one strict argument contract per supported operation and no caller-controlled identity or provenance metadata.
+* `ActionProposalSubmission`: a trusted application-created envelope containing proposal identity, source role and identity, intended actor when applicable, simulation-step context, and trace provenance. Actor-action and world-action submissions form separate typed families.
+* Runtime identity and proposal source: application-injected UUIDs identify proposals and simulation steps, while a discriminated source union carries role-specific provenance. Authored package identifiers remain readable domain strings.
+* Operation references: namespace-aware typed references constrained per operation. Movement selects an authored directed connection; observation distinguishes surroundings from location, connection, character, and object targets.
+* `Outcome`: the immutable result of resolving one identified proposal, with an explicit `rejected`, `failed`, or `succeeded` status, stable reason code, and any proposed time cost, transitions, or events. Rejection has no canonical effects; a failed valid attempt may have consequences.
+* `Event`: a closed discriminated union of canonical domain facts with stable identity, simulation time, causation, and event-specific payload. Events do not contain narration or observer visibility and are durable history rather than the sole world-state persistence mechanism.
 * `Observation`: observer-specific perceived facts, source event, time, confidence, and salience.
 * `EpisodicMemory`: durable character history derived from observations.
 * `Belief`: character-held claim with confidence, provenance, and revision state.

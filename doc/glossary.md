@@ -18,7 +18,11 @@ The means an actor chooses to pursue an intent. Before validation and resolution
 
 ### Action proposal
 
-A structured, untrusted request for an actor to perform a supported operation with specific arguments. Player interpreters, NPC decision policies, and the System director may produce proposals. Only the simulation arbiter can validate and resolve them.
+A structured, untrusted request to perform one supported operation with operation-specific arguments. The proposal payload is distinct from its trusted **proposal submission**, which supplies identity and provenance. Player interpreters, NPC decision policies, and the System director may produce proposal payloads. Only the simulation arbiter can validate and resolve submitted proposals.
+
+### Action proposal submission
+
+A trusted application-created envelope pairing an untrusted action proposal payload with its proposal identity, source role and identity, intended actor when applicable, simulation-step context, and trace provenance. Generated output cannot supply or override this metadata.
 
 ### Actor
 
@@ -118,7 +122,7 @@ The discriminated immutable scenario-package union of object, player-character, 
 
 ### Event
 
-An immutable, durable record that something canonically occurred or was resolved at a simulation time. An event may cause different observations for different characters.
+An immutable, durable, typed record that something canonically occurred at a simulation time. Each event has stable identity, an event-type discriminator, a causation link to its originating outcome, and an operation-specific factual payload. Events do not contain narrative prose or decide who perceived them; one event may produce different observations for different characters. Canonical events provide causal history but are not the sole persistence representation of canonical world state.
 
 ### Feedback
 
@@ -190,7 +194,7 @@ A structured item of information made available to one character by perceptual f
 
 ### Outcome
 
-The structured result of arbiter validation and resolution. An outcome describes success, failure, costs, state transitions, and events; it is distinct from the proposal that requested it and the prose that presents it.
+The structured result of arbiter validation and resolution. A **rejected** outcome means the proposal could not be attempted and has no canonical effects or time cost. A **failed** outcome means a valid attempt did not achieve its goal and may still have rule-defined costs or events. A **succeeded** outcome means the valid attempt achieved its defined result. An outcome retains its originating proposal identity and describes proposed costs, state transitions, and events; it is distinct from both the proposal and presentation prose. Only the simulation arbiter may commit its effects.
 
 ### Perception engine
 

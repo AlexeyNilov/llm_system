@@ -230,6 +230,20 @@ This helps ensure requirements are:
 
 **ENTITY-009:** The initial entity-definition schema shall not include nested containers, unplaced objects, quantities, mutable inventory or condition state, free-form perceptual descriptions, executable policy logic, or generic property dictionaries.
 
+### Canonical runtime state
+
+**STATE-001:** The simulation kernel shall represent mutable canonical world facts in explicit runtime-state contracts separate from immutable rule-pack and scenario-pack definitions.
+
+**STATE-002:** Before resolving the initial supported operations, canonical runtime state shall provide the current simulation time, character locations, object placement or possession, and connection availability required for deterministic validation and resolution.
+
+**STATE-003:** The initial runtime-state contracts shall not introduce richer conditions or Greybridge-specific mechanics until their rule semantics are accepted.
+
+**STATE-004:** Canonical runtime state shall be represented as an immutable validated snapshot, and simulation resolution shall not mutate its input snapshot in place.
+
+**STATE-005:** When the simulation arbiter commits a non-rejected outcome, it shall apply all typed state changes to produce one replacement snapshot; a rejected outcome shall return the original snapshot unchanged.
+
+**STATE-006:** Persistence shall later commit the replacement canonical snapshot, canonical events, and simulation-step trace atomically.
+
 ### Character knowledge and memory
 
 **KNOW-001:** The system shall keep canonical world state separate from each character's perceptions, memories, and beliefs.
@@ -275,6 +289,64 @@ This helps ensure requirements are:
 **BELIEF-007:** The system shall not infer or revise player beliefs automatically.
 
 ### Actor cognition and action loop
+
+**ACTION-001:** The simulation kernel shall represent action proposals as a closed discriminated union of strict operation-specific contracts rather than as an operation name paired with an arbitrary argument mapping.
+
+**ACTION-002:** Each supported operation shall define its own typed argument contract, and the simulation arbiter shall reject proposals that do not conform to one supported proposal variant.
+
+**ACTION-003:** A trusted actor-action proposal submission shall identify the actor intended to perform the operation.
+
+**ACTION-004:** World-action proposals shall use a separate typed proposal family and shall not represent the System director as a character or actor.
+
+**ACTION-005:** Rule packs may configure kernel-supported operations and their resolution rules but shall not introduce a new operation without a corresponding kernel contract and resolver.
+
+**ACTION-006:** Every resolved action proposal shall produce exactly one structured outcome with a status of `rejected`, `failed`, or `succeeded` and a stable machine-readable reason code.
+
+**ACTION-007:** A rejected outcome shall represent a proposal that could not be attempted and shall have no canonical state transition, canonical event, cost, or simulation-time advancement.
+
+**ACTION-008:** A failed outcome shall represent a valid attempted action that did not achieve its defined goal and may include rule-defined costs, simulation-time advancement, state transitions, or canonical events.
+
+**ACTION-009:** A succeeded outcome shall represent a valid attempted action that achieved its defined result and may include rule-defined costs, simulation-time advancement, state transitions, or canonical events.
+
+**ACTION-010:** Every outcome shall retain the identity of its originating action proposal, and only the simulation arbiter shall be authorized to commit the effects described by that outcome.
+
+**ACTION-011:** The system shall keep an untrusted operation-specific proposal payload separate from its trusted application-created proposal-submission envelope.
+
+**ACTION-012:** A proposal submission shall contain proposal identity, source role and identity, intended actor when applicable, simulation-step context, and trace provenance, and generated output shall not supply or override that metadata.
+
+**ACTION-013:** Before resolving an operation, the simulation arbiter shall validate both the proposal payload and whether its trusted source is authorized to submit for the intended actor or world-level operation.
+
+**ACTION-014:** Intent, reasoning, and other cognition records shall remain separate from proposal payloads and shall not become canonical facts merely because they accompany a proposal submission.
+
+**ACTION-015:** Operation arguments shall use namespace-aware references constrained to the domain kinds permitted by that operation rather than one ambiguous universal target identifier.
+
+**ACTION-016:** A move proposal shall identify one authored directed connection rather than only a destination location.
+
+**ACTION-017:** Speak and help proposals shall identify a character, take proposals shall identify an object, and use proposals shall identify the used object together with a typed target reference.
+
+**ACTION-018:** An observe proposal shall distinguish an explicit surroundings target from typed location, connection, character, or object targets.
+
+**ACTION-019:** A wait proposal shall contain a strictly positive integer duration in simulation seconds.
+
+**ACTION-020:** Runtime proposal, simulation-step, outcome, and event identities shall use application-assigned UUID values and shall not be generated by proposal producers or Pydantic model construction.
+
+**ACTION-021:** Authored package identifiers shall remain domain-readable strings and shall not be replaced by runtime UUID identities.
+
+**ACTION-022:** Proposal-submission sources shall be a closed discriminated union with source-specific provenance for the player interpreter, an NPC decision policy, the System director, or a scheduled activity when that source is introduced.
+
+**ACTION-023:** NPC-policy submission provenance shall identify the NPC and configured policy, and System-director provenance shall identify the eligible hook responsible for invocation.
+
+**EVENT-001:** The simulation kernel shall represent canonical events as a closed discriminated union of strict event-specific contracts rather than as an event name paired with an arbitrary payload mapping.
+
+**EVENT-002:** Every canonical event shall contain stable event identity, simulation time, an event-type discriminator, a causation link to its originating outcome, and a typed factual payload.
+
+**EVENT-003:** Canonical events shall contain mechanical facts rather than generated narrative prose.
+
+**EVENT-004:** Canonical events shall not encode their observers or player visibility; the perception engine shall determine observations independently for each character.
+
+**EVENT-005:** A rejected outcome shall remain available in the simulation-step trace but shall not create a canonical event, because no attempted action occurred in the simulated world.
+
+**EVENT-006:** The system shall persist current canonical world state directly and shall retain canonical events as durable causal history without requiring event replay as the sole means of world reconstruction.
 
 **LOOP-001:** When canonical state or events may be observable by a character, the system shall apply that character's perceptual constraints before producing observations.
 

@@ -43,8 +43,10 @@ Sequence the initial vertical slice by dependency and control when work is ready
 
 | Planned task | Depends on |
 | --- | --- |
-| Action proposal, outcome, and event contracts | M2 domain models |
-| Simulation arbiter and supported operations | Action contracts |
+| [`TASK-011`](tasks/TASK-011-actor-action-proposal-contracts.md): Actor action proposal and trusted submission contracts | Ready; M2 domain models |
+| Canonical runtime-state contracts | Action proposal contracts, M2 domain models |
+| Outcome, state-change, and canonical-event contracts | Action proposal contracts, runtime-state contracts |
+| Simulation arbiter and supported operations | Action, runtime-state, outcome, state-change, and event contracts |
 | Recorded random source | Simulation arbiter |
 | Simulation clock and deterministic scheduler | Event contracts |
 | Deterministic perception engine | Location graph and events |

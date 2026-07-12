@@ -476,3 +476,123 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Delay all content until mechanics exist, add free-form extension mappings, encode state and rules in names or narrative fields, call the rule package generic core rules, or treat the skeleton as a complete scenario. These choices respectively postpone end-to-end evidence, weaken validation, confuse prose with authority, claim unproven reuse, or conceal major missing systems.
 
 **Consequences:** The project gains one inspectable real package pair that exercises manifests, typed entrypoints, dependency matching, references, topology, and validation. Later schema versions can extend the package from concrete evidence. Package discovery, wheel data distribution, world creation, and the remaining vertical-slice mechanics stay separate tasks.
+
+### 2026-07-12: Use closed operation-specific action proposal contracts
+
+**Status:** Accepted
+
+**Context:** Player interpreters, NPC decision policies, and the System director all submit untrusted proposals across the simulation boundary. A generic operation string with an arbitrary argument mapping would defer schema errors to resolver code, weaken functional LLM validation, and allow package content to imply mechanics that the kernel cannot enforce. System director proposals also describe world-level interventions rather than actions performed by a character.
+
+**Decision:** Represent proposals as closed discriminated unions of strict operation-specific Pydantic contracts. Each supported operation owns its typed arguments. Separate actor-action proposals, which identify the intended actor, from world-action proposals, which pass through the same simulation-arbiter entry boundary without treating the System director as a character. Rule packs may configure kernel-supported operations and their resolution rules, but a genuinely new operation requires a kernel contract and resolver.
+
+**Alternatives considered:** Use one proposal with `operation: str` and a generic argument dictionary, treat every proposal as an actor action, or allow packages to create new operations by naming them. These choices respectively spread validation through runtime branches, corrupt the actor model, or claim executable mechanics that the stable kernel does not implement.
+
+**Consequences:** Functional roles receive precise output schemas, resolvers can narrow proposal types safely, and unsupported mechanics fail at a clear trust boundary. Adding an operation requires a deliberate kernel API change. Actor and world proposal families share arbiter authority and tracing conventions without sharing false domain semantics.
+
+### 2026-07-12: Distinguish rejected, failed, and succeeded outcomes
+
+**Status:** Accepted
+
+**Context:** An invalid proposal that never enters the world and a valid in-world attempt that fails are mechanically different. Collapsing both into failure would make time costs, consequences, actor feedback, narration, and inspection traces ambiguous.
+
+**Decision:** Resolve every action proposal into exactly one immutable structured outcome with status `rejected`, `failed`, or `succeeded` and a stable machine-readable reason code. Rejection means the proposal could not be attempted and therefore has no canonical effects or time advancement. Failure means a valid attempt did not achieve its goal and may still incur rule-defined time, transitions, costs, or events. Success means a valid attempt achieved its defined result. Every outcome retains its originating proposal identity, and only the simulation arbiter may commit the effects it describes.
+
+**Alternatives considered:** Use a boolean success flag, treat invalid proposals as failed attempts, or let resolvers mutate canonical state before returning a result. These choices respectively lose meaningful state, invent in-world consequences for commands that never occurred, or prevent atomic validation, tracing, and testing of proposed effects.
+
+**Consequences:** Callers and presentation code can distinguish clarification from dramatic failure, while valid failures can still advance the simulation. Outcome contracts must represent reason codes and effects explicitly. Resolver logic remains pure enough to test before the arbiter commits its result.
+
+### 2026-07-12: Retain typed canonical events without full event sourcing
+
+**Status:** Accepted
+
+**Context:** Perception, inspection, causal explanation, and replay diagnostics need durable records of what occurred. Generic payload dictionaries would weaken domain validation, while embedding prose or observer lists would conflate canonical facts with presentation and perception. Requiring the event log to be the sole source for rebuilding world state would add event-sourcing complexity before the vertical slice demonstrates a need for it.
+
+**Decision:** Represent canonical events as a closed discriminated union of strict event-specific contracts. Every event has stable identity, simulation time, an event-type discriminator, a causation link to its originating outcome, and an operation-specific factual payload. Events contain mechanical facts rather than narration, and the perception engine independently derives observer-specific observations. Persist current canonical world state directly while retaining events as durable causal history; do not require event replay as the sole reconstruction mechanism. Rejected proposals remain trace records and produce no canonical event.
+
+**Alternatives considered:** Store generic event names and payload mappings, put player visibility or generated descriptions on events, discard events after updating state, or adopt full event sourcing immediately. These choices respectively weaken contracts, leak presentation concerns into reality, destroy causal evidence, or impose additional schema-evolution and replay obligations prematurely.
+
+**Consequences:** Events can support deterministic perception, inspection, and diagnostic replay while state loading remains straightforward. Each new canonical fact needs an explicit event variant. Persistence must atomically commit direct state changes, events, and trace records later, but world recovery does not depend on replaying the complete event history.
+
+### 2026-07-12: Separate proposal payloads from trusted submission metadata
+
+**Status:** Accepted
+
+**Context:** Functional LLMs and decision policies are untrusted proposal producers. If their structured output includes caller identity, intended authority, or trace provenance, a malformed or adversarial output could impersonate another actor, claim world-level authority, or forge diagnostic context. Putting cognition such as intent into the mechanical payload would also risk treating a character-internal statement as canonical reality.
+
+**Decision:** Keep the operation-specific action proposal payload separate from a trusted application-created proposal-submission envelope. The payload contains only the discriminated operation and its typed arguments. The envelope supplies stable proposal identity, source role and identity, intended actor when applicable, simulation-step context, and trace provenance. Generated output cannot provide or override envelope metadata. The simulation arbiter validates both operation legality and whether the trusted source may submit for the intended actor or world-level operation. Intent and reasoning remain separate cognition or trace artifacts.
+
+**Alternatives considered:** Ask each functional role to generate the complete envelope, trust a payload's actor identifier without source authorization, or embed intent and reasoning in the mechanical proposal. These choices respectively allow provenance forgery, permit cross-actor impersonation, or blur internal cognition with canonical action.
+
+**Consequences:** Functional output schemas become smaller and safer, while application code owns authority and causality metadata. Proposal producers can share operation contracts without sharing permissions. The kernel needs explicit submission-envelope and source-authorization contracts in addition to operation validation.
+
+### 2026-07-12: Use namespace-aware operation references and connection-based movement
+
+**Status:** Accepted
+
+**Context:** Location, connection, character, and object identifiers occupy separate namespaces, so a generic target identifier would be ambiguous. Movement by destination would also discard which directed edge an actor attempted to traverse, even though parallel connections may have different time costs and later availability or requirements.
+
+**Decision:** Give each operation arguments constrained to its permitted domain kinds. Move identifies one authored directed connection. Speak and help identify a character. Take identifies an object. Use identifies the used object and a typed target reference. Observe distinguishes an explicit surroundings target from typed location, connection, character, and object targets. Wait contains a strictly positive integer duration in simulation seconds. The simulation arbiter resolves every reference against canonical state.
+
+**Alternatives considered:** Use one universal `target_id`, move directly to a destination location, infer reference namespaces by searching for matching IDs, or represent observation of surroundings with a missing target. These choices respectively create ambiguous contracts, lose route identity, make behavior depend on namespace collisions, or overload absence with domain meaning.
+
+**Consequences:** Functional schemas express legal reference shapes before resolution, parallel and directional connections remain mechanically meaningful, and reference failures can produce precise rejection reasons. The proposal model needs small typed target-reference variants rather than a generic identifier field.
+
+### 2026-07-12: Add explicit canonical runtime-state contracts before the arbiter
+
+**Status:** Accepted
+
+**Context:** The package layer now provides immutable authored topology and entity definitions, but the simulation arbiter must resolve operations against mutable facts such as current locations, possession, connection availability, and simulation time. The M3 roadmap previously moved directly from action contracts to the arbiter, leaving no owned representation for those facts.
+
+**Decision:** Add a canonical runtime-state contract task between action contracts and the simulation arbiter. Keep authored package definitions immutable and represent changing world facts separately. Begin with only the state required by the initial supported operations: simulation time, character locations, object placement or possession, and connection availability. Add richer conditions and Greybridge-specific state only after their rule semantics are accepted.
+
+**Alternatives considered:** Mutate loaded package definitions, hide runtime facts inside the arbiter implementation, or define all anticipated world-state concepts immediately. These choices respectively destroy package immutability, leave public resolution semantics implicit, or overdesign contracts before supported mechanics exist.
+
+**Consequences:** The arbiter receives a clear canonical input and package content remains reusable as immutable initialization data. M3 gains one additional dependency and task brief, but supported-operation tests can exercise explicit state instead of mocks or ad hoc dictionaries.
+
+### 2026-07-12: Replace immutable world-state snapshots atomically
+
+**Status:** Accepted
+
+**Context:** In-place mutation during validation and resolution could leave partial canonical changes when a later rule rejects or fails, and it makes before-and-after behavior harder to test and inspect. The initial world is small enough that optimizing around mutable large-state storage would be premature.
+
+**Decision:** Represent canonical runtime state as an immutable validated `WorldState` snapshot. Resolution does not mutate its input. When committing a non-rejected outcome, the simulation arbiter applies the complete typed change set and produces one replacement snapshot; rejection returns the original snapshot unchanged. The later persistence boundary atomically stores the replacement snapshot, canonical events, and simulation-step trace.
+
+**Alternatives considered:** Mutate domain objects in place, rely on rollback code after partial application, or optimize immediately for incremental large-world mutation. These choices respectively obscure side effects, add failure paths, or trade clarity for performance the vertical slice does not require.
+
+**Consequences:** Kernel tests can compare explicit before-and-after snapshots, rejection is mechanically side-effect free, and atomic persistence has a clear unit of work. Snapshot copying may eventually need internal optimization for large worlds, but that optimization must preserve the immutable public semantics.
+
+### 2026-07-12: Sequence M3 contracts by their type dependencies
+
+**Status:** Accepted
+
+**Context:** The original M3 roadmap combined action proposals, outcomes, and events before runtime state. Outcomes need typed state changes, and those changes cannot have precise contracts until the canonical runtime-state model exists. The combined unit would either force generic effects or make one delegated task own several unstable boundaries.
+
+**Decision:** Split the start of M3 into action proposal and trusted submission contracts; canonical runtime-state contracts; outcome, state-change, and canonical-event contracts; and then the simulation arbiter with supported operations. Keep recorded randomness, the simulation clock and scheduler, and deterministic perception after those foundations.
+
+**Alternatives considered:** Keep one large contract task, define effects as arbitrary dictionaries, or design outcome types before their referenced state. These choices respectively broaden delegation context, weaken type safety, or create immediate contract churn.
+
+**Consequences:** Each task has a smaller coherent responsibility and a real dependency boundary. M3 contains more task briefs, but downstream agents receive stable types instead of guessing at missing semantics.
+
+### 2026-07-12: Inject UUID runtime identities and type submission sources
+
+**Status:** Accepted
+
+**Context:** Runtime proposals and their later outcomes, events, and simulation steps need stable identities for causation, persistence, and inspection. Generating identifiers inside model construction would add hidden nondeterminism, while generic source-role strings and identifiers would permit incomplete or meaningless provenance combinations. Authored package identifiers serve a different, human-readable purpose.
+
+**Decision:** Use standard-library UUID values for runtime proposal, simulation-step, outcome, and event identities. The application injects them; Pydantic models and proposal producers do not generate them. Keep authored package identifiers as readable domain strings. Represent proposal-submission sources as a closed discriminated union with source-specific provenance: player interpreter, NPC decision policy identifying NPC and configured policy, System director identifying its eligible hook, and scheduled activity when introduced. Context-manifest and other trace references may remain application-assigned opaque identities until their contracts are designed.
+
+**Alternatives considered:** Generate UUIDs as model defaults, let LLMs return IDs, reuse authored identifiers for runtime records, or use a source-role string with optional generic fields. These choices respectively hide nondeterminism, allow identity forgery, conflate definitions with occurrences, or admit invalid source metadata.
+
+**Consequences:** Tests and replay can inject fixed identities, causal records have collision-resistant keys without a new dependency, and each source variant proves its required provenance. Application orchestration must own ID generation, while domain models remain deterministic constructors.
+
+### 2026-07-12: Defer concrete world-action proposals to their owning mechanics
+
+**Status:** Accepted
+
+**Context:** The initial actor operations have accepted argument semantics, but the first known world operation, offering an optional objective, depends on objective lifecycle and System-interface mechanics planned for M6. Defining an empty union or placeholder objective payload now would add unusable code or freeze an underspecified schema.
+
+**Decision:** Implement the first action-contract task with the seven accepted actor-operation payloads and trusted actor-action submissions only. Preserve the architectural requirement that world actions use a separate typed proposal and submission family, but introduce its first concrete contract with the mechanics task that owns the operation.
+
+**Alternatives considered:** Add an empty world-action abstraction, create a generic world-operation payload, or define the optional-objective schema during actor-action work. These choices respectively provide no executable value, weaken the closed-operation boundary, or pull later lifecycle semantics into the wrong milestone.
+
+**Consequences:** TASK-011 remains cohesive and directly testable. The System director cannot yet submit an executable world action, which is intentional until its supported operation is designed. Later world-action work must not reuse actor-action submissions or treat the System director as a character.
