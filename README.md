@@ -51,6 +51,25 @@ not locate or resolve that dependency. Duplicate and cross-package references,
 graph invariants, compatibility, supported operations, and playability remain
 semantic validation responsibilities outside this structural loading boundary.
 
+## Game-package semantic validation
+
+Use `llm_system.game_packages.validate_game_packages()` with one
+`LoadedRulePackage` and one `LoadedScenarioPackage` to establish their
+relational validation boundary. It returns a frozen `ValidatedGamePackages`
+pair preserving those loaded inputs, or raises `GamePackageValidationError`
+with an ordered immutable tuple of structured `ValidationIssue` records.
+
+Validation aggregates independent dependency, namespace-uniqueness, typed
+reference, player-count, self-loop, and topology defects while gating checks
+whose prerequisites are invalid. A scenario's rule-package pin must match
+exactly. Every authored location must be reachable by directed connections from
+the one player's valid start; reverse reachability is not required, and
+parallel directed connections with distinct IDs are valid.
+
+`ValidatedGamePackages` does not establish policy implementation availability,
+supported operations, persistent-world compatibility, playability, or
+world-creation readiness. Those remain later explicit validation boundaries.
+
 ## Scenario-pack definitions
 
 `ScenarioPackDefinition` is the strict immutable content-schema-version-1 root

@@ -35,10 +35,18 @@ from llm_system.game_packages.spatial import (
     LocationDefinition,
     SpatialGraphDefinition,
 )
+from llm_system.game_packages.validation import (
+    GamePackageValidationError,
+    ValidatedGamePackages,
+    ValidationIssue,
+    ValidationIssueCode,
+    validate_game_packages,
+)
 
 __all__ = [
     "PackageManifest",
     "GamePackageLoadError",
+    "GamePackageValidationError",
     "LoadedGamePackage",
     "LoadedRulePackage",
     "LoadedScenarioPackage",
@@ -63,5 +71,9 @@ __all__ = [
     "ScenarioPackDefinition",
     "ScenarioPackageManifest",
     "SpatialGraphDefinition",
+    "ValidatedGamePackages",
+    "ValidationIssue",
+    "ValidationIssueCode",
     "load_game_package",
+    "validate_game_packages",
 ]

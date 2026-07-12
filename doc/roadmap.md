@@ -34,7 +34,7 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | [`TASK-006`](tasks/TASK-006-rule-pack-definition.md): Rule-pack archetype and policy reference catalogs | Done | TASK-005 |
 | [`TASK-007`](tasks/TASK-007-scenario-pack-definition.md): Scenario-pack entrypoint root definition | Done | TASK-006 |
 | [`TASK-008`](tasks/TASK-008-typed-game-package-loading.md): Typed rule and scenario entrypoint loading | Done | TASK-007 |
-| [`TASK-009`](tasks/TASK-009-game-package-semantic-validation.md): Cross-reference and graph validation | Ready | TASK-008 |
+| [`TASK-009`](tasks/TASK-009-game-package-semantic-validation.md): Cross-reference and graph validation | Done | TASK-008 |
 | Minimal Greybridge rule and scenario package skeletons | Planned | Cross-package validation |
 
 ### M3: Deterministic simulation kernel
