@@ -416,3 +416,15 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Combine definitions and mutable state, use implicit bidirectional edges, derive connection identifiers from endpoints, represent time as configurable ticks or floating-point minutes, or put canonical details in prose descriptions. These choices blur package and world ownership, hide directional behavior, prevent parallel routes, make duration semantics ambiguous, or weaken deterministic perceptual filtering.
 
 **Consequences:** Packages remain immutable inputs while runtime state can evolve through the simulation arbiter. Reverse travel requires a second explicit connection and may have different timing or later conditions. Semantic graph validation remains a separate boundary that checks identifier uniqueness, endpoint existence, self-loops, and reachability after structural models are available.
+
+### 2026-07-12: Model scenario inhabitants as discriminated entity definitions
+
+**Status:** Accepted
+
+**Context:** The scenario needs characters, medicine, reinforcement materials, possession, spatial placement, and bounded NPC context. Treating all records as generic dictionaries would weaken type boundaries, while giving every entity location and holder fields would create contradictory sources of truth for possessed objects.
+
+**Decision:** Use `Entity` as the umbrella for addressable spatial things and define strict frozen `ObjectDefinition`, `PlayerCharacterDefinition`, and `NpcCharacterDefinition` variants under one discriminator. All share identity and name. Characters reference a rule-pack character archetype and start at a location. Objects reference a rule-pack object archetype and use a discriminated initial placement that is either a location or one possessing character, never both. NPCs additionally require an identity summary, ordered goal definitions, optional initial plan, and a structured reference to a rule, LLM, or hybrid decision policy. An ordered immutable entity collection preserves authoring order without making reference validity order-dependent.
+
+**Alternatives considered:** Use one entity model with many optional fields, store both effective location and holder on objects, embed executable policy logic in characters, infer mechanics from names or prose, or require referenced records to appear first. These choices create invalid field combinations, duplicate spatial truth, mix scenario data with runtime code, make rules depend on language, or add irrelevant ordering constraints.
+
+**Consequences:** Generic consumers can operate on a typed entity union while character and object concerns remain distinct. Possessed-object location is derived through its holder. Rule-pack archetypes and policies remain references until their contracts exist. A later validation boundary must resolve all location, possession, archetype, and policy references, enforce exactly one player, and check uniqueness before world creation.

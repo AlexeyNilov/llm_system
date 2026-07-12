@@ -176,6 +176,26 @@ This helps ensure requirements are:
 
 **SPACE-014:** Before a spatial graph becomes canonical world state, graph validation shall reject duplicate location or connection identifiers, missing connection endpoints, and self-loop connections; parallel directed connections with distinct identifiers may remain valid.
 
+### Entity and character definitions
+
+**ENTITY-001:** Scenario packages shall represent each addressable spatial thing as an immutable entity definition discriminated as an object, player character, or NPC character.
+
+**ENTITY-002:** Every entity definition shall have a stable lowercase kebab-case identifier and non-blank name, while concrete entity variants shall forbid fields owned by another variant.
+
+**ENTITY-003:** Every object definition shall reference one rule-pack object archetype and declare exactly one initial placement: directly at a location or possessed by a character.
+
+**ENTITY-004:** Every player and NPC character definition shall reference one rule-pack character archetype and declare one initial location.
+
+**ENTITY-005:** A player character definition shall not contain NPC identity, motivation, plan, or decision-policy fields.
+
+**ENTITY-006:** Every NPC character definition shall contain a non-blank identity summary, at least one ordered immutable goal, an optional non-blank initial plan, and a decision-policy reference whose type is `rule`, `llm`, or `hybrid`.
+
+**ENTITY-007:** An entity-collection definition shall preserve authored entity order while exposing an immutable collection to downstream code.
+
+**ENTITY-008:** Before entity definitions become canonical world state, validation shall reject duplicate entity identifiers, duplicate goal identifiers within one NPC, a player count other than one, missing or non-character possession targets, missing initial locations, unresolved archetypes, and unresolved or incompatible NPC policy references. Reference validity shall not depend on authored record order.
+
+**ENTITY-009:** The initial entity-definition schema shall not include nested containers, unplaced objects, quantities, mutable inventory or condition state, free-form perceptual descriptions, executable policy logic, or generic property dictionaries.
+
 ### Character knowledge and memory
 
 **KNOW-001:** The system shall keep canonical world state separate from each character's perceptions, memories, and beliefs.

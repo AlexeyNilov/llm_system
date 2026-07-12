@@ -32,6 +32,10 @@ The application component that assembles NPC decision context, invokes the confi
 
 A character's situation-specific interpretation, such as perceived danger, urgency, or opportunity. An appraisal is internal to that character and may be wrong.
 
+### Archetype
+
+A reusable rule-pack definition that supplies mechanical meaning or defaults to scenario instances. Object and character definitions reference archetypes by stable identifier rather than embedding arbitrary property dictionaries.
+
 ### Belief
 
 A mutable claim a character currently accepts with some confidence. A belief may be incomplete, uncertain, false, or inconsistent with another character's belief.
@@ -51,6 +55,10 @@ The authoritative current state of the simulated world, including simulation tim
 ### Character
 
 An actor represented inside the simulated world with a location, perceptions, memories, beliefs, and other character-specific state. The player character and NPCs are characters.
+
+### Character definition
+
+An immutable scenario-package player or NPC record containing stable identity, archetype, and initial placement information. NPC definitions also contain motivation context and a decision-policy reference; mutable character state is separate.
 
 ### Connection
 
@@ -76,6 +84,10 @@ The bounded information available to an NPC decision policy: identity, goals, pl
 
 An interchangeable strategy that maps NPC decision context to a structured action proposal. A policy may be rule-based, scripted, LLM-assisted, or hybrid.
 
+### Decision-policy reference
+
+A structured NPC package reference naming a rule, LLM, or hybrid decision policy by stable identifier. The reference contains no executable policy logic.
+
 ### Derived index
 
 A rebuildable projection used to accelerate retrieval. The Qdrant memory index is derived from durable episodic memory and is not authoritative storage.
@@ -87,6 +99,14 @@ A durable character-specific record of a perceived or experienced episode, inclu
 ### Episodic-memory retrieval policy
 
 The bounded selection process that combines high-salience, recent, and semantically relevant episodic memories for one NPC while enforcing ownership, deduplication, provenance, and context budgets. It is outside the initial vertical slice.
+
+### Entity
+
+An addressable spatial thing in the world. Objects, player characters, and NPC characters are concrete entity variants.
+
+### Entity definition
+
+The discriminated immutable scenario-package union of object, player-character, and NPC-character definitions.
 
 ### Event
 
@@ -107,6 +127,10 @@ A versioned, validated collection of external game definitions loaded by the sim
 ### Goal
 
 A relatively persistent desired condition that helps shape an actor's intents. Goals do not directly cause state changes.
+
+### Goal definition
+
+An immutable NPC package record with a stable identifier and natural-language description. Authored goal order expresses initial priority.
 
 ### Intent
 
@@ -131,6 +155,14 @@ The presentation component that turns the player's structured perception snapsho
 ### NPC
 
 A non-player character whose behavior is produced by an interchangeable decision policy and constrained by character-specific information.
+
+### Object definition
+
+An immutable scenario-package entity record that references a rule-pack object archetype and has exactly one initial location or possessing character.
+
+### Object placement
+
+The single authored initial placement of an object: either directly at one location or possessed by one character. A possessed object does not also store a duplicate effective location.
 
 ### Observation
 
