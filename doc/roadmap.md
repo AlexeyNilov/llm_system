@@ -48,7 +48,9 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | [`TASK-013`](tasks/TASK-013-world-state-validation.md): World-state relational validation | Done | TASK-012, TASK-009 |
 | [`TASK-014`](tasks/TASK-014-state-change-event-contracts.md): State-change and canonical-event contracts | Done | TASK-011, TASK-013 |
 | [`TASK-015`](tasks/TASK-015-outcome-contracts.md): Outcome contracts and context-free consistency | Done | TASK-014 |
-| Simulation arbiter and supported operations | Planned | Action, runtime-state, outcome, state-change, and event contracts |
+| [`TASK-016`](tasks/TASK-016-outcome-commitment-core.md): Arbiter outcome-commitment core | Ready | TASK-013, TASK-015 |
+| Submission authorization and operation dispatch | Planned | Commitment core, TASK-011 |
+| Operation resolvers | Planned | Dispatch plus accepted per-operation mechanics |
 | Recorded random source | Planned | Simulation arbiter |
 | Simulation clock and deterministic scheduler | Planned | Event contracts |
 | Deterministic perception engine | Planned | Location graph and events |

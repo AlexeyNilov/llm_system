@@ -800,3 +800,63 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Default both fields to empty tuples, make them optional, or add empty fields to rejected outcomes. These choices respectively hide omission, introduce null semantics, or weaken the structural rejection guarantee.
 
 **Consequences:** Resolver code must be explicit about no-effect results, serialized traces distinguish complete data from malformed omission, and outcome construction fails early when aggregate evidence is incomplete.
+
+### 2026-07-12: Separate arbiter commitment from operation resolution
+
+**Status:** Accepted
+
+**Context:** The roadmap previously grouped the simulation arbiter with all seven initial operations. Move and Wait have partial mechanical grounding, but Observe depends on perception, Speak on hearing, Take on accessibility and possession, and Use and Help on rule-pack mechanics not yet defined. Most durations also remain unspecified. Implementing the group would force temporary defaults or invented rules.
+
+**Decision:** Split deterministic arbiter work into an outcome-commitment core, submission authorization and operation dispatch, and individual operation resolvers. The commitment core validates and atomically applies already resolved typed outcomes against validated state without knowing operation semantics. Implement each resolver only after its actionability, duration, failure, state-change, and event rules are accepted. Do not approximate missing mechanics with generic dictionaries or temporary hard-coded defaults.
+
+**Alternatives considered:** Implement all proposal variants immediately, let the coding agent choose plausible mechanics, add generic rule mappings, or postpone every arbiter responsibility. These choices respectively freeze guesses, violate the architecture role boundary, weaken typed mechanics, or delay independently useful atomic state application.
+
+**Consequences:** The kernel can establish safe deterministic commitment now while operation behavior remains honest and incremental. More tasks are required, and a resolved outcome is not proof that its originating proposal was authorized or semantically resolved correctly until later arbiter layers are present.
+
+### 2026-07-12: Commit outcomes into one validated-world result
+
+**Status:** Accepted
+
+**Context:** The commitment core needs one explicit atomic boundary without claiming proposal authorization or operation resolution. Returning state and events as unrelated values would duplicate information already owned by the outcome and permit callers to mix mismatched records.
+
+**Decision:** Expose `commit_outcome(world: ValidatedWorldState, outcome: Outcome) -> OutcomeCommitResult`. The strict immutable result contains exactly the committed outcome and resulting validated world. Rejection is retained as trace evidence and returns the exact same world object; its type has no effects. Failed or succeeded outcomes are fully validated against the input snapshot, then their complete delta set is applied to one replacement snapshot and revalidated against the same packages. Events remain inside the outcome. Proposal/submission agreement, authority, actionability, and operation-specific meaning remain later arbiter responsibilities.
+
+**Alternatives considered:** Return a tuple of loose values, duplicate events on the result, mutate the supplied world, discard rejected outcomes, or combine commitment with authorization and resolution. These choices respectively weaken pairing, create two event sources, violate snapshot semantics, lose trace evidence, or recreate the oversized arbiter task.
+
+**Consequences:** Callers receive one coherent trace-and-state result and canonical event evidence has one owner. The core needs a separate structured failure boundary for state-dependent mismatches, and later orchestration must ensure only deterministic resolvers supply outcomes for commitment.
+
+### 2026-07-12: Reject invalid commitment with structured atomic issues
+
+**Status:** Accepted
+
+**Context:** Structurally valid outcomes can still target absent runtime records, carry stale before values, reference unknown after-state definitions, or disagree with world time. Raising the first ad hoc exception would weaken inspection, while partially applying valid deltas would violate atomicity.
+
+**Decision:** Define separate strict immutable `OutcomeCommitIssueCode`, `OutcomeCommitIssue`, and `OutcomeCommitError` contracts. Initial codes are `resolution-time-mismatch`, `unknown-change-target`, `before-value-mismatch`, and `unknown-after-reference`. Issues point into the supplied outcome and carry non-blank messages. Aggregate independent issues deterministically and apply no state or event effects when any exist. Revalidate an accepted replacement snapshot against the same packages as an invariant check; if that unexpectedly fails after all commitment checks, treat it as a kernel defect rather than an ordinary caller correction.
+
+**Alternatives considered:** Raise the first mismatch, reuse world-state validation issues, apply valid changes while rejecting others, or convert any final validation failure to one generic commit error. These choices respectively hide evidence, conflate trust boundaries, violate atomicity, or conceal implementation defects.
+
+**Consequences:** Invalid outcomes produce inspectable deterministic evidence and leave their input world untouched. The core must define exact ordering and gating rules and maintain exhaustive handling for every closed state-change variant.
+
+### 2026-07-12: Validate commitment in outcome order with target gating
+
+**Status:** Accepted
+
+**Context:** Aggregated commit failures need reproducible order and must avoid claiming stale or invalid field values for a change whose target does not exist. Time consistency spans both the outcome aggregate and an optional time-change delta.
+
+**Decision:** Report an outcome-level time mismatch first when rejection or a valid attempt has no time change. Then traverse state changes in tuple order. For each non-time change, validate target existence first; an unknown target produces only `unknown-change-target` and suppresses before and after checks. For known targets, report before mismatch before independently invalid after reference. For a time change, report current-world mismatch on `from_seconds` and outcome-completion mismatch on `to_seconds` at that change's tuple position. Rejection or a valid attempt without a time change requires completion time equal to current world time.
+
+**Alternatives considered:** Sort issues lexically, report dependent mismatches for absent targets, validate all after references before before values, or treat every time discrepancy as one outcome-level issue. These choices respectively discard causal order, create cascades, obscure stale input, or lose precise field evidence.
+
+**Consequences:** Issue order follows the submitted outcome and points to the most actionable root fields. Validation helpers must retain tuple indexes and gate each change independently before any application occurs.
+
+### 2026-07-12: Preserve world identity when commitment changes no state
+
+**Status:** Accepted
+
+**Context:** Valid observation, speech, or other attempts may emit canonical events without changing the current snapshot. Allocating an identical replacement world would create meaningless identity churn, while record reordering during real changes would weaken deterministic comparison and references.
+
+**Decision:** A successfully committed outcome with an empty state-change tuple returns the exact input `ValidatedWorldState` object, whether rejected, failed, or succeeded. The outcome itself preserves attempt semantics and may carry events. When changes exist, replace affected records at their existing tuple positions, preserve unaffected record identities and collection order, create a new `WorldState`, and return a new `ValidatedWorldState` paired with the exact same packages object.
+
+**Alternatives considered:** Always allocate a new snapshot, mutate existing tuples, sort records after application, or treat event-only outcomes as state changes. These choices respectively add meaningless churn, violate immutability, disturb canonical order, or conflate history with current state.
+
+**Consequences:** Object identity honestly signals whether snapshot data changed, event-only commitment remains possible, and tuple ordering stays stable. Tests must verify identity preservation as well as value equality.

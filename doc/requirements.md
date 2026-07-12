@@ -420,6 +420,48 @@ This helps ensure requirements are:
 
 **ACTION-042:** A missing valid-attempt effect field shall be structurally invalid and shall not be interpreted as an implicit empty tuple.
 
+**ARBITER-001:** The deterministic arbiter work shall separate outcome commitment, submission authorization and dispatch, and operation-specific resolution into distinct implementation boundaries.
+
+**ARBITER-002:** The outcome commitment core shall validate and atomically apply already resolved typed outcomes without inventing operation semantics or invoking an LLM.
+
+**ARBITER-003:** An operation resolver shall not be implemented until its actionability, duration, failure, state-change, and event semantics are accepted and testable.
+
+**ARBITER-004:** The initial kernel shall not introduce temporary defaults or generic rule dictionaries to approximate underspecified Observe, Speak, Take, Use, or Help mechanics.
+
+**ARBITER-005:** The public commitment operation shall have the contract `commit_outcome(world: ValidatedWorldState, outcome: Outcome) -> OutcomeCommitResult`.
+
+**ARBITER-006:** `OutcomeCommitResult` shall be a strict immutable record containing exactly the committed outcome and resulting validated world state without duplicating canonical events outside the outcome.
+
+**ARBITER-007:** Committing a rejected outcome shall retain it as simulation-step trace evidence and return the exact same `ValidatedWorldState` object without canonical state or event effects.
+
+**ARBITER-008:** Committing a failed or succeeded outcome shall validate all state-dependent delta invariants before applying the complete change set atomically to a replacement snapshot and revalidating that snapshot against the same packages.
+
+**ARBITER-009:** The commitment core shall not validate proposal/submission identity agreement, source authorization, actionability, or operation-specific agreement among a proposal, state changes, and events.
+
+**ARBITER-010:** Outcome commitment failure shall use separate strict immutable `OutcomeCommitIssueCode`, `OutcomeCommitIssue`, and `OutcomeCommitError` contracts.
+
+**ARBITER-011:** Initial outcome-commit issue codes shall be exactly `resolution-time-mismatch`, `unknown-change-target`, `before-value-mismatch`, and `unknown-after-reference`.
+
+**ARBITER-012:** Every outcome-commit issue shall contain its stable code, deterministic path into the supplied outcome, and non-blank human-readable message.
+
+**ARBITER-013:** Outcome commitment shall aggregate independent state-dependent issues and shall apply no state change or canonical event when any issue exists.
+
+**ARBITER-014:** If accepted commitment checks produce a replacement snapshot that fails relational world-state validation, the implementation shall treat that result as a kernel invariant defect rather than flattening it into an ordinary outcome-commit issue.
+
+**ARBITER-015:** Commitment issue ordering shall place any outcome-level time mismatch first, followed by state-dependent checks in state-change tuple order.
+
+**ARBITER-016:** For each non-time state change, commitment shall validate target existence first; an unknown target shall produce only `unknown-change-target` for that change and suppress its before-value and after-reference checks.
+
+**ARBITER-017:** For a known non-time target, `before-value-mismatch` shall precede an independently applicable `unknown-after-reference` issue.
+
+**ARBITER-018:** For `SimulationTimeChanged`, a from value unequal to current world time shall produce `before-value-mismatch`, and a to value unequal to outcome completion time shall produce `resolution-time-mismatch`, at paths for that change's fields in tuple position.
+
+**ARBITER-019:** A rejected outcome or valid-attempt outcome without a simulation-time change shall require its completion time to equal current world time and shall report mismatch at `outcome.resolved_at_seconds`.
+
+**ARBITER-020:** A successfully committed outcome with no state changes shall preserve the exact input `ValidatedWorldState` object even when it contains canonical events.
+
+**ARBITER-021:** When state changes exist, commitment shall replace affected runtime records at their existing tuple positions, preserve unaffected record identities and collection order, and return a new `WorldState` and `ValidatedWorldState` paired with the exact same validated packages.
+
 **ACTION-011:** The system shall keep an untrusted operation-specific proposal payload separate from its trusted application-created proposal-submission envelope.
 
 **ACTION-012:** A proposal submission shall contain proposal identity, source role and identity, intended actor when applicable, simulation-step context, and trace provenance, and generated output shall not supply or override that metadata.
