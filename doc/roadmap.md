@@ -47,7 +47,7 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | [`TASK-012`](tasks/TASK-012-runtime-state-contracts.md): Canonical runtime-state structural contracts | Done | TASK-011, M2 domain models |
 | [`TASK-013`](tasks/TASK-013-world-state-validation.md): World-state relational validation | Done | TASK-012, TASK-009 |
 | [`TASK-014`](tasks/TASK-014-state-change-event-contracts.md): State-change and canonical-event contracts | Done | TASK-011, TASK-013 |
-| Outcome contracts and context-free consistency | Planned | TASK-014 |
+| [`TASK-015`](tasks/TASK-015-outcome-contracts.md): Outcome contracts and context-free consistency | Ready | TASK-014 |
 | Simulation arbiter and supported operations | Planned | Action, runtime-state, outcome, state-change, and event contracts |
 | Recorded random source | Planned | Simulation arbiter |
 | Simulation clock and deterministic scheduler | Planned | Event contracts |

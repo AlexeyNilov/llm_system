@@ -231,6 +231,7 @@ The design requires stable identifiers and explicit schemas for these concepts:
 * Operation references: namespace-aware typed references constrained per operation. Movement selects an authored directed connection; observation distinguishes surroundings from location, connection, character, and object targets.
 * `Outcome`: a closed union of immutable rejected, failed, and succeeded results with outcome and proposal identities plus a stable reason code. Rejected outcomes have no effect fields; failed and succeeded outcomes carry ordered typed state-change and canonical-event tuples that may be empty.
 * Outcome time: each outcome has one atomic completion timestamp. Nested events share that time and causation identity; elapsed-time-triggered activities resolve separately after the triggering action.
+* Outcome reason codes: strict kebab-case machine values whose meanings are owned by deterministic resolvers rather than one central enum, generated prose, or package strings.
 * `Event`: a closed discriminated union of canonical domain facts with stable identity, simulation time, causation, and event-specific payload. Events do not contain narration or observer visibility and are durable history rather than the sole world-state persistence mechanism.
 * Initial event variants: actor observed, moved, spoke, helped, waited, or failed an action; and an object was taken or used. Their payloads reuse typed targets and placements where applicable.
 * `Observation`: observer-specific perceived facts, source event, time, confidence, and salience.

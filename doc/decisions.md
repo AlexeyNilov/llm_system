@@ -776,3 +776,27 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Keep one large contract task, define outcomes before concrete effect unions, or let the arbiter use generic effect payloads temporarily. These choices respectively broaden context, invert type dependencies, or introduce a weak boundary that would immediately be replaced.
 
 **Consequences:** Each task has one coherent type layer and focused tests. The project gains an additional versioned milestone, but outcome work begins with stable imported unions and can concentrate on aggregate invariants.
+
+### 2026-07-12: Keep outcome reason codes formatted but resolver-extensible
+
+**Status:** Accepted
+
+**Context:** Outcomes need stable machine-readable explanations, but the complete reason vocabulary depends on supported operations and later versioned mechanics. A central enum would make the core outcome contract change for every legitimate resolver reason, while arbitrary strings would weaken inspection and tests.
+
+**Decision:** Define `OutcomeReasonCode` as a strict non-empty lowercase kebab-case semantic value rather than a closed enum. Deterministic kernel and resolver implementations own and document the meanings they emit. LLMs and package content cannot establish canonical reason semantics merely by supplying a syntactically valid code.
+
+**Alternatives considered:** Use one central enum, accept any string, use generated prose as the reason, or let rule packages declare executable reason meanings. These choices respectively overcouple mechanics, weaken contracts, lose stable machine meaning, or cross the code-data authority boundary.
+
+**Consequences:** Outcome schemas remain stable as resolver catalogs grow, while codes stay predictable for traces and presentation mapping. Each resolver task must specify and test its emitted codes instead of relying on an ungoverned global list.
+
+### 2026-07-12: Require explicit effect tuples on valid-attempt outcomes
+
+**Status:** Accepted
+
+**Context:** Failed and succeeded outcomes may legitimately have no state changes or events. If those fields default silently, however, omitted resolver output becomes indistinguishable from an intentional empty effect set at the trace and validation boundary.
+
+**Decision:** Require both immutable ordered `state_changes` and `events` fields on every failed or succeeded outcome, even when either value is an empty tuple. Neither field has a default. Rejected outcomes continue to omit both fields entirely and reject attempts to add them.
+
+**Alternatives considered:** Default both fields to empty tuples, make them optional, or add empty fields to rejected outcomes. These choices respectively hide omission, introduce null semantics, or weaken the structural rejection guarantee.
+
+**Consequences:** Resolver code must be explicit about no-effect results, serialized traces distinguish complete data from malformed omission, and outcome construction fails early when aggregate evidence is incomplete.

@@ -412,6 +412,14 @@ This helps ensure requirements are:
 
 **ACTION-038:** The simulation arbiter shall validate state-dependent outcome consistency before committing any replacement snapshot or canonical event.
 
+**ACTION-039:** `OutcomeReasonCode` shall be a strict non-empty lowercase kebab-case value rather than a closed central enum or unconstrained string.
+
+**ACTION-040:** Deterministic kernel or resolver code shall own and document the meanings of outcome reason codes; LLM output and package content shall not create canonical reason semantics merely by supplying a formatted value.
+
+**ACTION-041:** Failed and succeeded outcomes shall require callers to provide both `state_changes` and `events` explicitly, even when either immutable tuple is empty; neither field shall have a default value.
+
+**ACTION-042:** A missing valid-attempt effect field shall be structurally invalid and shall not be interpreted as an implicit empty tuple.
+
 **ACTION-011:** The system shall keep an untrusted operation-specific proposal payload separate from its trusted application-created proposal-submission envelope.
 
 **ACTION-012:** A proposal submission shall contain proposal identity, source role and identity, intended actor when applicable, simulation-step context, and trace provenance, and generated output shall not supply or override that metadata.
