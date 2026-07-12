@@ -56,6 +56,10 @@ The authoritative current state of the simulated world, including simulation tim
 
 An actor represented inside the simulated world with a location, perceptions, memories, beliefs, and other character-specific state. The player character and NPCs are characters.
 
+### Character archetype definition
+
+An immutable rule-pack catalog record identifying reusable character mechanics or defaults. Content schema version 1 contains only its stable identifier and name; later schemas define actual mechanics.
+
 ### Character definition
 
 An immutable scenario-package player or NPC record containing stable identity, archetype, and initial placement information. NPC definitions also contain motivation context and a decision-policy reference; mutable character state is separate.
@@ -83,6 +87,10 @@ The bounded information available to an NPC decision policy: identity, goals, pl
 ### Decision policy
 
 An interchangeable strategy that maps NPC decision context to a structured action proposal. A policy may be rule-based, scripted, LLM-assisted, or hybrid.
+
+### Decision-policy definition
+
+An immutable rule-pack declaration of a policy's stable identity, name, and rule, LLM, or hybrid type. Executable behavior belongs to an application-owned implementation registry.
 
 ### Decision-policy reference
 
@@ -156,6 +164,10 @@ The presentation component that turns the player's structured perception snapsho
 
 A non-player character whose behavior is produced by an interchangeable decision policy and constrained by character-specific information.
 
+### Object archetype definition
+
+An immutable rule-pack catalog record identifying reusable object mechanics. Content schema version 1 contains only its stable identifier and name; later schemas define actual mechanics.
+
 ### Object definition
 
 An immutable scenario-package entity record that references a rule-pack object archetype and has exactly one initial location or possessing character.
@@ -203,6 +215,10 @@ An explicit constraint or resolution instruction used by the simulation arbiter.
 ### Rule pack
 
 A versioned YAML game package defining changeable mechanics such as actions, abilities, durations, checks, effects, and progression.
+
+### Rule-pack definition
+
+The strict immutable typed root loaded from a rule pack's entrypoint. Content schema version 1 contains ordered object-archetype, character-archetype, and decision-policy reference catalogs.
 
 ### Scenario pack
 

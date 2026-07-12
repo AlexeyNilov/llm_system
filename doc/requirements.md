@@ -116,6 +116,20 @@ This helps ensure requirements are:
 
 **PACK-017:** When a package manifest is missing, malformed, invalid, inconsistent with its directory, or references an unsafe or missing entrypoint, the package loader shall reject it through an application-owned manifest error without returning raw package data.
 
+### Rule-pack content definitions
+
+**RULE-001:** A rule-pack entrypoint shall validate into a strict immutable root definition with content `schema_version: 1` and ordered object-archetype, character-archetype, and decision-policy catalogs.
+
+**RULE-002:** Every object and character archetype definition shall contain exactly a stable lowercase kebab-case identifier and non-blank human-readable name in content schema version 1.
+
+**RULE-003:** Every decision-policy definition shall contain exactly a stable identifier, non-blank name, and policy type `rule`, `llm`, or `hybrid`.
+
+**RULE-004:** Rule-pack content definitions shall preserve authored catalog order while exposing immutable collections, and each catalog may be empty at the structural-model boundary.
+
+**RULE-005:** Before rule-pack content is accepted for world creation, validation shall reject duplicate identifiers within each catalog and shall require every declared decision policy to have a compatible application-owned implementation.
+
+**RULE-006:** Rule-pack content schema version 1 shall not include executable code, generic property dictionaries, arbitrary tags, abilities, actions, skills, effects, policy settings, or implicit behavioral defaults.
+
 ### Player experience
 
 **PLAY-001:** The system shall allow the player to express attempted actions in free-form text.

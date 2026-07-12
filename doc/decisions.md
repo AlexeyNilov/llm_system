@@ -428,3 +428,15 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Use one entity model with many optional fields, store both effective location and holder on objects, embed executable policy logic in characters, infer mechanics from names or prose, or require referenced records to appear first. These choices create invalid field combinations, duplicate spatial truth, mix scenario data with runtime code, make rules depend on language, or add irrelevant ordering constraints.
 
 **Consequences:** Generic consumers can operate on a typed entity union while character and object concerns remain distinct. Possessed-object location is derived through its holder. Rule-pack archetypes and policies remain references until their contracts exist. A later validation boundary must resolve all location, possession, archetype, and policy references, enforce exactly one player, and check uniqueness before world creation.
+
+### 2026-07-12: Begin rule-pack content with typed reference catalogs
+
+**Status:** Accepted
+
+**Context:** Scenario objects, characters, and NPCs now reference rule-pack archetypes and decision policies, but those targets do not yet exist. Cross-package validation cannot be complete until the rule side has typed identities. Defining full mechanics or arbitrary settings now would invent semantics before action, skill, effect, and actor-runtime contracts exist.
+
+**Decision:** Define rule-pack content schema version `1` as one strict frozen `RulePackDefinition` containing ordered immutable catalogs of `ObjectArchetypeDefinition`, `CharacterArchetypeDefinition`, and `DecisionPolicyDefinition`. Archetypes initially contain only stable ID and name. Policy definitions contain stable ID, name, and the same `rule`, `llm`, or `hybrid` type vocabulary used by NPC references. The rule pack owns versioned policy declarations; a later application registry owns executable implementations. Empty catalogs and duplicate IDs remain structurally representable until semantic validation.
+
+**Alternatives considered:** Validate scenario references against hard-coded strings, put executable policy code in YAML, add generic property or settings dictionaries, define full game mechanics immediately, or let the application registry be the only policy catalog. These choices respectively hide contracts, violate the code/data boundary, postpone type safety, broaden scope prematurely, or remove package-versioned compatibility information.
+
+**Consequences:** Scenario references gain explicit typed targets without pretending the mechanics system is complete. Cross-package validation can later compare archetype IDs and policy ID/type pairs, then compare policy declarations with the application implementation registry. Actions, abilities, skills, effects, and structured policy configuration require later accepted schema versions.

@@ -210,6 +210,7 @@ The design requires stable identifiers and explicit schemas for these concepts:
 * `LocationDefinition`, `ConnectionDefinition`, and `SpatialGraphDefinition`: immutable authored topology with directed edges and integer-second base traversal durations.
 * `LocationState` and `ConnectionState`: mutable canonical availability, conditions, requirements, and other runtime facts, defined separately from package topology.
 * `ObjectDefinition`, `PlayerCharacterDefinition`, `NpcCharacterDefinition`, and `EntityCollectionDefinition`: immutable authored inhabitants, archetype references, initial placement, and NPC motivation context.
+* `ObjectArchetypeDefinition`, `CharacterArchetypeDefinition`, `DecisionPolicyDefinition`, and `RulePackDefinition`: immutable rule-pack reference catalogs whose executable mechanics and policy implementations remain outside package data.
 * `EntityState` and `CharacterState`: mutable canonical placement, possession, condition, goals, plans, and references to character-specific internal state, defined separately from package records.
 * `ActionProposal`: actor, intent, supported operation, arguments, and context trace.
 * `Outcome` and `Event`: resolution result, state changes, time, participants, and provenance.
