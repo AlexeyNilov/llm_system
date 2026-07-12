@@ -172,7 +172,9 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 * Confirms that manifest identity matches its directory and that its single YAML entrypoint resolves to a regular file inside that package directory.
 * Uses validated manifest type as the sole entrypoint-schema selector and returns one immutable typed manifest-definition pair only after both documents validate.
 * Exposes one complete-package loading function and one game-package loading error rather than exposing partial manifests, raw mappings, or validation-library exceptions.
-* Validates schema, references, graph connectivity, supported operations, and compatibility before use.
+* Semantically validates one loaded rule-and-scenario pair through deterministic dependency, namespace-uniqueness, reference, player-count, and player-rooted directed-reachability checks.
+* Aggregates independent semantic defects as ordered structured validation issues while gating checks whose prerequisites are invalid.
+* Keeps policy implementation availability, supported operations, persistent-world compatibility, and final world-creation readiness as later explicit boundaries.
 * Records exact package identities and versions in world metadata.
 * Requires reset or explicit migration for incompatible package changes.
 * Rejects executable YAML constructs and never exposes raw package mappings to simulation logic.
@@ -214,6 +216,8 @@ The design requires stable identifiers and explicit schemas for these concepts:
 * `ObjectArchetypeDefinition`, `CharacterArchetypeDefinition`, `DecisionPolicyDefinition`, and `RulePackDefinition`: immutable rule-pack reference catalogs whose executable mechanics and policy implementations remain outside package data.
 * `ScenarioPackDefinition`: immutable scenario content root that explicitly composes authored spatial topology and inhabitants while later scenario concepts remain separate contracts.
 * `LoadedRulePackage` and `LoadedScenarioPackage`: immutable structurally trusted manifest-definition pairs returned by complete single-package loading before dependency and semantic validation.
+* `ValidationIssue` and `GamePackageValidationError`: immutable deterministic semantic authoring feedback with stable codes and authored-field paths.
+* `ValidatedGamePackages`: immutable loaded rule-and-scenario pair after dependency, uniqueness, reference, player-count, and topology validation, but before implementation-registry and world-readiness checks.
 * `EntityState` and `CharacterState`: mutable canonical placement, possession, condition, goals, plans, and references to character-specific internal state, defined separately from package records.
 * `ActionProposal`: actor, intent, supported operation, arguments, and context trace.
 * `Outcome` and `Event`: resolution result, state changes, time, participants, and provenance.

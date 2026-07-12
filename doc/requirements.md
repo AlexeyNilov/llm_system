@@ -120,6 +120,22 @@ This helps ensure requirements are:
 
 **PACK-019:** A successfully loaded game package shall be a strict immutable typed pair of its concrete rule or scenario manifest and matching content definition; loading one scenario package shall preserve but not resolve its exact required-rule-pack reference.
 
+### Game-package semantic validation
+
+**PACK-020:** Given one loaded rule package and one loaded scenario package, semantic validation shall either return one strict immutable `ValidatedGamePackages` pair or raise one `GamePackageValidationError` without mutating either input.
+
+**PACK-021:** A game-package validation error shall contain an immutable deterministic ordered collection of strict structured issues, each with a typed stable code, an authored-field path, and a human-readable message; validation shall aggregate independent issues rather than fail on the first defect.
+
+**PACK-022:** Identifier uniqueness shall be enforced within semantic namespaces: locations, connections, all entity variants together, each rule-pack catalog separately, and NPC goals within their owning NPC. Reusing one identifier across distinct typed namespaces shall remain valid.
+
+**PACK-023:** Validation shall require the scenario's exact rule-package pin to match the supplied rule manifest and shall resolve connection endpoints, initial locations, object placements, archetypes, and NPC policy references against their typed target namespaces. Possession targets shall be characters, NPC policy types shall match their resolved definitions, and exactly one player shall exist.
+
+**PACK-024:** Graph validation shall reject self-loop connections and shall require every authored location to be reachable from the one player's initial location by following directed connections. It shall not require reverse reachability, and parallel directed connections with distinct IDs shall remain valid.
+
+**PACK-025:** Validation shall report independent root defects while skipping dependent conclusions whose premises are invalid. A mismatched rule-package pin shall suppress scenario-to-rule reference checks, and invalid or ambiguous graph prerequisites shall suppress reachability rather than produce cascading issues.
+
+**PACK-026:** `ValidatedGamePackages` shall prove only the dependency, uniqueness, reference, player-count, and topology checks defined for this boundary. It shall not by itself prove policy implementation availability, supported operations, compatibility with persistent state, playability, or readiness for world creation.
+
 ### Rule-pack content definitions
 
 **RULE-001:** A rule-pack entrypoint shall validate into a strict immutable root definition with content `schema_version: 1` and ordered object-archetype, character-archetype, and decision-policy catalogs.

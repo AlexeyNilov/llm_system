@@ -132,6 +132,10 @@ An LLM-backed component whose output may request later behavior rather than mere
 
 A versioned, validated collection of external game definitions loaded by the simulation kernel. Rule packs and scenario packs are game packages.
 
+### Game-package validation issue
+
+One strict immutable semantic defect with a stable typed code, authored-field path, and human-readable message. Independent issues are returned in deterministic order for authoring and tooling.
+
 ### Goal
 
 A relatively persistent desired condition that helps shape an actor's intents. Goals do not directly cause state changes.
@@ -267,6 +271,10 @@ The world clock advanced by consequential actions or explicit waiting. It is ind
 ### Spatial graph definition
 
 The immutable ordered collection of authored location and directed-connection definitions from which initial spatial world state can be created.
+
+### Validated game packages
+
+One immutable loaded rule-and-scenario pair that has passed the defined dependency, namespace-uniqueness, reference, player-count, and directed-topology checks. It is not proof of policy implementation availability, supported mechanics, persistent-world compatibility, or general playability.
 
 ### System director
 
