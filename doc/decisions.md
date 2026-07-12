@@ -764,3 +764,15 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Perform every check in Pydantic validators, defer every check to the arbiter, allow sequential changes inside one atomic outcome, or validate only during persistence. These choices respectively require external context in constructors, admit internally contradictory records, obscure final deltas, or discover defects after the trust boundary.
 
 **Consequences:** Outcome values are internally coherent before reaching the arbiter without pretending to be valid for a particular world. The outcome models need small cross-record validators, and arbiter tests retain responsibility for all state-dependent guarantees.
+
+### 2026-07-12: Define state changes and events before outcome aggregates
+
+**Status:** Accepted
+
+**Context:** Outcome variants depend directly on completed state-change and canonical-event unions and then add cross-record invariants over them. Implementing all three layers in one delegated task would require an agent to stabilize leaf payloads and aggregate semantics simultaneously.
+
+**Decision:** Split the roadmap into TASK-014 for state-change and canonical-event contracts, followed by TASK-015 for rejected, failed, and succeeded outcome contracts plus context-free aggregate consistency. The simulation arbiter follows both.
+
+**Alternatives considered:** Keep one large contract task, define outcomes before concrete effect unions, or let the arbiter use generic effect payloads temporarily. These choices respectively broaden context, invert type dependencies, or introduce a weak boundary that would immediately be replaced.
+
+**Consequences:** Each task has one coherent type layer and focused tests. The project gains an additional versioned milestone, but outcome work begins with stable imported unions and can concentrate on aggregate invariants.
