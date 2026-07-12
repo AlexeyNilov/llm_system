@@ -306,6 +306,16 @@ This helps ensure requirements are:
 
 **STATE-037:** The public validation operation shall have the contract `validate_world_state(packages: ValidatedGamePackages, state: WorldState) -> ValidatedWorldState`.
 
+**STATE-038:** A resolved change to canonical runtime state shall be represented as one member of a closed discriminated union of typed state-change contracts.
+
+**STATE-039:** The initial state-change variants shall be character location change, object placement change, connection availability change, and simulation-time change.
+
+**STATE-040:** Every state change shall contain the affected runtime identity together with explicit before and after values, and structural validation shall reject equal before and after values.
+
+**STATE-041:** A simulation-time change shall contain non-negative integer before and after seconds and shall require the after value to be strictly greater than the before value.
+
+**STATE-042:** State changes shall describe exact immutable-snapshot deltas and shall remain distinct from canonical events, which describe facts that occurred.
+
 ### Character knowledge and memory
 
 **KNOW-001:** The system shall keep canonical world state separate from each character's perceptions, memories, and beliefs.
@@ -372,6 +382,26 @@ This helps ensure requirements are:
 
 **ACTION-010:** Every outcome shall retain the identity of its originating action proposal, and only the simulation arbiter shall be authorized to commit the effects described by that outcome.
 
+**ACTION-024:** Outcomes shall form a closed discriminated union of `RejectedOutcome`, `FailedOutcome`, and `SucceededOutcome` rather than one permissive record with optional effect fields.
+
+**ACTION-025:** Every outcome variant shall contain application-assigned outcome identity, originating proposal identity, and a stable machine-readable reason code.
+
+**ACTION-026:** `RejectedOutcome` shall omit state-change and canonical-event fields entirely, making rejected effects structurally unrepresentable.
+
+**ACTION-027:** `FailedOutcome` and `SucceededOutcome` shall contain immutable ordered tuples of typed state changes and canonical events; either tuple may be empty.
+
+**ACTION-028:** Outcome and state-change records shall be retained in the simulation-step trace, while canonical events shall additionally be retained as durable canonical history.
+
+**ACTION-029:** Every outcome shall contain non-negative integer `resolved_at_seconds` representing the atomic resolution completion time.
+
+**ACTION-030:** A rejected outcome shall use the input snapshot's current simulation time, and a failed or succeeded outcome shall use the completion time after any action-duration advancement.
+
+**ACTION-031:** Every canonical event contained by an outcome shall use that outcome's identity as its cause and the same completion time as its occurrence time.
+
+**ACTION-032:** When an outcome contains a simulation-time change, that change's after value shall equal the outcome completion time; when it contains no simulation-time change, the completion time shall equal the input snapshot time.
+
+**ACTION-033:** The initial kernel shall model one atomic completion time per resolved outcome and shall represent elapsed-time-triggered scheduled activities as separate later resolutions rather than intermediate events inside the triggering outcome.
+
 **ACTION-011:** The system shall keep an untrusted operation-specific proposal payload separate from its trusted application-created proposal-submission envelope.
 
 **ACTION-012:** A proposal submission shall contain proposal identity, source role and identity, intended actor when applicable, simulation-step context, and trace provenance, and generated output shall not supply or override that metadata.
@@ -409,6 +439,20 @@ This helps ensure requirements are:
 **EVENT-005:** A rejected outcome shall remain available in the simulation-step trace but shall not create a canonical event, because no attempted action occurred in the simulated world.
 
 **EVENT-006:** The system shall persist current canonical world state directly and shall retain canonical events as durable causal history without requiring event replay as the sole means of world reconstruction.
+
+**EVENT-007:** The initial canonical-event union shall contain exactly actor observed, actor moved, actor spoke, object taken, object used, actor helped, actor waited, and actor action failed variants.
+
+**EVENT-008:** Every initial canonical event shall contain application-assigned event identity, originating outcome identity, non-negative integer occurrence time, and its fixed event-type discriminator.
+
+**EVENT-009:** Actor-observed and object-used events shall reuse the accepted typed observation-target and use-target contracts respectively.
+
+**EVENT-010:** Actor-moved events shall identify the actor, directed connection, previous location, and new location; the two locations shall differ.
+
+**EVENT-011:** Actor-spoke events shall identify speaker, recipient, and non-blank utterance; object-taken events shall identify actor, object, and previous placement.
+
+**EVENT-012:** Actor-helped events shall identify actor and assisted character; actor-waited events shall identify actor and a strictly positive integer duration; actor-action-failed events shall identify actor and attempted supported actor operation.
+
+**EVENT-013:** Failed and succeeded outcomes may contain no canonical event, and the contract layer shall not require one event merely because an operation was validly attempted.
 
 **LOOP-001:** When canonical state or events may be observable by a character, the system shall apply that character's perceptual constraints before producing observations.
 

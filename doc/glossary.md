@@ -194,7 +194,7 @@ A structured item of information made available to one character by perceptual f
 
 ### Outcome
 
-The structured result of arbiter validation and resolution. A **rejected** outcome means the proposal could not be attempted and has no canonical effects or time cost. A **failed** outcome means a valid attempt did not achieve its goal and may still have rule-defined costs or events. A **succeeded** outcome means the valid attempt achieved its defined result. An outcome retains its originating proposal identity and describes proposed costs, state transitions, and events; it is distinct from both the proposal and presentation prose. Only the simulation arbiter may commit its effects.
+The structured result of arbiter validation and resolution, represented by separate rejected, failed, and succeeded variants. A **rejected** outcome means the proposal could not be attempted and structurally has no effect fields or time cost. A **failed** outcome means a valid attempt did not achieve its goal and may still have rule-defined state changes or events. A **succeeded** outcome means the valid attempt achieved its defined result and may also have empty effects. Every outcome retains its own identity, originating proposal identity, and stable reason code; it is distinct from both the proposal and presentation prose. Only the simulation arbiter may commit its effects.
 
 ### Perception engine
 

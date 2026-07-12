@@ -704,3 +704,51 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Invent indexes for missing records, address package definitions, use JSON Pointer immediately, or return paths as unstructured prose. These choices respectively misrepresent supplied data, target the wrong artifact, add unused encoding complexity, or weaken tooling.
 
 **Consequences:** Every issue path either locates a supplied field or honestly names the collection where a record is absent. The function signature makes validated definitions an explicit prerequisite and returns the narrow trusted wrapper.
+
+### 2026-07-12: Represent state changes as self-verifying before-and-after deltas
+
+**Status:** Accepted
+
+**Context:** Immutable snapshot replacement needs an exact description of intended changes. New-value-only commands make stale resolution plans and accidental no-ops difficult to detect, while reconstructing prior values later weakens inspection evidence.
+
+**Decision:** Define a closed discriminated union of character-location, object-placement, connection-availability, and simulation-time changes. Every change includes the affected identity where applicable and explicit before and after values. Equal values are structurally invalid, and time must advance from a non-negative integer to a strictly greater integer. The arbiter later verifies before values against its input snapshot before applying the complete change set. State changes describe snapshot deltas and remain distinct from canonical events describing facts that occurred.
+
+**Alternatives considered:** Store only new values, allow generic field paths and values, infer old values during inspection, or use events themselves as mutation commands. These choices respectively weaken stale-plan detection, abandon typed state, lose durable before-state evidence, or conflate fact history with snapshot application.
+
+**Consequences:** Deltas are explicit, inspectable, and safe to apply atomically after verification. Resolvers must supply slightly more data, and later application logic must reject mismatched or conflicting change sets rather than silently overwriting state.
+
+### 2026-07-12: Make outcome status variants structurally distinct
+
+**Status:** Accepted
+
+**Context:** One outcome model with optional effect fields could represent rejected proposals carrying state changes or events, contradicting the accepted guarantee that rejection never enters the simulated world. Valid failures and successes, however, may independently have state changes, events, both, or neither.
+
+**Decision:** Define a closed discriminated union of `RejectedOutcome`, `FailedOutcome`, and `SucceededOutcome`. Every variant contains application-assigned outcome identity, originating proposal identity, and a stable machine-readable reason code. Rejected outcomes omit effect fields entirely. Failed and succeeded outcomes contain immutable ordered state-change and canonical-event tuples, either of which may be empty. Outcomes and state changes remain simulation-step trace evidence; canonical events additionally become durable canonical history.
+
+**Alternatives considered:** Use one status enum with optional effects, require every success to mutate state, require every valid attempt to emit an event, or store outcomes only transiently. These choices respectively admit contradictory records, exclude observation-like success, overstate event requirements, or lose causal inspection evidence.
+
+**Consequences:** Rejected canonical effects are unrepresentable by construction, while valid operation semantics remain flexible. Outcome schemas need separate variants and later semantic validation must ensure nested event causation and change-set consistency.
+
+### 2026-07-12: Timestamp outcomes and events at atomic completion
+
+**Status:** Accepted
+
+**Context:** Duration-bearing actions need a clear time for their resolved facts. Mixing action-start, intermediate, and completion times inside one atomic outcome would complicate state application and overlap with the later scheduler's responsibility for activities made eligible by elapsed time.
+
+**Decision:** Every outcome has non-negative integer `resolved_at_seconds`. Rejection uses the input snapshot time; valid failure or success uses completion time after any action-duration advancement. Every nested canonical event uses the outcome ID as its cause and the same time as `occurred_at_seconds`. A time-change after value equals completion time; without a time change, completion time equals the input snapshot time. The initial kernel represents no intermediate event times inside one outcome. Activities made eligible by elapsed time resolve later as separate outcomes.
+
+**Alternatives considered:** Timestamp all records at action start, allow arbitrary event times inside an outcome, omit outcome time, or resolve scheduled consequences inside the same outcome. These choices respectively misstate completion, weaken atomicity, force time inference, or blur action resolution with scheduler ordering.
+
+**Consequences:** One outcome has one unambiguous temporal point and nested causation is easy to validate and inspect. The arbiter must enforce consistency with its input snapshot and any time-change delta, while the scheduler remains responsible for subsequent eligible work.
+
+### 2026-07-12: Begin canonical events with eight actor-operation facts
+
+**Status:** Accepted
+
+**Context:** The initial seven actor operations need typed factual history for later perception and inspection, and valid failures may themselves be perceptible. Generic event payloads would weaken those downstream boundaries, while requiring an event for every valid outcome would invent facts for operations whose rules may resolve silently.
+
+**Decision:** Define a closed initial union of `ActorObservedEvent`, `ActorMovedEvent`, `ActorSpokeEvent`, `ObjectTakenEvent`, `ObjectUsedEvent`, `ActorHelpedEvent`, `ActorWaitedEvent`, and `ActorActionFailedEvent`. Every event has application-assigned event ID, causing outcome ID, non-negative occurrence seconds, and fixed event discriminator. Payloads identify the relevant actor, connection, locations, character, object, previous placement, utterance, duration, operation, or accepted typed target. Events contain no observer visibility or narration. Failed and succeeded outcomes may contain an empty event tuple.
+
+**Alternatives considered:** Use one generic operation event, infer events from state changes, require exactly one event per attempt, or postpone all event types until perception. These choices respectively weaken schemas, miss non-state facts such as speech, overconstrain rules, or leave perception without a canonical factual input.
+
+**Consequences:** Initial action facts have precise durable contracts and later perception can distinguish their payloads. Some data intentionally overlaps state changes for audit clarity, and later world operations or mechanics require explicit new event variants rather than arbitrary payload extension.

@@ -94,3 +94,23 @@ This file is a parking lot for promising possibilities that are not part of the 
 **Why postponed:** Image interpretation is ambiguous, and useful extraction requires stable location and connection schemas plus measurable graph-validation criteria. Generated topology must not become canonical without review.
 
 **Revisit when:** A hand-authored location graph supports the complete vertical slice and the project can validate connectivity, reachability, required metadata, and scenario compatibility.
+
+### IDEA-008: Offer language-improvement feedback on player text
+
+**Status:** Backlog
+
+**Opportunity:** Analyze player-entered text for grammar, clarity, and other language issues, then offer optional, constructive suggestions that help the player improve their writing without changing the intended meaning.
+
+**Why postponed:** Feedback needs a defined target language, consent and presentation rules, and a clear separation between language coaching and the simulation's interpretation of player intent. Premature feedback could be distracting, judgmental, or misread as a correction of the player's in-world choice.
+
+**Revisit when:** The player input and response flow is stable, and the project has a concrete language-learning goal, supported languages, and criteria for evaluating feedback quality and usefulness.
+
+### IDEA-009: Test functional LLM roles across supported models
+
+**Status:** Backlog
+
+**Opportunity:** Add integration tests that exercise functional LLM roles against supported local models and detect provider- or model-specific differences in request handling and response shape. This could catch regressions such as LLM-009, where Gemma's thinking output must be disabled and must not be accepted in place of functional content.
+
+**Why postponed:** Meaningful cross-model tests require a defined support matrix, reproducible model versions and runtime configuration, and clear expectations for each role. Without those, they would be slow, flaky, and difficult to interpret.
+
+**Revisit when:** The project supports more than one local model in practice, its integration-test environment can provision or identify the relevant models reliably, and each functional role has stable success and failure criteria.
