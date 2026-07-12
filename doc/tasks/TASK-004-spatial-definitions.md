@@ -1,10 +1,10 @@
 # TASK-004: Define immutable spatial topology
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
-**Owner:** Unassigned
+**Owner:** Default implementer
 
 **Role:** Implementer
 
@@ -41,7 +41,7 @@ Do not read the initial scenario, postponed ideas, unrelated requirements, or im
 * All three definitions and their nested contents are frozen and forbid unknown fields.
 * Duplicate identifiers, missing endpoint references, self-loops, parallel-edge policy, reachability, and other graph semantics are not validated by these structural models. `SPACE-014` belongs to the later graph-validation task.
 * Runtime state, coordinates, descriptions, features, requirements, visibility, and availability are outside this schema.
-* No new dependency is authorized.
+* No new dependency or dependency-version change is authorized. The lockfile's editable root-package version must track the project version.
 * This new public contract advances the project version from `0.2.0` to `0.3.0`.
 
 ## In scope
@@ -85,7 +85,7 @@ The models may live in a new focused module such as `src/llm_system/game_package
 4. Invalid identifiers, blank names, boolean or non-integer durations, and scalar, string, or mapping collection inputs fail strict validation without introducing another dependency. Tuple inputs may remain tuples; YAML list inputs are the only representation normalized by this task.
 5. Structurally valid duplicate IDs, dangling endpoint IDs, self-loops, and parallel directed edges can be represented at this model-only boundary, demonstrating that semantic graph checks remain assigned to the later validator (`SPACE-014`).
 6. The three named public imports work while all TASK-003 imports and manifest-loading tests remain unchanged and passing.
-7. `pyproject.toml` and installed distribution metadata report `0.3.0`; dependencies and the lockfile do not change.
+7. `pyproject.toml`, installed distribution metadata, and the editable root-package entry in `uv.lock` report `0.3.0`; all dependency entries and resolved dependency versions remain unchanged.
 8. README documents the node/edge mapping, directed reverse-edge rule, integer-second duration, and definition-versus-state boundary without claiming graph validation or scenario content loading exists.
 
 ## Required verification
@@ -98,7 +98,7 @@ The models may live in a new focused module such as `src/llm_system/game_package
 * `make test`
 * `make check`
 * `uv lock --check`
-* Confirm `uv.lock` is unchanged from the task baseline.
+* Confirm the only `uv.lock` change from the task baseline is the editable root package version from `0.2.0` to `0.3.0`.
 * `git diff --check`
 
 Record the initial failing command and final command results in the handoff. The initial red state must precede implementation; do not remove or break existing implementation afterward to manufacture failure evidence.
@@ -111,12 +111,18 @@ Stop and report a design gap if implementation requires adding a dependency, loa
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented strict immutable location, directed-connection, and ordered spatial-graph definitions.
 
-**Changed files:** Pending
+**Changed files:** `README.md`, `pyproject.toml`, `uv.lock`, `src/llm_system/game_packages/__init__.py`, `src/llm_system/game_packages/spatial.py`, `tests/test_package.py`, `tests/test_spatial_definitions.py`, and this task file.
 
-**Verification:** Pending
+**Verification:** Initial red state: `uv run pytest tests/test_spatial_definitions.py` failed during collection with `ImportError: cannot import name 'LocationDefinition'`. Final integration verification: `uv sync --locked`, `make format`, `make check`, `uv lock --check`, and `git diff --check` passed. Ruff and mypy passed; all 35 tests passed on Python 3.12.3. The only lockfile change is the editable root package version from `0.2.0` to `0.3.0`.
 
-**Deviations:** Pending
+**Deviations:** The architect corrected a contradictory planning constraint: the dependency graph must remain unchanged, but `uv.lock` must track the accepted root project version. No dependency or resolved dependency version changed.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None. Graph semantics remain assigned to the later validation task as planned.
+
+## Integrator review
+
+**Disposition:** Accepted after resolving the task-contract contradiction.
+
+The integrator authorized only the required editable root-version update in `uv.lock`, routed raw negative-test inputs through Pydantic's validation boundary so strict mypy checks could run, and consolidated duplicate non-blank-name validation as a green refactor. The final models preserve authored order as tuples, reject coercion and unknown fields, remain deeply immutable, and deliberately do not perform semantic graph validation.

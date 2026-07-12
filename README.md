@@ -43,6 +43,19 @@ directory and verifies that the one YAML entrypoint remains a regular file insid
 the package. Entrypoint content parsing and scenario dependency resolution are not
 implemented yet.
 
+## Spatial definitions
+
+`LocationDefinition` models an authored location node and
+`ConnectionDefinition` models one authored directed edge. Reverse travel needs a
+separate connection definition. Each connection has an explicit positive
+integer-second `base_traversal_seconds` duration.
+
+`SpatialGraphDefinition` stores authored location and connection order as
+immutable collections. These package definitions describe stable topology only;
+mutable availability, conditions, visibility, and other runtime state belong to
+later state models. Spatial graph validation and scenario-content loading are not
+implemented yet.
+
 ## Documentation
 
 * [High-level design](doc/high_level_design.md)

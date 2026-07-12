@@ -5,11 +5,19 @@ from llm_system.game_packages.models import (
     RulePackageManifest,
     ScenarioPackageManifest,
 )
+from llm_system.game_packages.spatial import (
+    ConnectionDefinition,
+    LocationDefinition,
+    SpatialGraphDefinition,
+)
 
 __all__ = [
     "PackageManifest",
     "PackageManifestError",
+    "ConnectionDefinition",
+    "LocationDefinition",
     "RulePackageManifest",
     "ScenarioPackageManifest",
+    "SpatialGraphDefinition",
     "load_package_manifest",
 ]
