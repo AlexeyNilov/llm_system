@@ -167,6 +167,10 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 ### Package loader and validator
 
 * Safely parses YAML rule and scenario packages into strict Pydantic models.
+* Discovers self-contained exact versions below `game_packages/rules/` and `game_packages/scenarios/`.
+* Validates a shared manifest identity envelope and exact scenario-to-rule-pack pins before parsing package content.
+* Confirms that manifest identity matches its directory and that its single YAML entrypoint resolves to a regular file inside that package directory.
+* Exposes application-owned manifest types, a loading function, and one manifest error rather than leaking raw mappings or validation-library exceptions.
 * Validates schema, references, graph connectivity, supported operations, and compatibility before use.
 * Records exact package identities and versions in world metadata.
 * Requires reset or explicit migration for incompatible package changes.

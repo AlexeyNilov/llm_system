@@ -392,3 +392,15 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Support several Python minor versions immediately, use Poetry or pip-managed requirements files, use setuptools or a flat package layout, or declare the anticipated application stack up front. Multi-version support adds a test matrix before distribution is a goal; Poetry and parallel requirements files add another project model; setuptools is more machinery than this package needs; a flat layout can hide packaging errors; speculative dependencies obscure which feature justified each library.
 
 **Consequences:** Fresh sessions and delegated agents can reconstruct and verify the same small environment with `uv sync` and Make. The application is intentionally constrained to Python 3.12 until a later accepted change widens or advances the runtime. Pydantic, PyYAML, FastAPI, Streamlit, database helpers, and model clients must be introduced by the tasks that first require them.
+
+### 2026-07-12: Use self-contained exact-version game package manifests
+
+**Status:** Accepted
+
+**Context:** Rule and scenario content must be independently authorable, inspectable, versioned, and safe to load without coupling it to Python source modules. Persistent worlds must be able to identify the exact content contracts they use, while the initial vertical slice does not need a general dependency resolver or multi-file merge semantics.
+
+**Decision:** Store packages under `game_packages/rules/<package-id>/<package-version>/` and `game_packages/scenarios/<package-id>/<package-version>/`. Each self-contained directory has `manifest.yaml` with a shared strict identity envelope: schema version `1`, lowercase kebab-case identifier, stable `MAJOR.MINOR.PATCH` version, `rule` or `scenario` type, non-empty title, and one relative YAML entrypoint. A scenario pins exactly one rule pack by exact identifier and version; a rule pack has no package dependency. Validate safely parsed YAML into strict frozen Pydantic 2 models, forbid unknown fields, verify directory identity and entrypoint containment, and expose one application-owned loading function and manifest error.
+
+**Alternatives considered:** Keep authored YAML inside the Python package, overwrite each package identifier with only its latest version, allow scenario dependency ranges, support multiple entrypoint files with merge semantics, or expose PyYAML and Pydantic errors directly. These choices respectively mix code and content lifecycles, prevent exact restart compatibility, require dependency resolution, introduce undefined merge behavior, or leak implementation libraries across the application boundary.
+
+**Consequences:** Multiple exact package versions can coexist, scenario compatibility is deterministic, and downstream code receives a trusted typed manifest rather than raw mappings. Pydantic and PyYAML become justified runtime dependencies. Prerelease versions, dependency ranges, content parsing, dependency resolution, includes, and multi-file composition require later schema-versioned decisions rather than implicit loader behavior.

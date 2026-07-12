@@ -104,6 +104,18 @@ This helps ensure requirements are:
 
 **PACK-011:** The package loader shall reject executable YAML constructs, invalid types, unresolved references, and unsupported operations before creating or resuming a world.
 
+**PACK-012:** Each rule and scenario package manifest shall declare `schema_version`, `package_id`, `package_version`, `package_type`, `title`, and one YAML `entrypoint` using the strict initial manifest schema.
+
+**PACK-013:** The initial manifest schema shall accept only schema version `1`, lowercase kebab-case package identifiers, stable `MAJOR.MINOR.PATCH` package versions, and package types `rule` or `scenario`.
+
+**PACK-014:** Each scenario package manifest shall identify exactly one required rule pack by exact package identifier and package version, while a rule package manifest shall not declare a scenario or rule dependency.
+
+**PACK-015:** The system shall discover authored game packages under `game_packages/rules/<package-id>/<package-version>/` or `game_packages/scenarios/<package-id>/<package-version>/`, and the package directory kind, identifier, and version shall match its manifest.
+
+**PACK-016:** Before returning a validated package manifest, the package loader shall confirm that its entrypoint is a relative YAML file contained within the package directory and that the resolved entrypoint exists as a regular file.
+
+**PACK-017:** When a package manifest is missing, malformed, invalid, inconsistent with its directory, or references an unsafe or missing entrypoint, the package loader shall reject it through an application-owned manifest error without returning raw package data.
+
 ### Player experience
 
 **PLAY-001:** The system shall allow the player to express attempted actions in free-form text.
