@@ -59,7 +59,7 @@ Sequence the initial vertical slice by dependency and control when work is ready
 
 | Planned task | Depends on | Outcome |
 | --- | --- | --- |
-| Architecture boundary review | M3 deterministic kernel | Trace a representative player turn; check authority, data ownership, requirement coverage, and testability; record evidence and design gaps for the architect or integrator to resolve before M4. |
+| Architecture boundary review | M3 deterministic kernel | Trace a representative player turn; check authority, data ownership, requirement coverage, and testability; assess the documentation information architecture described by IDEA-010 and IDEA-011; record evidence, design gaps, and promotion recommendations for the architect or integrator to resolve before M4. |
 
 ### M4: Persistence and application boundary
 
