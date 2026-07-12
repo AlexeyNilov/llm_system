@@ -43,6 +43,20 @@ directory and verifies that the one YAML entrypoint remains a regular file insid
 the package. Entrypoint content parsing and scenario dependency resolution are not
 implemented yet.
 
+## Rule-pack definitions
+
+`RulePackDefinition` is the strict immutable content-schema-version-1 root for
+rule-pack entrypoints. It contains authored-order catalogs of
+`ObjectArchetypeDefinition`, `CharacterArchetypeDefinition`, and
+`DecisionPolicyDefinition`. Archetypes currently declare only a stable ID and a
+non-blank name; decision policies additionally declare their `rule`, `llm`, or
+`hybrid` type.
+
+These definitions are reference catalogs, not executable mechanics. Content
+loading, duplicate-ID validation, scenario-reference resolution, policy
+implementation lookup, policy execution, and mechanics such as actions,
+abilities, effects, or settings remain outside this initial schema.
+
 ## Spatial definitions
 
 `LocationDefinition` models an authored location node and

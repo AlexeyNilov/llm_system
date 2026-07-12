@@ -1,4 +1,4 @@
-from typing import Annotated
+from typing import Annotated, Literal
 
 from pydantic import AfterValidator, Field, StringConstraints
 
@@ -16,3 +16,5 @@ NonBlankText = Annotated[
     Field(min_length=1),
     AfterValidator(_validate_non_blank),
 ]
+
+DecisionPolicyType = Literal["rule", "llm", "hybrid"]

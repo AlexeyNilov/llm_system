@@ -1,10 +1,10 @@
 # TASK-006: Define rule-pack reference catalogs
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
-**Owner:** Unassigned
+**Owner:** Default implementer
 
 **Role:** Implementer
 
@@ -110,12 +110,18 @@ Stop and report a design gap if implementation requires adding a dependency, add
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented strict immutable rule-pack reference catalogs and public exports.
 
-**Changed files:** Pending
+**Changed files:** `README.md`, `pyproject.toml`, `uv.lock`, `src/llm_system/game_packages/__init__.py`, `src/llm_system/game_packages/_types.py`, `src/llm_system/game_packages/entities.py`, `src/llm_system/game_packages/rules.py`, `tests/test_package.py`, and `tests/test_rule_pack_definition.py`.
 
-**Verification:** Pending
+**Verification:** Initial red state: `uv run pytest tests/test_rule_pack_definition.py` failed during collection with `ImportError` for `CharacterArchetypeDefinition`, before rule implementation. Final: focused rule-pack tests (18 passed); `make format`; `make lint`; `make mypy`; `make test` (73 passed); `make check`; `uv lock --check`; and `git diff --check` all passed. Confirmed the only `uv.lock` diff is editable `llm-system` version `0.4.0` to `0.5.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** Semantic duplicate-ID validation, package entrypoint loading, reference resolution, policy implementation lookup, and mechanics remain intentionally deferred.
+
+## Integrator review
+
+**Disposition:** Accepted.
+
+The integrator independently confirmed the strict catalog records, shared policy-type vocabulary, schema-version guard, ordered immutable root, public exports, and absence of mechanics or loading behavior. Review added a valid all-empty-root case and separated invalid-ID from blank-name evidence so either constraint cannot mask the other. `uv sync --locked`, `make format`, `make check`, `uv lock --check`, and `git diff --check` succeeded on Python 3.12.3; the final suite contains 75 passing tests. The only lockfile change is the editable root package version from `0.4.0` to `0.5.0`.

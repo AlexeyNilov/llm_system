@@ -18,6 +18,12 @@ from llm_system.game_packages.models import (
     RulePackageManifest,
     ScenarioPackageManifest,
 )
+from llm_system.game_packages.rules import (
+    CharacterArchetypeDefinition,
+    DecisionPolicyDefinition,
+    ObjectArchetypeDefinition,
+    RulePackDefinition,
+)
 from llm_system.game_packages.spatial import (
     ConnectionDefinition,
     LocationDefinition,
@@ -28,8 +34,10 @@ __all__ = [
     "PackageManifest",
     "PackageManifestError",
     "CharacterDefinition",
+    "CharacterArchetypeDefinition",
     "ConnectionDefinition",
     "DecisionPolicyReference",
+    "DecisionPolicyDefinition",
     "EntityCollectionDefinition",
     "EntityDefinition",
     "GoalDefinition",
@@ -37,10 +45,12 @@ __all__ = [
     "LocationPlacementDefinition",
     "NpcCharacterDefinition",
     "ObjectDefinition",
+    "ObjectArchetypeDefinition",
     "ObjectPlacementDefinition",
     "PlayerCharacterDefinition",
     "PossessedPlacementDefinition",
     "RulePackageManifest",
+    "RulePackDefinition",
     "ScenarioPackageManifest",
     "SpatialGraphDefinition",
     "load_package_manifest",

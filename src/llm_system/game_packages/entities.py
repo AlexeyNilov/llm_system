@@ -2,7 +2,7 @@ from typing import Annotated, Literal
 
 from pydantic import BaseModel, ConfigDict, Field, field_validator
 
-from llm_system.game_packages._types import NonBlankText, RecordId
+from llm_system.game_packages._types import DecisionPolicyType, NonBlankText, RecordId
 
 
 class _StrictDefinition(BaseModel):
@@ -31,7 +31,7 @@ class GoalDefinition(_StrictDefinition):
 
 
 class DecisionPolicyReference(_StrictDefinition):
-    policy_type: Literal["rule", "llm", "hybrid"]
+    policy_type: DecisionPolicyType
     policy_id: RecordId
 
 
