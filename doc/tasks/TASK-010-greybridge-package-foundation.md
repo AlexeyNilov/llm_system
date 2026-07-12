@@ -1,6 +1,6 @@
 # TASK-010: Author the Greybridge package foundation
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -129,12 +129,32 @@ Stop and report a design gap if the accepted foundation requires a schema or pro
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Real Greybridge rule and scenario packages load from their repository
+directories and pass semantic validation as a schema-version-1 content foundation.
 
-**Changed files:** Pending
+**Changed files:** `game_packages/rules/greybridge-rules/0.1.0/manifest.yaml`,
+`game_packages/rules/greybridge-rules/0.1.0/rules.yaml`,
+`game_packages/scenarios/storm-at-greybridge/0.1.0/manifest.yaml`,
+`game_packages/scenarios/storm-at-greybridge/0.1.0/scenario.yaml`,
+`tests/test_greybridge_packages.py`, `tests/test_package.py`, `pyproject.toml`,
+`uv.lock`, and `README.md`.
 
-**Verification:** Pending
+**Verification:** Initial red state: `uv run pytest tests/test_greybridge_packages.py -q`
+failed before content creation because `load_game_package` raised
+`GamePackageLoadError` caused by `NotADirectoryError` for the missing rule package
+directory. Final focused test: the same command passed (1 passed). `uv sync --locked`,
+`make format`, `make lint`, `make mypy`, `make test` (100 passed), `make check`,
+`uv lock --check`, and `git diff --check` all passed. `uv.lock` diff was confirmed
+to contain only the editable `llm-system` root-package version change from `0.8.0`
+to `0.9.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None. This content intentionally leaves mechanics,
+runtime state, and world-readiness to later contracts.
+
+## Integrator review
+
+**Disposition:** Accepted.
+
+The integrator independently loaded both repository package directories through `load_game_package`, validated the pair through `validate_game_packages`, and inspected the exact manifests, catalogs, topology, cast, placements, goals, plans, and policy references. Review strengthened the real-content test to assert every directed connection endpoint as well as ID and duration, and moved all model imports onto the public package boundary. `uv sync --locked`, `make format`, `make lint`, `make mypy`, `make test`, `make check`, `uv lock --check`, and `git diff --check` succeeded on Python 3.12.3; the final suite contains 100 passing tests. The only lockfile change is the editable root package version from `0.8.0` to `0.9.0`.

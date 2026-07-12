@@ -1,0 +1,20 @@
+schema_version: 1
+object_archetypes:
+  - id: medicine
+    name: Medicine
+  - id: reinforcement-materials
+    name: Reinforcement Materials
+character_archetypes:
+  - id: traveler
+    name: Traveler
+  - id: courier
+    name: Courier
+  - id: caretaker
+    name: Caretaker
+decision_policies:
+  - id: courier-llm-policy
+    name: Courier LLM Policy
+    policy_type: llm
+  - id: caretaker-rule-policy
+    name: Caretaker Rule Policy
+    policy_type: rule

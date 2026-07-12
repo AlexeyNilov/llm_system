@@ -51,6 +51,40 @@ not locate or resolve that dependency. Duplicate and cross-package references,
 graph invariants, compatibility, supported operations, and playability remain
 semantic validation responsibilities outside this structural loading boundary.
 
+## Greybridge content foundation
+
+The repository includes its first authored schema-version-1 package pair:
+
+```text
+game_packages/rules/greybridge-rules/0.1.0/
+game_packages/scenarios/storm-at-greybridge/0.1.0/
+```
+
+Schema version 1 represents only typed reference catalogs, authored spatial
+topology, entities, initial placement and possession, and NPC identity, goals,
+plans, and policy references. Load both repository directories and validate the
+pair through the public boundary:
+
+```python
+from pathlib import Path
+
+from llm_system.game_packages import load_game_package, validate_game_packages
+
+repository_root = Path.cwd()  # Run this from the repository root.
+rules = load_game_package(
+    repository_root / "game_packages/rules/greybridge-rules/0.1.0"
+)
+scenario = load_game_package(
+    repository_root / "game_packages/scenarios/storm-at-greybridge/0.1.0"
+)
+validated = validate_game_packages(rules, scenario)
+```
+
+This is a validated content foundation, not a playable or world-ready scenario.
+It does not encode Fieldcraft, actions, bridge condition or damage, perceptible
+facts, flood scheduling, System director hooks, objectives, checks,
+progression, or mutable runtime state.
+
 ## Game-package semantic validation
 
 Use `llm_system.game_packages.validate_game_packages()` with one
@@ -108,8 +142,7 @@ integer-second `base_traversal_seconds` duration.
 `SpatialGraphDefinition` stores authored location and connection order as
 immutable collections. These package definitions describe stable topology only;
 mutable availability, conditions, visibility, and other runtime state belong to
-later state models. Spatial graph validation and scenario-content loading are not
-implemented yet.
+later state models.
 
 ## Entity definitions
 

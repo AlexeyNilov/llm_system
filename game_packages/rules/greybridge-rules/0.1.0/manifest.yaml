@@ -1,0 +1,6 @@
+schema_version: 1
+package_id: greybridge-rules
+package_version: 0.1.0
+package_type: rule
+title: Greybridge Rules
+entrypoint: rules.yaml
