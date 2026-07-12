@@ -114,3 +114,23 @@ This file is a parking lot for promising possibilities that are not part of the 
 **Why postponed:** Meaningful cross-model tests require a defined support matrix, reproducible model versions and runtime configuration, and clear expectations for each role. Without those, they would be slow, flaky, and difficult to interpret.
 
 **Revisit when:** The project supports more than one local model in practice, its integration-test environment can provision or identify the relevant models reliably, and each functional role has stable success and failure criteria.
+
+### IDEA-010: Reshape the project README
+
+**Status:** Backlog
+
+**Opportunity:** Make the README a concise, navigable entry point that explains the project, its current status, and how to find the authoritative documentation without overwhelming readers with detail better owned elsewhere.
+
+**Why postponed:** A useful restructure depends on stable onboarding needs and a clear documentation map. Rearranging content too early risks simply moving crowding between files or duplicating governance documents.
+
+**Revisit when:** The core development workflow and documentation ownership are stable enough to identify what belongs in the README, what should move to focused documents, and what new contributors need first.
+
+### IDEA-011: Create a domain manual for new developers
+
+**Status:** Backlog
+
+**Opportunity:** Provide a focused manual that introduces the simulation domain, canonical vocabulary, key concepts, and the reasoning behind important rules so new developers can work effectively without reconstructing the domain from scattered specifications.
+
+**Why postponed:** The domain model and its terminology are still evolving. A manual written before they stabilize could become a competing and quickly outdated source of truth.
+
+**Revisit when:** The glossary, requirements, and core scenario have stabilized through a vertical slice, and recurring onboarding questions identify the concepts that need a guided explanation.

@@ -752,3 +752,15 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Use one generic operation event, infer events from state changes, require exactly one event per attempt, or postpone all event types until perception. These choices respectively weaken schemas, miss non-state facts such as speech, overconstrain rules, or leave perception without a canonical factual input.
 
 **Consequences:** Initial action facts have precise durable contracts and later perception can distinguish their payloads. Some data intentionally overlaps state changes for audit clarity, and later world operations or mechanics require explicit new event variants rather than arbitrary payload extension.
+
+### 2026-07-12: Validate context-free outcome consistency structurally
+
+**Status:** Accepted
+
+**Context:** Some invalid outcome combinations can be detected from the record alone, while others require the input world snapshot, proposal, loaded rules, and authority context. Putting all checks in either Pydantic models or the arbiter would respectively couple data contracts to world lookup or allow malformed nested records to circulate.
+
+**Decision:** Outcome construction enforces that nested events use the containing outcome ID and completion time, event IDs are unique within the outcome, each character location, object placement, or connection availability changes at most once, and at most one simulation-time change exists. Sequential deltas to one field must be collapsed into one before-and-after change. The later arbiter verifies before values against state, time agreement with input, actionability, source authority, and semantic agreement among proposal, changes, and events.
+
+**Alternatives considered:** Perform every check in Pydantic validators, defer every check to the arbiter, allow sequential changes inside one atomic outcome, or validate only during persistence. These choices respectively require external context in constructors, admit internally contradictory records, obscure final deltas, or discover defects after the trust boundary.
+
+**Consequences:** Outcome values are internally coherent before reaching the arbiter without pretending to be valid for a particular world. The outcome models need small cross-record validators, and arbiter tests retain responsibility for all state-dependent guarantees.

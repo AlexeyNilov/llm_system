@@ -402,6 +402,16 @@ This helps ensure requirements are:
 
 **ACTION-033:** The initial kernel shall model one atomic completion time per resolved outcome and shall represent elapsed-time-triggered scheduled activities as separate later resolutions rather than intermediate events inside the triggering outcome.
 
+**ACTION-034:** Failed and succeeded outcome construction shall require every nested event's outcome identity and occurrence time to equal the containing outcome identity and completion time.
+
+**ACTION-035:** Canonical event identities shall be unique within one outcome.
+
+**ACTION-036:** One outcome shall contain at most one state change for each affected character location, object placement, or connection availability and at most one simulation-time change; sequential changes to one field shall be collapsed into one before-and-after delta.
+
+**ACTION-037:** Outcome model construction shall not validate state-dependent facts, including whether before values match an input snapshot, references are actionable, event facts agree with operation resolution, or a proposal source is authorized.
+
+**ACTION-038:** The simulation arbiter shall validate state-dependent outcome consistency before committing any replacement snapshot or canonical event.
+
 **ACTION-011:** The system shall keep an untrusted operation-specific proposal payload separate from its trusted application-created proposal-submission envelope.
 
 **ACTION-012:** A proposal submission shall contain proposal identity, source role and identity, intended actor when applicable, simulation-step context, and trace provenance, and generated output shall not supply or override that metadata.

@@ -52,13 +52,21 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | Simulation clock and deterministic scheduler | Planned | Event contracts |
 | Deterministic perception engine | Planned | Location graph and events |
 
+### M3.5: Architecture review before persistence
+
+**Outcome:** An independent, read-only review confirms that the completed deterministic-kernel contracts are ready to become persistent and application-facing boundaries.
+
+| Planned task | Depends on | Outcome |
+| --- | --- | --- |
+| Architecture boundary review | M3 deterministic kernel | Trace a representative player turn; check authority, data ownership, requirement coverage, and testability; record evidence and design gaps for the architect or integrator to resolve before M4. |
+
 ### M4: Persistence and application boundary
 
 **Outcome:** One world survives restart and advances through an atomic FastAPI turn operation.
 
 | Planned task | Depends on |
 | --- | --- |
-| SQLite schema and repositories | M3 domain contracts |
+| SQLite schema and repositories | M3 domain contracts, M3.5 architecture review |
 | Atomic simulation-step transaction and trace | SQLite repositories, scheduler |
 | World creation, resume, and reset | Packages, repositories |
 | FastAPI turn boundary | Atomic simulation step |
