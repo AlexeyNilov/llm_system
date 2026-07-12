@@ -5,6 +5,10 @@ from pydantic import AfterValidator, Field
 
 from llm_system.simulation._types import AuthoredId, _StrictContract
 
+ActorActionOperation = Literal[
+    "observe", "move", "speak", "take", "use", "help", "wait"
+]
+
 
 def _validate_non_blank(value: str) -> str:
     if not value.strip():

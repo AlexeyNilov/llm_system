@@ -1,4 +1,5 @@
 from llm_system.simulation.actions import (
+    ActorActionOperation,
     ActorActionProposal,
     ActorActionSource,
     ActorActionSubmission,
@@ -19,6 +20,24 @@ from llm_system.simulation.actions import (
     UseTarget,
     WaitActionProposal,
 )
+from llm_system.simulation.changes import (
+    CharacterLocationChanged,
+    ConnectionAvailabilityChanged,
+    ObjectPlacementChanged,
+    SimulationTimeChanged,
+    StateChange,
+)
+from llm_system.simulation.events import (
+    ActorActionFailedEvent,
+    ActorHelpedEvent,
+    ActorMovedEvent,
+    ActorObservedEvent,
+    ActorSpokeEvent,
+    ActorWaitedEvent,
+    CanonicalEvent,
+    ObjectTakenEvent,
+    ObjectUsedEvent,
+)
 from llm_system.simulation.state import (
     CharacterState,
     ConnectionState,
@@ -37,12 +56,22 @@ from llm_system.simulation.validation import (
 )
 
 __all__ = [
+    "ActorActionFailedEvent",
+    "ActorActionOperation",
     "ActorActionProposal",
     "ActorActionSource",
     "ActorActionSubmission",
+    "ActorHelpedEvent",
+    "ActorMovedEvent",
+    "ActorObservedEvent",
+    "ActorSpokeEvent",
+    "ActorWaitedEvent",
+    "CanonicalEvent",
+    "CharacterLocationChanged",
     "CharacterState",
     "CharacterTarget",
     "ConnectionState",
+    "ConnectionAvailabilityChanged",
     "ConnectionTarget",
     "HelpActionProposal",
     "LocationTarget",
@@ -50,13 +79,18 @@ __all__ = [
     "NpcPolicyActionSource",
     "ObjectAtLocation",
     "ObjectPlacement",
+    "ObjectPlacementChanged",
     "ObjectPossessedByCharacter",
     "ObjectState",
+    "ObjectTakenEvent",
     "ObjectTarget",
+    "ObjectUsedEvent",
     "ObservationTarget",
     "ObserveActionProposal",
     "PlayerInterpreterActionSource",
     "SpeakActionProposal",
+    "SimulationTimeChanged",
+    "StateChange",
     "SurroundingsTarget",
     "TakeActionProposal",
     "UseActionProposal",

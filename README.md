@@ -168,6 +168,28 @@ but well-shaped references. It is not proof that the snapshot is world-ready:
 package-aware completeness, uniqueness, and reference validation belong to a
 separate boundary.
 
+## State-change and canonical-event contracts
+
+State changes and canonical events are separate public leaf contracts.
+`StateChange` is a closed union of self-verifying snapshot deltas:
+`CharacterLocationChanged`, `ObjectPlacementChanged`,
+`ConnectionAvailabilityChanged`, and `SimulationTimeChanged`. Each delta records
+explicit before and after values and rejects a no-op; object changes reuse the
+runtime `ObjectPlacement` variants.
+
+`CanonicalEvent` is durable factual history, not a mutation command. Its closed
+initial union contains `ActorObservedEvent`, `ActorMovedEvent`,
+`ActorSpokeEvent`, `ObjectTakenEvent`, `ObjectUsedEvent`, `ActorHelpedEvent`,
+`ActorWaitedEvent`, and `ActorActionFailedEvent`. Every event requires
+application-supplied event and outcome UUIDs plus its non-negative occurrence
+time. Target and placement payloads reuse the existing typed contracts, and
+failed actions reuse the public seven-value `ActorActionOperation` vocabulary.
+
+These contracts do not aggregate outcomes, apply changes, compare a delta with
+a world snapshot, validate event/outcome causation, enforce uniqueness across a
+collection, or provide persistence. Events contain no visibility, observer, or
+narration decisions; those remain perception and presentation concerns.
+
 ## Relational world-state validation
 
 Use `llm_system.simulation.validate_world_state()` to compare one structural

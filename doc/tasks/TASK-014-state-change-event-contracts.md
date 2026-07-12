@@ -1,6 +1,6 @@
 # TASK-014: Define state-change and canonical-event contracts
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -121,12 +121,26 @@ Stop and report a design gap if implementation requires outcome semantics, anoth
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the four strict immutable state-change variants, the eight strict immutable canonical-event variants, their closed discriminated unions, the shared public actor-operation vocabulary, public exports, documentation, and the `0.13.0` version milestone.
 
-**Changed files:** Pending
+**Changed files:** `README.md`; `doc/tasks/TASK-014-state-change-event-contracts.md`; `pyproject.toml`; `src/llm_system/simulation/__init__.py`; `src/llm_system/simulation/actions.py`; `src/llm_system/simulation/changes.py`; `src/llm_system/simulation/events.py`; `tests/test_events.py`; `tests/test_package.py`; `tests/test_state_changes.py`; `uv.lock`.
 
-**Verification:** Pending
+**Verification:** Initial red: `.venv/bin/pytest tests/test_state_changes.py tests/test_events.py` failed collection with missing public imports for `CharacterLocationChanged` and `ActorActionFailedEvent`. Focused green: `.venv/bin/pytest tests/test_state_changes.py` (3 passed) and `.venv/bin/pytest tests/test_events.py` (4 passed). Final green: `uv sync --locked`; `make format`; `make lint`; `make mypy`; `make test` (126 passed); `make check` (format, lint, mypy, and 126 tests passed); `uv lock --check`; `git diff --check`. Audited `uv.lock`: its only change is editable root `llm-system` from `0.12.0` to `0.13.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None within TASK-014. Outcome aggregation and cross-record consistency remain deferred to TASK-015 as specified.
+
+## Integrator review
+
+**Disposition:** Accepted.
+
+The integrator independently reviewed all four state-change variants, all eight
+canonical-event variants, their discriminated unions, strict leaf invariants,
+typed target and placement reuse, public exports, and documentation. The models
+remain free of outcome aggregation, world lookup, visibility, narration, and
+persistence behavior. Nineteen focused tests passed, followed by `uv sync
+--locked`, `make format`, `make lint`, `make mypy`, `make test`, `make check`,
+`uv lock --check`, and `git diff --check`; the full suite contains 126 passing
+tests. The only `uv.lock` change is the editable root-package version from
+`0.12.0` to `0.13.0`.
