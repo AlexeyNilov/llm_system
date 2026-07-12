@@ -4,11 +4,14 @@ requires = ["hatchling"]
 
 [project]
 name = "llm-system"
-version = "0.1.0"
+version = "0.2.0"
 description = "An experimental persistent simulation with LLM-assisted narrative."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
-dependencies = []
+dependencies = [
+    "pydantic>=2,<3",
+    "pyyaml>=6,<7",
+]
 
 [dependency-groups]
 dev = [
@@ -30,4 +33,3 @@ target-version = "py312"
 files = ["src", "tests"]
 python_version = "3.12"
 strict = true
-

@@ -1,10 +1,10 @@
 # TASK-003: Load trusted game-package manifests
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
-**Owner:** Unassigned
+**Owner:** Default implementer
 
 **Role:** Implementer
 
@@ -115,12 +115,18 @@ Stop and report a design gap if implementation requires interpreting entrypoint 
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the strict immutable game-package manifest boundary and safe entrypoint validation.
 
-**Changed files:** Pending
+**Changed files:** `README.md`; `pyproject.toml`; `uv.lock`; `src/llm_system/game_packages/__init__.py`; `src/llm_system/game_packages/errors.py`; `src/llm_system/game_packages/loader.py`; `src/llm_system/game_packages/models.py`; `tests/test_game_packages.py`; `tests/test_package.py`; this task file.
 
-**Verification:** Pending
+**Verification:** Initial red state: `uv run pytest tests/test_game_packages.py` failed at collection with `ModuleNotFoundError: No module named 'llm_system.game_packages'`. Final: `uv sync --locked` passed; focused tests passed (20); `make format`, `make lint`, `make mypy`, `make test`, `make check`, `uv lock --check`, and `git diff --check` passed. Final full suite: 21 passed.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.
+
+## Integrator review
+
+**Disposition:** Accepted.
+
+The integrator independently inspected the models, loader, public exports, dependency changes, and tests against every acceptance criterion. The implementation safely parses YAML, validates strict frozen discriminated models, enforces exact directory identity, and rejects unsafe or missing entrypoints behind the application-owned error boundary. Combined negative tests were split so each test covers one meaningful failure scenario; production behavior was unchanged. `uv sync --locked`, `make format`, `make check`, `uv lock --check`, and `git diff --check` all succeeded on Python 3.12.3. The final suite contains 24 passing tests.

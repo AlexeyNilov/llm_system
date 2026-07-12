@@ -27,6 +27,22 @@ make check
 
 `make check` verifies formatting, linting, static types, and tests. It does not require any local model or service to be running.
 
+## Game-package manifests
+
+Versioned authored packages live outside Python code:
+
+```text
+game_packages/
+  rules/<package-id>/<package-version>/manifest.yaml
+  scenarios/<package-id>/<package-version>/manifest.yaml
+```
+
+Use `llm_system.game_packages.load_package_manifest()` to safely load the strict,
+immutable rule or scenario manifest. It validates package identity against the
+directory and verifies that the one YAML entrypoint remains a regular file inside
+the package. Entrypoint content parsing and scenario dependency resolution are not
+implemented yet.
+
 ## Documentation
 
 * [High-level design](doc/high_level_design.md)
