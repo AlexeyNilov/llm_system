@@ -224,6 +224,23 @@ structured runtime-state issues. This narrow relational boundary does not
 initialize a world, supply default availability, validate policy implementations
 or mechanics, establish persistence compatibility, or prove scenario playability.
 
+## Outcome commitment
+
+Use `llm_system.simulation.commit_outcome()` to commit an already resolved
+`Outcome` against one `ValidatedWorldState`. The pure deterministic boundary
+checks completion time, runtime targets, before values, and authored after-state
+references before applying anything. A successful change set produces one new
+validated snapshot paired with the exact existing validated packages; unchanged
+records retain identity and tuple order. Rejected and effect-free outcomes return
+the exact input world, while the result always retains the exact supplied outcome
+as trace evidence and leaves canonical events inside that outcome.
+
+Invalid commitment raises one `OutcomeCommitError` containing all deterministic
+structured issues and applies neither state changes nor events. Commitment does
+not look up proposals or submissions, authorize sources, dispatch or resolve
+operations, interpret event payloads as mutations, persist results, or prove
+agreement between events and state changes.
+
 ## Scenario-pack definitions
 
 `ScenarioPackDefinition` is the strict immutable content-schema-version-1 root

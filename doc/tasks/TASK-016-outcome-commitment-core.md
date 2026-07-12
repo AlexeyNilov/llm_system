@@ -1,6 +1,6 @@
 # TASK-016: Implement the arbiter outcome-commitment core
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -122,12 +122,26 @@ Stop and report a design gap if implementation requires proposal context, operat
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the pure atomic outcome-commitment boundary, public strict contracts, exhaustive validation and immutable application for all existing state-change variants, public exports, documentation, and the `0.15.0` behavior-milestone version bump.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/commitment.py`, `src/llm_system/simulation/__init__.py`, `tests/test_outcome_commitment.py`, `tests/test_package.py`, `README.md`, `pyproject.toml`, `uv.lock`, and `doc/tasks/TASK-016-outcome-commitment-core.md`.
 
-**Verification:** Pending
+**Verification:** Initial focused red: `uv run pytest tests/test_outcome_commitment.py` failed during collection with `ImportError: cannot import name 'OutcomeCommitError' from 'llm_system.simulation'`. Final green: focused commitment tests `7 passed`; adjacent simulation/package tests `27 passed`; `uv sync --locked`; `make format`; `make lint`; `make mypy`; `make test` (`139 passed`); `make check` (`139 passed` plus format, lint, and mypy); `uv lock --check`; and `git diff --check`. Confirmed the only `uv.lock` change is the editable root `llm-system` version from `0.14.0` to `0.15.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None identified.
+
+## Integrator review
+
+**Disposition:** Accepted.
+
+The integrator independently reviewed commitment contracts, target gating,
+before and after validation, time consistency, deterministic issue aggregation,
+atomic failure, immutable position-preserving application, identity behavior,
+final world revalidation, public exports, and documentation. No correctness
+defect was found. Twenty-two focused and adjacent tests passed, followed by `uv
+sync --locked`, `make format`, `make lint`, `make mypy`, `make test`, `make
+check`, `uv lock --check`, and `git diff --check`; the full suite contains 139
+passing tests. The only `uv.lock` change is the editable root-package version
+from `0.14.0` to `0.15.0`.

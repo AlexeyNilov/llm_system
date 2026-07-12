@@ -27,6 +27,13 @@ from llm_system.simulation.changes import (
     SimulationTimeChanged,
     StateChange,
 )
+from llm_system.simulation.commitment import (
+    OutcomeCommitError,
+    OutcomeCommitIssue,
+    OutcomeCommitIssueCode,
+    OutcomeCommitResult,
+    commit_outcome,
+)
 from llm_system.simulation.events import (
     ActorActionFailedEvent,
     ActorHelpedEvent,
@@ -94,6 +101,10 @@ __all__ = [
     "ObjectTarget",
     "ObjectUsedEvent",
     "Outcome",
+    "OutcomeCommitError",
+    "OutcomeCommitIssue",
+    "OutcomeCommitIssueCode",
+    "OutcomeCommitResult",
     "OutcomeReasonCode",
     "ObservationTarget",
     "ObserveActionProposal",
@@ -114,4 +125,5 @@ __all__ = [
     "WorldStateValidationIssue",
     "WorldStateValidationIssueCode",
     "validate_world_state",
+    "commit_outcome",
 ]
