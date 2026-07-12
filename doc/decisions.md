@@ -596,3 +596,63 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Add an empty world-action abstraction, create a generic world-operation payload, or define the optional-objective schema during actor-action work. These choices respectively provide no executable value, weaken the closed-operation boundary, or pull later lifecycle semantics into the wrong milestone.
 
 **Consequences:** TASK-011 remains cohesive and directly testable. The System director cannot yet submit an executable world action, which is intentional until its supported operation is designed. Later world-action work must not reuse actor-action submissions or treat the System director as a character.
+
+### 2026-07-12: Model runtime state as an ID-linked mutable-facts overlay
+
+**Status:** Accepted
+
+**Context:** The validated packages already own immutable names, topology, traversal durations, archetypes, goals, and initial definitions. Copying those facts into runtime state would create competing sources that could diverge, while the arbiter still needs explicit changing facts for resolution.
+
+**Decision:** Define canonical runtime state as a minimal immutable overlay linked to validated package definitions by stable authored identifiers. Character state records current location, object state records current location or possessor, connection state records current availability, and the world snapshot records simulation time plus immutable collections of those overlays. Arbiter resolution receives both the validated package pair and the runtime snapshot. Persistent world identity and recorded package versions belong to the later M4 world-record boundary rather than this pure M3 snapshot.
+
+**Alternatives considered:** Copy complete entity and graph definitions into each snapshot, mutate loaded package records, or make runtime state self-describing without its validated package context. These choices respectively duplicate authority, violate package immutability, or require definition-owned facts to drift into the state layer.
+
+**Consequences:** Authored and changing facts have one owner each, snapshots remain compact, and resolution must explicitly join overlays to validated definitions. World-readiness validation must later prove that the overlay references and covers the package pair it accompanies.
+
+### 2026-07-12: Require complete overlays at world readiness
+
+**Status:** Accepted
+
+**Context:** A sparse overlay would require implicit rules such as treating a missing connection state as available or consulting an object's initial package placement after play has begun. Those fallbacks create hidden defaults and make it unclear whether absence means unchanged, unknown, or invalid.
+
+**Decision:** A world-ready snapshot contains exactly one character-state record per authored character, one object-state record per authored object, and one connection-state record per authored connection. A separate semantic world-readiness validator compares the structurally valid snapshot with its validated package pair and rejects duplicates, omissions, extra runtime records, and invalid references. Structural Pydantic construction remains independent of package lookup.
+
+**Alternatives considered:** Store only changed records, apply implicit availability defaults during resolution, enforce package completeness inside individual model constructors, or keep consulting initial placements after world creation. These choices respectively introduce absence semantics, hide current facts, couple structural models to I/O context, or confuse initialization with live state.
+
+**Consequences:** Resolution always reads explicit current facts and never guesses from missing state. Initialization must materialize complete overlays, and world-readiness validation becomes an explicit boundary analogous to cross-package semantic validation.
+
+### 2026-07-12: Store canonical runtime collections as ordered immutable tuples
+
+**Status:** Accepted
+
+**Context:** Canonical snapshots need deterministic serialization and deep practical immutability. A frozen Pydantic model containing ordinary dictionaries still exposes nested mutation, while making dictionaries part of the public contract would also turn lookup representation and map ordering into domain semantics.
+
+**Decision:** Store character, object, and connection state in immutable ordered tuples. Initial world creation preserves authored order, but world-readiness validation and resolution do not depend on record order. Consumers may derive temporary identifier indexes for lookup; those indexes are not canonical state.
+
+**Alternatives considered:** Expose mutable dictionaries, use custom immutable-map dependencies, or require tuple order to control resolution. These choices respectively weaken immutability, add an unnecessary dependency, or create hidden behavioral coupling to serialization order.
+
+**Consequences:** Snapshots are straightforward to compare, serialize, and validate without new dependencies. Resolver code incurs small temporary indexing work, which is negligible for the vertical slice and can be optimized internally later without changing public semantics.
+
+### 2026-07-12: Begin runtime state with exact placement and availability variants
+
+**Status:** Accepted
+
+**Context:** The initial operations need current character locations, object location or possession, connection availability, and simulation time. Adding generic condition mappings or an unplaced-object state without accepted destruction, consumption, hiding, or containment semantics would create ambiguous mechanics.
+
+**Decision:** Define `CharacterState` with character and current-location identifiers; `ObjectState` with object identity and exactly one discriminated location-or-possessor placement; `ConnectionState` with connection identity and an explicit strict boolean availability; and `WorldState` with non-negative integer simulation seconds plus the three ordered state tuples. Do not initially represent unplaced, destroyed, consumed, hidden, quantified, conditioned, or nested objects, or richer character and connection conditions.
+
+**Alternatives considered:** Reuse one model with optional location and possessor fields, allow no placement, add generic status dictionaries, or model anticipated lifecycle states immediately. These choices respectively admit contradictory combinations, make disappearance ambiguous, weaken typed mechanics, or freeze semantics without a supported operation.
+
+**Consequences:** Every initial object always has one resolvable current placement and every connection has explicit availability. Consumption or destruction later requires a deliberate state and transition design rather than silent record removal.
+
+### 2026-07-12: Separate runtime-state structure from world-readiness validation
+
+**Status:** Accepted
+
+**Context:** Runtime-state records can be structurally valid while still duplicating an ID, omitting an authored entity, referencing an unknown definition, or pointing to an invalid location or possessor. Enforcing those relationships inside Pydantic constructors would require package context and repeat the coupling avoided by the package model and semantic-validation split.
+
+**Decision:** Implement strict immutable runtime-state structural models in TASK-012 without package lookup or relational validation. Implement a separate world-readiness validation task that compares one snapshot with `ValidatedGamePackages` and enforces completeness, uniqueness, definition matching, and runtime-reference validity. Outcome and event contracts follow that validated boundary.
+
+**Alternatives considered:** Combine structural models and package-aware validation, put all state and validation into one large task, or defer world-readiness checks to individual operation resolvers. These choices respectively couple constructors to external context, broaden delegation scope, or duplicate incomplete checks across operations.
+
+**Consequences:** TASK-012 remains a small stable public-contract task, and world-readiness failures gain their own deterministic semantic boundary. Structurally constructed snapshots are not proof that a world is ready for resolution.

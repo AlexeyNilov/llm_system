@@ -244,6 +244,34 @@ This helps ensure requirements are:
 
 **STATE-006:** Persistence shall later commit the replacement canonical snapshot, canonical events, and simulation-step trace atomically.
 
+**STATE-007:** Canonical runtime state shall contain only changing facts linked by stable identifiers to immutable validated package definitions and shall not duplicate authored names, topology, traversal durations, archetypes, goals, or other definition-owned data.
+
+**STATE-008:** Before resolving an operation, the simulation kernel shall receive both the validated game-package definitions and the canonical runtime-state snapshot required to interpret its identifier-linked overlays.
+
+**STATE-009:** World persistence identity and recorded package-version ownership shall belong to the later persistent world-record boundary rather than the pure M3 runtime-state snapshot.
+
+**STATE-010:** A world-ready runtime snapshot shall contain exactly one character-state record for every authored character, one object-state record for every authored object, and one connection-state record for every authored connection.
+
+**STATE-011:** World-readiness validation shall reject duplicate runtime identifiers, missing runtime records, runtime records without matching definitions, and invalid runtime references.
+
+**STATE-012:** Structural runtime-state model construction shall remain separate from world-readiness validation and shall not require package lookup.
+
+**STATE-013:** Resolution shall not infer current availability, location, or possession from a missing runtime-state record or fall back to an entity's initial package placement after world creation.
+
+**STATE-014:** `WorldState` shall expose character, object, and connection state as immutable ordered tuples; initial world creation shall preserve authored order, but semantic validity and resolution shall not depend on runtime record order.
+
+**STATE-015:** Public runtime-state contracts shall not expose mutable dictionaries as canonical collections; consumers may derive temporary identifier indexes without making them part of canonical state.
+
+**STATE-016:** `CharacterState` shall contain exactly an authored character identifier and its current location identifier.
+
+**STATE-017:** `ObjectState` shall contain exactly an authored object identifier and one discriminated current placement that is either a location or one possessing character, never both or neither.
+
+**STATE-018:** `ConnectionState` shall contain exactly an authored connection identifier and one explicit strict boolean availability value.
+
+**STATE-019:** `WorldState` shall contain a non-negative integer `simulation_time_seconds` and the ordered immutable character, object, and connection state tuples.
+
+**STATE-020:** The initial runtime-state contracts shall not represent unplaced, destroyed, consumed, hidden, quantified, conditioned, or nested objects, and shall not represent character or connection conditions beyond the accepted minimal fields.
+
 ### Character knowledge and memory
 
 **KNOW-001:** The system shall keep canonical world state separate from each character's perceptions, memories, and beliefs.
