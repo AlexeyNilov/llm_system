@@ -102,7 +102,7 @@ This helps ensure requirements are:
 
 **PACK-010:** Before package data reaches simulation logic, the system shall safely parse it and validate it into strict Pydantic models.
 
-**PACK-011:** The package loader shall reject executable YAML constructs, invalid types, unresolved references, and unsupported operations before creating or resuming a world.
+**PACK-011:** The package loading and validation pipeline shall reject executable YAML constructs, invalid types, unresolved references, and unsupported operations before creating or resuming a world.
 
 **PACK-012:** Each rule and scenario package manifest shall declare `schema_version`, `package_id`, `package_version`, `package_type`, `title`, and one YAML `entrypoint` using the strict initial manifest schema.
 
@@ -112,9 +112,13 @@ This helps ensure requirements are:
 
 **PACK-015:** The system shall discover authored game packages under `game_packages/rules/<package-id>/<package-version>/` or `game_packages/scenarios/<package-id>/<package-version>/`, and the package directory kind, identifier, and version shall match its manifest.
 
-**PACK-016:** Before returning a validated package manifest, the package loader shall confirm that its entrypoint is a relative YAML file contained within the package directory and that the resolved entrypoint exists as a regular file.
+**PACK-016:** Before returning a loaded game package, the package loader shall confirm that its entrypoint is a relative YAML file contained within the package directory and that the resolved entrypoint exists as a regular file.
 
-**PACK-017:** When a package manifest is missing, malformed, invalid, inconsistent with its directory, or references an unsafe or missing entrypoint, the package loader shall reject it through an application-owned manifest error without returning raw package data.
+**PACK-017:** When a package manifest or entrypoint is missing, malformed, invalid, inconsistent with its directory, or unsafe, the package loader shall reject the package through one application-owned game-package loading error without returning a partial manifest, raw package data, or validation-library exception.
+
+**PACK-018:** The package loader shall use the validated manifest package type as the sole selector for parsing the entrypoint into `RulePackDefinition` or `ScenarioPackDefinition`, without inferring package type from content keys.
+
+**PACK-019:** A successfully loaded game package shall be a strict immutable typed pair of its concrete rule or scenario manifest and matching content definition; loading one scenario package shall preserve but not resolve its exact required-rule-pack reference.
 
 ### Rule-pack content definitions
 

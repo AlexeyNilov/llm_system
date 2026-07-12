@@ -440,3 +440,15 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Validate scenario references against hard-coded strings, put executable policy code in YAML, add generic property or settings dictionaries, define full game mechanics immediately, or let the application registry be the only policy catalog. These choices respectively hide contracts, violate the code/data boundary, postpone type safety, broaden scope prematurely, or remove package-versioned compatibility information.
 
 **Consequences:** Scenario references gain explicit typed targets without pretending the mechanics system is complete. Cross-package validation can later compare archetype IDs and policy ID/type pairs, then compare policy declarations with the application implementation registry. Actions, abilities, skills, effects, and structured policy configuration require later accepted schema versions.
+
+### 2026-07-12: Load each game package atomically as one typed pair
+
+**Status:** Accepted
+
+**Context:** Manifest-only loading was a useful intermediate boundary before rule and scenario content roots existed. Keeping it public after those roots exist would allow callers to treat package identity as usable while its entrypoint is missing or invalid, and a generic manifest-definition tuple could permit accidental rule and scenario mismatches.
+
+**Decision:** Expose one `load_game_package` operation that loads exactly one package-version directory and returns either a strict immutable `LoadedRulePackage` or `LoadedScenarioPackage`, pairing the concrete manifest with its matching typed definition. Use the validated manifest type as the sole entrypoint-schema selector. Remove the public manifest-only loader and replace its manifest-specific error with one `GamePackageLoadError` that chains the underlying failure. Do not return partial results, infer type from entrypoint keys, resolve a scenario's required rule pack, or perform relational and graph validation during this structural loading step.
+
+**Alternatives considered:** Retain a public manifest-only loader, return only entrypoint content, return an untyped tuple, duplicate package type on the loaded wrapper, infer type from content shape, or load a scenario and its rule dependency together. These choices respectively expose partial trust, discard identity and compatibility data, weaken type pairing, create two type sources, hide manifest mistakes, or mix file loading with package composition.
+
+**Consequences:** Application code receives one coherent structurally trusted package or one stable application-owned failure. Concrete wrapper classes provide runtime narrowing without duplicated discriminators. Dependency resolution, cross-package references, graph invariants, uniqueness, and playability remain explicit later validation stages; a future broken-package browser would require a separate diagnostic API rather than weakening the usable-package loader.

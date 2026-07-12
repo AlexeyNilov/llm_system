@@ -168,9 +168,10 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 
 * Safely parses YAML rule and scenario packages into strict Pydantic models.
 * Discovers self-contained exact versions below `game_packages/rules/` and `game_packages/scenarios/`.
-* Validates a shared manifest identity envelope and exact scenario-to-rule-pack pins before parsing package content.
+* Validates a shared manifest identity envelope and preserves exact scenario-to-rule-pack pins without resolving them during single-package loading.
 * Confirms that manifest identity matches its directory and that its single YAML entrypoint resolves to a regular file inside that package directory.
-* Exposes application-owned manifest types, a loading function, and one manifest error rather than leaking raw mappings or validation-library exceptions.
+* Uses validated manifest type as the sole entrypoint-schema selector and returns one immutable typed manifest-definition pair only after both documents validate.
+* Exposes one complete-package loading function and one game-package loading error rather than exposing partial manifests, raw mappings, or validation-library exceptions.
 * Validates schema, references, graph connectivity, supported operations, and compatibility before use.
 * Records exact package identities and versions in world metadata.
 * Requires reset or explicit migration for incompatible package changes.
@@ -211,6 +212,8 @@ The design requires stable identifiers and explicit schemas for these concepts:
 * `LocationState` and `ConnectionState`: mutable canonical availability, conditions, requirements, and other runtime facts, defined separately from package topology.
 * `ObjectDefinition`, `PlayerCharacterDefinition`, `NpcCharacterDefinition`, and `EntityCollectionDefinition`: immutable authored inhabitants, archetype references, initial placement, and NPC motivation context.
 * `ObjectArchetypeDefinition`, `CharacterArchetypeDefinition`, `DecisionPolicyDefinition`, and `RulePackDefinition`: immutable rule-pack reference catalogs whose executable mechanics and policy implementations remain outside package data.
+* `ScenarioPackDefinition`: immutable scenario content root that explicitly composes authored spatial topology and inhabitants while later scenario concepts remain separate contracts.
+* `LoadedRulePackage` and `LoadedScenarioPackage`: immutable structurally trusted manifest-definition pairs returned by complete single-package loading before dependency and semantic validation.
 * `EntityState` and `CharacterState`: mutable canonical placement, possession, condition, goals, plans, and references to character-specific internal state, defined separately from package records.
 * `ActionProposal`: actor, intent, supported operation, arguments, and context trace.
 * `Outcome` and `Event`: resolution result, state changes, time, participants, and provenance.

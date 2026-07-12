@@ -148,6 +148,10 @@ An actor's desired immediate change or purpose. An intent describes what the act
 
 A separate read-only Streamlit development view over simulation-step traces, canonical state, and character perception snapshots. It is not part of the player experience and cannot edit canonical state.
 
+### Loaded game package
+
+A strict immutable pair of one validated concrete package manifest and its matching typed entrypoint definition. A loaded package is structurally trusted but has not necessarily passed relational, graph, dependency, or playability validation.
+
 ### Location
 
 A structured node in the spatial graph. Connections define possible traversal between locations.
@@ -223,6 +227,10 @@ The strict immutable typed root loaded from a rule pack's entrypoint. Content sc
 ### Scenario pack
 
 A versioned YAML game package defining initial world content such as the location graph, characters, objects, initial beliefs, scheduled events, and scenario pressures.
+
+### Scenario-pack definition
+
+The strict immutable typed root loaded from a scenario pack's entrypoint. Content schema version 1 explicitly composes one spatial-graph definition and one entity-collection definition; later schemas may add other accepted scenario concepts.
 
 ### Scheduled activity
 
