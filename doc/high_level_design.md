@@ -172,6 +172,14 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
   rechecking current object state. Historical reconstruction, richer visibility,
   composition, delivery tracking, reactions, memory, and presentation remain
   outside this boundary.
+* Separately projects immediate third-party speech-overhearing feedback through
+  pure `project_speech_overhearing_feedback(world, observer_id, events)`. After
+  observer-first and exact-current-time batch validation, it validates every
+  speech event's speaker before filtering and matches only an observer who is
+  neither speaker nor addressed recipient at the speaker's exact current
+  canonical location. Historical reconstruction, recipient revalidation,
+  comprehension, reactions, richer hearing mechanics, composition, delivery
+  tracking, memory, and presentation remain outside this boundary.
 
 ### Actor runtime
 

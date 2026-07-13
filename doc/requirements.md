@@ -772,6 +772,26 @@ This helps ensure requirements are:
 
 **PERCEPTION-054:** Take-witness projection shall not change current-state, self-action, or addressed-speech feedback behavior, validation, ownership, recipient, order, duplicate, or event-identity semantics.
 
+**PERCEPTION-055:** The public initial speech-overhearing projection shall have the contract `project_speech_overhearing_feedback(world: ValidatedWorldState, observer_id: AuthoredId, events: tuple[CanonicalEvent, ...]) -> tuple[EventObserved, ...]` and shall be independent of wall-clock time.
+
+**PERCEPTION-056:** Speech-overhearing feedback shall validate `observer_id` in the character-state namespace before inspecting event time and shall reuse `PerceptionObserverNotFoundError` for an absent observer.
+
+**PERCEPTION-057:** Before event-type or overhearing filtering, speech-overhearing feedback shall validate the entire candidate batch in input order and require every event occurrence time to equal current canonical simulation time; the first past or future mismatch shall reuse `WitnessEventTimeMismatchError` unchanged.
+
+**PERCEPTION-058:** After observer and time validation, speech-overhearing feedback shall resolve the speaker of every supplied `ActorSpokeEvent` in input order before filtering any event for the requested observer; the first absent speaker shall raise public `SpeechSpeakerNotFoundError`, a `ValueError` carrying exact `event_id` and `speaker_id` attributes.
+
+**PERCEPTION-059:** Speech-overhearing feedback shall emit an observation only for an `ActorSpokeEvent` when the requested observer is neither its speaker nor its addressed recipient and the resolved speaker has the observer's exact current canonical location.
+
+**PERCEPTION-060:** Each emitted speech-overhearing item shall be an `EventObserved` whose observer is the requested third party, whose observation time is current canonical simulation time, whose source is `canonical_event`, and whose event is the exact supplied `ActorSpokeEvent` object.
+
+**PERCEPTION-061:** Speech-overhearing feedback shall preserve matching input order and duplicates and shall return an immutable empty tuple for an empty batch or when no event qualifies.
+
+**PERCEPTION-062:** Exact-current-time speaker and observer locations shall establish immediate co-location for speech overhearing; projection shall not revalidate recipient existence or location, reconstruct historical locations, or call current-state perception.
+
+**PERCEPTION-063:** Candidate-event window selection, already-delivered tracking, composition with self-action or addressed-speech feedback, current-state composition, cross-source ordering, and deduplication shall belong to a later caller or coordinator.
+
+**PERCEPTION-064:** Repeated speech-overhearing projection with equal inputs shall produce equal outputs without mutating or replacing the world or event tuple, generating identities, invoking policies or an LLM, triggering comprehension or reactions, recording observations, creating memory or belief, persisting data, narrating, or adding hearing range, barriers, volume, language, attention, or other richer audibility mechanics.
+
 **LOOP-001:** When canonical state or events may be observable by a character, the system shall apply that character's perceptual constraints before producing observations.
 
 **LOOP-002:** When an NPC performs sensemaking, the system shall limit its inputs to current observations and character-available identity, goals, plans, beliefs, and memories.

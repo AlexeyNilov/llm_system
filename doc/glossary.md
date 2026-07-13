@@ -312,6 +312,10 @@ The immutable ordered collection of authored location and directed-connection de
 
 The arbiter's actionability determination that an addressed character can receive a spoken utterance. Speak v0 recognizes only another character at the speaker's exact canonical location; this is distinct from the speaker's visual perception and does not establish comprehension or response.
 
+### Speech-overhearing feedback
+
+An immediate event-perception fragment that gives an exact committed actor-spoke event to a third-party character at the speaker's current canonical location. It excludes the speaker and addressed recipient, accepts only events at the supplied world's exact current simulation time, and does not establish comprehension, memory, or response.
+
 ### Take-witness feedback
 
 An immediate event-perception fragment that gives a non-acting character an exact committed object-taken event when the event's previous location equals that character's canonical location. It accepts only events at the supplied world's exact current simulation time and does not reconstruct historical witness locations.
