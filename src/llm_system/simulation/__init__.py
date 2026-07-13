@@ -119,6 +119,7 @@ from llm_system.simulation.state import (
     ObjectState,
     WorldState,
 )
+from llm_system.simulation.traces import CompletedActorActionStepTrace
 from llm_system.simulation.validation import (
     ValidatedWorldState,
     WorldStateValidationError,
@@ -153,6 +154,7 @@ __all__ = [
     "ConnectionAvailabilityChanged",
     "ConnectionTarget",
     "ConnectionObserved",
+    "CompletedActorActionStepTrace",
     "EventObserved",
     "EnvironmentalScheduledActivity",
     "FailedOutcome",

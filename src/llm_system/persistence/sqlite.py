@@ -11,6 +11,7 @@ from pydantic import TypeAdapter, ValidationError
 
 from llm_system.persistence.errors import (
     DuplicateEventIdentityError,
+    DuplicateSimulationStepIdentityError,
     ExistingWorldError,
     MissingWorldError,
     StaleWorldRevisionError,
@@ -24,13 +25,15 @@ from llm_system.persistence.errors import (
 from llm_system.persistence.records import (
     PackageReference,
     StoredCanonicalEvent,
+    StoredActorActionStepTrace,
     StoredWorld,
 )
 from llm_system.simulation.events import CanonicalEvent
 from llm_system.simulation.scheduling import ScheduledActivityQueue
 from llm_system.simulation.state import WorldState
+from llm_system.simulation.traces import CompletedActorActionStepTrace
 
-SQLITE_SCHEMA_VERSION = 1
+SQLITE_SCHEMA_VERSION = 2
 WORLD_PAYLOAD_SCHEMA_VERSION: Literal[1] = 1
 
 _CANONICAL_EVENT_ADAPTER: TypeAdapter[CanonicalEvent] = TypeAdapter(CanonicalEvent)
@@ -61,8 +64,22 @@ CREATE TABLE canonical_events (
     occurred_at_seconds INTEGER NOT NULL CHECK (occurred_at_seconds >= 0),
     event_json TEXT NOT NULL
 )
-""",
+    """,
 )
+
+_TRACE_SCHEMA_V2 = """
+CREATE TABLE simulation_step_traces (
+    insertion_sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+    world_id TEXT NOT NULL,
+    resulting_world_revision INTEGER NOT NULL CHECK (resulting_world_revision >= 0),
+    simulation_step_id TEXT NOT NULL UNIQUE,
+    outcome_id TEXT NOT NULL,
+    outcome_status TEXT NOT NULL CHECK (outcome_status IN ('rejected', 'failed', 'succeeded')),
+    trace_json TEXT NOT NULL
+)
+"""
+
+_SCHEMA_V2 = (*_SCHEMA_V1, _TRACE_SCHEMA_V2)
 
 
 class SQLiteStore:
@@ -75,7 +92,7 @@ class SQLiteStore:
         connection = sqlite3.connect(database_path, isolation_level=None)
         try:
             version = _schema_version(connection)
-            if version not in (0, SQLITE_SCHEMA_VERSION):
+            if version not in (0, 1, SQLITE_SCHEMA_VERSION):
                 raise UnsupportedSchemaVersionError(version)
             if version == 0:
                 existing_table = connection.execute(
@@ -89,8 +106,17 @@ class SQLiteStore:
                     raise UnsupportedSchemaVersionError(version)
                 connection.execute("BEGIN IMMEDIATE")
                 try:
-                    for statement in _SCHEMA_V1:
+                    for statement in _SCHEMA_V2:
                         connection.execute(statement)
+                    connection.execute(f"PRAGMA user_version = {SQLITE_SCHEMA_VERSION}")
+                    connection.commit()
+                except BaseException:
+                    connection.rollback()
+                    raise
+            elif version == 1:
+                connection.execute("BEGIN IMMEDIATE")
+                try:
+                    connection.execute(_TRACE_SCHEMA_V2)
                     connection.execute(f"PRAGMA user_version = {SQLITE_SCHEMA_VERSION}")
                     connection.commit()
                 except BaseException:
@@ -112,6 +138,7 @@ class SQLiteUnitOfWork:
         self._failed = False
         self.worlds: SQLiteWorldRepository
         self.events: SQLiteEventRepository
+        self.traces: SQLiteTraceRepository
 
     def __enter__(self) -> Self:
         if self._connection is not None:
@@ -124,6 +151,9 @@ class SQLiteUnitOfWork:
             connection, self._mark_failed, self._require_active_transaction
         )
         self.events = SQLiteEventRepository(
+            connection, self._mark_failed, self._require_active_transaction
+        )
+        self.traces = SQLiteTraceRepository(
             connection, self._mark_failed, self._require_active_transaction
         )
         return self
@@ -379,6 +409,89 @@ class SQLiteEventRepository:
             raise
 
 
+class SQLiteTraceRepository:
+    def __init__(
+        self,
+        connection: sqlite3.Connection,
+        mark_failed: Callable[[], None],
+        require_active: Callable[[], None],
+    ) -> None:
+        self._connection = connection
+        self._mark_failed = mark_failed
+        self._require_active = require_active
+
+    def append(
+        self,
+        *,
+        world_id: UUID,
+        resulting_world_revision: int,
+        trace: CompletedActorActionStepTrace,
+    ) -> StoredActorActionStepTrace:
+        self._require_active()
+        current = self._connection.execute(
+            "SELECT world_id, revision FROM current_world WHERE singleton = 1"
+        ).fetchone()
+        if current is None:
+            self._mark_failed()
+            raise MissingWorldError("the singleton world does not exist")
+        if current["world_id"] != str(world_id):
+            self._mark_failed()
+            raise WorldIdentityMismatchError("trace world does not match current world")
+        if current["revision"] != resulting_world_revision:
+            self._mark_failed()
+            raise WorldRevisionMismatchError(
+                "trace must be associated with the current resulting world revision"
+            )
+        try:
+            cursor = self._connection.execute(
+                """
+                INSERT INTO simulation_step_traces (
+                    world_id, resulting_world_revision, simulation_step_id,
+                    outcome_id, outcome_status, trace_json
+                ) VALUES (?, ?, ?, ?, ?, ?)
+                """,
+                (
+                    str(world_id),
+                    resulting_world_revision,
+                    str(trace.simulation_step_id),
+                    str(trace.outcome.outcome_id),
+                    trace.outcome.status,
+                    trace.model_dump_json(),
+                ),
+            )
+        except sqlite3.IntegrityError as error:
+            self._mark_failed()
+            raise DuplicateSimulationStepIdentityError(
+                "simulation step identity already exists"
+            ) from error
+        insertion_sequence = cursor.lastrowid
+        assert insertion_sequence is not None
+        return StoredActorActionStepTrace(
+            insertion_sequence=insertion_sequence,
+            world_id=world_id,
+            resulting_world_revision=resulting_world_revision,
+            trace=trace,
+        )
+
+    def list_for_world(self, world_id: UUID) -> tuple[StoredActorActionStepTrace, ...]:
+        self._require_active()
+        rows = self._connection.execute(
+            """
+            SELECT insertion_sequence, world_id, resulting_world_revision,
+                   simulation_step_id, outcome_id, outcome_status, trace_json
+            FROM simulation_step_traces
+            WHERE world_id = ?
+            ORDER BY insertion_sequence
+            """,
+            (str(world_id),),
+        ).fetchall()
+        try:
+            return tuple(_decode_trace(row) for row in rows)
+        except StoredRecordDecodingError:
+            self._mark_failed()
+            raise
+
+
 def _schema_version(connection: sqlite3.Connection) -> int:
     row = connection.execute("PRAGMA user_version").fetchone()
     assert row is not None
@@ -429,3 +542,22 @@ def _decode_event(row: sqlite3.Row) -> StoredCanonicalEvent:
         )
     except (TypeError, ValueError, ValidationError) as error:
         raise StoredRecordDecodingError("invalid stored canonical event") from error
+
+
+def _decode_trace(row: sqlite3.Row) -> StoredActorActionStepTrace:
+    try:
+        trace = CompletedActorActionStepTrace.model_validate_json(row["trace_json"])
+        if (
+            str(trace.simulation_step_id) != row["simulation_step_id"]
+            or str(trace.outcome.outcome_id) != row["outcome_id"]
+            or trace.outcome.status != row["outcome_status"]
+        ):
+            raise ValueError("explicit trace metadata does not match trace payload")
+        return StoredActorActionStepTrace(
+            insertion_sequence=row["insertion_sequence"],
+            world_id=UUID(row["world_id"]),
+            resulting_world_revision=row["resulting_world_revision"],
+            trace=trace,
+        )
+    except (TypeError, ValueError, ValidationError) as error:
+        raise StoredRecordDecodingError("invalid stored actor-action trace") from error

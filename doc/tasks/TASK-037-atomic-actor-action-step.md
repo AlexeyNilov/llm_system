@@ -1,6 +1,6 @@
 # TASK-037: Commit one actor action and its trace atomically
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -150,14 +150,14 @@ Stop and report a design gap if implementation requires:
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the strict completed actor-action trace and result contracts, application-level atomic coordinator, append-only SQLite trace repository, direct V1-to-V2 migration, and project version 0.35.0.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/application/__init__.py`, `src/llm_system/application/actor_action_step.py`, `src/llm_system/simulation/traces.py`, `src/llm_system/simulation/__init__.py`, `src/llm_system/persistence/records.py`, `src/llm_system/persistence/sqlite.py`, `src/llm_system/persistence/errors.py`, `src/llm_system/persistence/__init__.py`, `tests/test_actor_action_step.py`, `tests/test_sqlite_persistence.py`, `tests/test_package.py`, `pyproject.toml`, `uv.lock`, and this task brief.
 
-**Verification:** Pending
+**Verification:** TDD failure recorded first: `uv run pytest tests/test_actor_action_step.py -q` failed during collection because `CompletedActorActionStepTrace` was not implemented. Final verification passed: `uv sync --locked`; `uv run pytest tests/test_actor_action_step.py tests/test_sqlite_persistence.py` (19 passed); `make format`; `make lint`; `make mypy`; `make test` (342 passed); `make check` (format, lint, mypy, and 342 tests passed); `uv lock --check`; and `git diff --check`.
 
-**Context used:** Pending; list the documentation extracts and initially named source or test files actually consulted. Do not list every transitive implementation file.
+**Context used:** `AGENTS.md`; `doc/agent_roles/implementer.md`; the named entries from `doc/glossary.md`, `doc/requirements.md`, `doc/decisions.md`, and `doc/high_level_design.md`; initial source entrypoints `src/llm_system/simulation/actions.py`, `authorization.py`, `dispatch.py`, `commitment.py`, `perception.py`, `perception_engine.py`, `validation.py`, `src/llm_system/persistence/records.py`, and `sqlite.py`; initial test entrypoints `tests/test_actor_action_authorization.py`, `tests/test_actor_action_dispatch.py`, `tests/test_use_resolver.py`, `tests/test_self_event_feedback.py`, and `tests/test_sqlite_persistence.py`; and `pyproject.toml`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None encountered.

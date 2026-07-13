@@ -2,35 +2,33 @@
 
 ## Current objective
 
-Implement and integrate TASK-037: the first atomic actor-action coordinator, minimal durable completed-step trace, and direct SQLite V1-to-V2 migration.
+Plan the next actionable M4 increment: world creation, resume, and development reset on top of the accepted SQLite V2 and atomic actor-action coordinator.
 
 ## Verified baseline
 
-* TASK-036 is committed as `da2090b`; project version is `0.34.0` with 329 tests passing at acceptance.
-* SQLite V1 persists one revision-checked world snapshot, its scheduled queue, and ordered canonical events through an explicitly committed unit of work.
-* Authorization, type-directed dispatch, deterministic resolvers, outcome commitment, current-state perception, and self-event feedback are implemented as separate public boundaries.
-* Architect autonomy rules are committed as `0faaf15`: Ready planning is committed and delegated automatically; reviewed Done work is committed automatically when isolated.
+* TASK-037 is independently reviewed and accepted at project version `0.35.0`.
+* The coordinator loads the singleton world, verifies exact supplied package ownership, validates runtime state, composes authorization through actor perception, and returns only after explicit SQLite commit.
+* SQLite V2 atomically persists the next world revision, canonical events, and one strict completed actor-action trace; V1 world and event data migrate directly to V2.
+* Rejected outcomes still receive one durable next revision and trace. The scheduled queue is preserved exactly.
+* Independent verification passes: 19 focused tests, `make check` with 342 tests, `uv sync --locked`, `uv lock --check`, and `git diff --check`.
 
-## Accepted next-step boundary
+## Deferred boundary
 
-* TASK-037 composes one already trusted actor-action submission through the existing authority chain and returns only after atomic SQLite commit.
-* Trace schema V1 records only the exact submission, outcome, resulting actor current perception, and self-event feedback; it has no placeholders for later LLM, cognition, scheduling, memory, director, narration, or presentation stages.
-* Every coordinated outcome advances the durable revision once, even when rejected or canonically unchanged, so its trace has one resulting revision.
-* Scheduled execution is postponed because current activity variants have eligibility records but no accepted execution semantics. TASK-037 preserves the loaded queue exactly.
-* SQLite schema V2 adds append-only trace history; empty stores create V2 and existing V1 stores migrate directly and transactionally without a generic migration framework.
+Scheduled-activity execution is not the next actionable task. Environmental, NPC, and System-director activity variants have deterministic eligibility records but no accepted execution semantics; consuming them now would invent or lose work.
 
 ## Blockers and unresolved questions
 
-No planning blocker. Any need to execute or consume scheduled activities, add future trace stages, or change the one-revision-per-completed-step policy is a TASK-037 stop condition.
+No blocker to world lifecycle planning. The next brief must define initial-state construction, exact package selection/resume, and destructive development-reset behavior without weakening the one-world authority boundary.
 
 ## Exact next action
 
-Commit the Ready TASK-037 planning artifacts, delegate the brief to a fresh Default implementer with no planning-chat history, then independently review, integrate, mark Done, and commit accepted work.
+After committing accepted TASK-037 work, inspect existing package and runtime-state construction contracts, settle the minimal world lifecycle boundary, prepare TASK-038, then automatically commit and delegate it when Ready.
 
-## Files to re-read before integration
+## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
-3. `doc/tasks/TASK-037-atomic-actor-action-step.md`
-4. TASK-037 implementation diff and handoff
-5. Focused coordinator, trace, migration, and persistence tests
+3. `doc/roadmap.md`: M4
+4. `doc/high_level_design.md`: API boundary and persistence lifecycle
+5. World, package, state, and persistence requirements and accepted decisions
+6. `src/llm_system/game_packages/`, `src/llm_system/simulation/state.py`, `src/llm_system/simulation/validation.py`, and `src/llm_system/persistence/`

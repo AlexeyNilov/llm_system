@@ -42,5 +42,9 @@ class DuplicateEventIdentityError(PersistenceError):
     pass
 
 
+class DuplicateSimulationStepIdentityError(PersistenceError):
+    pass
+
+
 class UnitOfWorkFailedError(PersistenceError):
     pass

@@ -1,5 +1,6 @@
 from llm_system.persistence.errors import (
     DuplicateEventIdentityError,
+    DuplicateSimulationStepIdentityError,
     ExistingWorldError,
     MissingWorldError,
     PersistenceError,
@@ -13,6 +14,7 @@ from llm_system.persistence.errors import (
 )
 from llm_system.persistence.records import (
     PackageReference,
+    StoredActorActionStepTrace,
     StoredCanonicalEvent,
     StoredWorld,
 )
@@ -20,6 +22,7 @@ from llm_system.persistence.sqlite import SQLiteStore, SQLiteUnitOfWork
 
 __all__ = [
     "DuplicateEventIdentityError",
+    "DuplicateSimulationStepIdentityError",
     "ExistingWorldError",
     "MissingWorldError",
     "PackageReference",
@@ -28,6 +31,7 @@ __all__ = [
     "SQLiteUnitOfWork",
     "StaleWorldRevisionError",
     "StoredCanonicalEvent",
+    "StoredActorActionStepTrace",
     "StoredRecordDecodingError",
     "StoredWorld",
     "UnitOfWorkFailedError",

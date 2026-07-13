@@ -18,10 +18,17 @@ The deterministic Python kernel is implemented and reviewed. It can:
 * produce typed canonical events and selected perception projections;
 * persist one revision-checked world, its scheduled queue, and ordered canonical
   events atomically in SQLite;
+* coordinate a trusted actor action through authorization, resolution,
+  commitment, perception, and one atomic world/event/trace transaction;
+* migrate SQLite V1 worlds directly to V2 append-only completed-step trace
+  history;
 * partition scheduled activities deterministically; and
 * validate caller-injected recorded integer draws.
 
-Help resolution, the atomic turn coordinator, world lifecycle orchestration, FastAPI, Streamlit, NPC execution, the System director, narration, and the complete Greybridge scenario remain later work. See the [roadmap](doc/roadmap.md) for current delivery order.
+Help resolution, scheduled-activity execution, world lifecycle orchestration,
+FastAPI, Streamlit, player-text interpretation, NPC execution, the System
+director, narration, and the complete Greybridge scenario remain later work. See
+the [roadmap](doc/roadmap.md) for current delivery order.
 
 ## Development setup
 
@@ -71,7 +78,7 @@ player or NPC policy
     -> narration and interface presentation
 ```
 
-Versioned game packages define stable rules and scenario content. Runtime state contains only changing facts linked to those definitions by stable identifiers. SQLite will eventually persist already validated domain results; it must not interpret game rules or become a second simulation authority.
+Versioned game packages define stable rules and scenario content. Runtime state contains only changing facts linked to those definitions by stable identifiers. SQLite persists already validated domain results and completed actor-action traces; it does not interpret game rules or become a second simulation authority.
 
 Read the [domain guide](doc/domain_guide.md) for the conceptual model and the [high-level design](doc/high_level_design.md) for component and information-flow boundaries.
 
@@ -106,6 +113,7 @@ Package validation establishes structural and semantic consistency. It does not 
 
 | Path | Purpose |
 | --- | --- |
+| `src/llm_system/application/` | Atomic application coordination across simulation and persistence boundaries |
 | `src/llm_system/game_packages/` | Authored package models, loading, and semantic validation |
 | `src/llm_system/simulation/` | Runtime state, authorization, resolution, commitment, scheduling, randomness, and perception |
 | `src/llm_system/persistence/` | SQLite records, repositories, schema bootstrap, and unit of work |
