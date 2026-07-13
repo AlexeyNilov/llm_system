@@ -1,6 +1,6 @@
 # TASK-040: Add the deterministic Streamlit player page
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -149,14 +149,14 @@ Stop and report a design gap if implementation requires:
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the deterministic Streamlit player page, strict synchronous HTTP client with explicit owned-resource cleanup, typed action controls, validated committed-result history, lifecycle and reset controls, local runner target, and runtime dependency/version updates. Review findings were resolved with owned-versus-injected client lifecycle evidence, page-level failed-turn/reset history preservation, and complete Observe/Use target-shape coverage.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/player_api.py`, `src/llm_system/player_page.py`, `tests/test_player_page.py`, `tests/test_package.py`, `Makefile`, `README.md`, `pyproject.toml`, `uv.lock`, and this task brief.
 
-**Verification:** Pending
+**Verification:** TDD first failure recorded: `uv run pytest tests/test_player_page.py -q` failed during collection with `ModuleNotFoundError: No module named 'llm_system.player_api'`. After resolving review findings, passed `uv sync --locked`; `uv run pytest tests/test_player_page.py tests/test_api.py` (57 passed); `make format`; `make lint`; `make mypy`; `make test` (406 passed); `make check` (format, lint, mypy, and 406 tests passed); `uv lock --check`; and `git diff --check`.
 
-**Context used:** Pending; list the documentation extracts and initially named source or test files actually consulted. Do not list every transitive implementation file.
+**Context used:** `AGENTS.md`; `doc/agent_roles/implementer.md`; this task brief; the named Action proposal, Canonical, Perception snapshot, Primary persistence, and System interface glossary entries; requirements `ACTION-001` through `ACTION-010`, `API-001` through `API-009`, `PLAYERPAGE-001` through `PLAYERPAGE-008`, and `DEV-002` through `DEV-006`; the named trusted-turn-metadata and thin-Streamlit-client decisions; the named logical architecture, Streamlit/API responsibilities, and persistence/consistency design extracts; `src/llm_system/api.py`, `src/llm_system/simulation/actions.py`, `src/llm_system/simulation/perception.py`, `src/llm_system/simulation/events.py`, `tests/test_api.py`, `tests/test_package.py`, `pyproject.toml`, `uv.lock`, and `Makefile`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.

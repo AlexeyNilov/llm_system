@@ -25,15 +25,16 @@ The deterministic Python kernel is implemented and reviewed. It can:
   development timeline atomically;
 * expose lifecycle operations and typed structured player turns through a
   minimal FastAPI boundary with server-owned identities and provenance;
+* exercise that boundary through a deterministic Streamlit player page with
+  typed action controls and session-only committed-result history;
 * migrate SQLite V1 worlds directly to V2 append-only completed-step trace
   history;
 * partition scheduled activities deterministically; and
 * validate caller-injected recorded integer draws.
 
-Help resolution, scheduled-activity execution, Streamlit, player-text
-interpretation, NPC execution, the System director, narration, and the complete
-Greybridge scenario remain later work. See the [roadmap](doc/roadmap.md) for
-current delivery order.
+Help resolution, scheduled-activity execution, player-text interpretation, NPC
+execution, the System director, narration, and the complete Greybridge scenario
+remain later work. See the [roadmap](doc/roadmap.md) for current delivery order.
 
 ## Development setup
 
@@ -65,6 +66,19 @@ make mypy
 ```
 
 The deterministic test suite requires no LLM, embeddings service, Qdrant instance, FastAPI process, or Streamlit process.
+
+## Deterministic player page
+
+Run the FastAPI application separately at `http://127.0.0.1:8000`, then start
+the structured player page:
+
+```bash
+make player-page
+```
+
+To use an API at another address, set `LLM_SYSTEM_API_URL` before running the
+target. The player-page command starts only Streamlit; it does not start or
+configure the API process.
 
 ## Architecture at a glance
 
@@ -120,6 +134,7 @@ Package validation establishes structural and semantic consistency. It does not 
 | --- | --- |
 | `src/llm_system/application/` | Atomic application coordination across simulation and persistence boundaries |
 | `src/llm_system/api.py` | Minimal FastAPI lifecycle and structured player-turn boundary |
+| `src/llm_system/player_page.py` | Deterministic Streamlit player interface |
 | `src/llm_system/game_packages/` | Authored package models, loading, and semantic validation |
 | `src/llm_system/simulation/` | Runtime state, authorization, resolution, commitment, scheduling, randomness, and perception |
 | `src/llm_system/persistence/` | SQLite records, repositories, schema bootstrap, and unit of work |

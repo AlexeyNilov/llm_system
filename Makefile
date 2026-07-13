@@ -1,4 +1,4 @@
-.PHONY: check format format-check install lint mypy test
+.PHONY: check format format-check install lint mypy player-page test
 
 install:
 	uv sync --locked
@@ -17,5 +17,8 @@ lint:
 
 mypy:
 	uv run mypy
+
+player-page:
+	uv run streamlit run src/llm_system/player_page.py
 
 check: format-check lint mypy test

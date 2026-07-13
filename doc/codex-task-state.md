@@ -2,30 +2,30 @@
 
 ## Current objective
 
-Integrate TASK-040: a deterministic structured-action Streamlit player page consuming the accepted FastAPI boundary.
+Plan the first actionable M5 increment: the rule-driven caretaker decision policy behind the existing proposal boundary.
 
 ## Verified baseline
 
-* TASK-039 is independently reviewed and accepted at project version `0.37.0`.
-* FastAPI exposes exactly create, resume, development-reset, and structured player-turn operations; default documentation routes are not exposed.
-* HTTP clients submit only strict action proposals. The server binds the sole player, trusted source, and all runtime identities.
-* Lifecycle responses contain metadata only; turn responses contain only completion metadata, outcome status/reason, current player perception, and self-event feedback.
-* Missing worlds map to `404`, create conflicts to `409`, disabled reset to `403`, malformed bodies to `422`, and unexpected failures remain detail-free `500` responses.
-* Parent verification passes: 40 focused tests, `make check` with 370 tests, `uv lock --check`, and `git diff --check`.
+* TASK-040 is independently reviewed and accepted at project version `0.38.0`; M4 is complete.
+* The player page communicates only through FastAPI using a five-second bounded HTTP client and validates every recognized response against existing API models.
+* It exposes all seven typed proposal forms, deterministic lifecycle/result presentation, confirmation-gated development reset, and session-only committed-turn history.
+* HTTP/application failures remain distinct from completed domain outcomes and do not append or clear history incorrectly. Owned HTTP resources close on every rerun path.
+* The page starts no API process and performs no package, SQLite, application-service, simulation-resolution, LLM, narration, or inspection work.
+* Parent verification passes: 57 focused tests, `make check` with 406 tests, `uv lock --check`, and `git diff --check`.
 
 ## Blockers and unresolved questions
 
-No blocker to a deterministic structured-action Streamlit page. Free-form player text interpretation and narration remain M5 work, so the first UI must present structured perceptions and supported action controls without pretending prose interpretation exists. Scheduled execution, inspection, production authentication, and deployment configuration remain deferred.
+No blocker to planning the rule-driven caretaker policy itself. Executing scheduled NPC activity through the coordinator remains a later M5 increment that needs the policy contract and actor runtime first. Free-form player interpretation, local model integration, narration, and the memory-free courier remain separate M5 tasks.
 
 ## Exact next action
 
-Commit the Ready TASK-040 planning artifacts, delegate the task to a fresh configured implementer, independently inspect the implementation and verification, resolve findings, mark Done, update M4 and continuation state, and commit accepted work.
+Inspect the accepted NPC decision-policy definitions, actor cognition loop, current perception and proposal contracts, and Greybridge caretaker goals. Settle the smallest deterministic policy input/output and safe fallback boundary, prepare TASK-041, commit automatically when Ready, delegate, review, and integrate accepted work.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
-3. `doc/roadmap.md`: M4
-4. `doc/high_level_design.md`: Streamlit interface, FastAPI application API, and presentation flow
-5. UI, API, perception, action-proposal, and failure requirements and decisions
-6. `src/llm_system/api.py`, perception/action contracts, API tests, and `pyproject.toml`
+3. `doc/roadmap.md`: M5
+4. `doc/high_level_design.md`: actor runtime, rule-based policy, and actor cognition loop
+5. NPC autonomy, policy, perception, action-proposal, and failure requirements and decisions
+6. Decision-policy package definitions, actor/perception/action contracts, Greybridge caretaker content, and relevant tests
