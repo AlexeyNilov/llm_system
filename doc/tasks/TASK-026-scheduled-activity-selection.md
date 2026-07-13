@@ -1,6 +1,6 @@
 # TASK-026: Select and order eligible scheduled activities
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -108,12 +108,34 @@ Stop and report a design gap if implementation requires executing or persisting 
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the public pure scheduled-activity selection boundary and
+its strict self-validating immutable result. Selection uses exact canonical world
+time, inclusive due eligibility, deterministic time/phase/sequence ordering,
+pending storage-order preservation, exact activity retention, and required queue
+reuse/new-queue identity behavior. Public documentation and package metadata now
+describe and report the 0.25.0 scheduler milestone.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/scheduling.py`,
+`src/llm_system/simulation/__init__.py`,
+`tests/test_scheduled_activity_selection.py`, `tests/test_package.py`,
+`README.md`, `doc/high_level_design.md`, `pyproject.toml`, `uv.lock`, and this
+task brief.
 
-**Verification:** Pending
+**Verification:** Initial focused red: `.venv/bin/pytest
+tests/test_scheduled_activity_selection.py` failed during collection with
+`ImportError: cannot import name 'ScheduledActivitySelection' from
+'llm_system.simulation'`. Focused partition/order group: 4 passed; focused result
+validation group: 10 passed; focused identity/determinism group: 4 passed. Final
+review-precedence red: the focused precedence test failed because the result
+reported `remaining activities must be future` before `scheduler order`. After
+reordering those existing checks, the focused suite passed with 17 tests. `uv
+sync --locked` passed and installed editable `llm-system==0.25.0`. Final `make
+format` passed with no changes. `make lint` passed. `make mypy` passed with no
+issues in 55 source files. `make test` passed with 235 tests. `make check` passed
+formatting, lint, mypy, and all 235 tests. `uv lock --check` passed. The only
+`uv.lock` diff is editable root package version `0.24.0` to `0.25.0`. `git diff
+--check` passed.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.

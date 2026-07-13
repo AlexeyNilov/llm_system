@@ -84,7 +84,9 @@ from llm_system.simulation.scheduling import (
     NpcScheduledActivity,
     ScheduledActivity,
     ScheduledActivityQueue,
+    ScheduledActivitySelection,
     SystemDirectorScheduledActivity,
+    select_eligible_activities,
 )
 from llm_system.simulation.state import (
     CharacterState,
@@ -162,6 +164,7 @@ __all__ = [
     "RejectedOutcome",
     "ScheduledActivity",
     "ScheduledActivityQueue",
+    "ScheduledActivitySelection",
     "SpeakActionProposal",
     "SimulationTimeChanged",
     "StateChange",
@@ -186,4 +189,5 @@ __all__ = [
     "resolve_move",
     "resolve_observe",
     "resolve_wait",
+    "select_eligible_activities",
 ]

@@ -156,9 +156,9 @@ an authored `hook_id`.
 
 These are one-shot eligibility records, not recurring schedule definitions or
 executable payloads. They contain no callback, proposal, outcome, mechanic
-arguments, cancellation state, or stored phase priority. A later scheduler
-derives phase order from the variant as environmental, NPC, then System director
-and derives execution order separately from queue storage order.
+arguments, cancellation state, or stored phase priority. The scheduler derives
+phase order from the variant as environmental, NPC, then System director and
+derives execution order separately from queue storage order.
 
 `ScheduledActivityQueue` contains exactly an immutable ordered tuple of those
 records. It accepts Python tuples or serialized JSON/YAML-style lists, normalizes
@@ -166,9 +166,21 @@ lists to tuples, allows an empty queue, and preserves deliberately unsorted
 supplied order. Activity UUIDs and insertion sequences must each be unique;
 eligibility times may be equal. Construction validates only these structural
 invariants and does not resolve authored schedule, NPC, or hook references.
-Eligibility selection, ordering, removal, execution, recurrence, persistence,
-state mutation, time advancement, proposal submission, and LLM invocation remain
-later boundaries.
+Use `llm_system.simulation.select_eligible_activities(world, queue)` to
+partition one validated queue at the world's exact canonical simulation time.
+Overdue and exactly due records are returned in `eligible_activities`, ordered
+by `(eligible_at_seconds, derived_phase_rank, insertion_sequence)`. Strictly
+future records remain in their original storage order in `remaining_queue`.
+The strict immutable `ScheduledActivitySelection` validates that temporal
+partition, eligible ordering, and activity-ID and insertion-sequence uniqueness
+across both groups.
+
+Selection retains the exact activity objects and never mutates either input. If
+nothing is eligible it also reuses the exact input queue; otherwise it creates a
+new remaining queue, including an empty one when all work is due. This pure
+boundary does not claim, persist, execute, retry, recur, or cancel work; mutate
+or advance the world; resolve package references; submit proposals; invoke an
+LLM; or process activities created by later execution.
 
 ## Actor-action authorization
 

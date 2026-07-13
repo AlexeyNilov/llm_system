@@ -129,10 +129,18 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 
 * Maintains discrete simulation time.
 * Makes NPCs, scheduled events, and System director hooks eligible when time advances.
-* Orders eligible work by simulation time, phase priority, and stable insertion sequence.
-* Resolves same-time environmental events before NPC activities and System director hooks.
+* Purely partitions one validated activity queue at exact canonical world time
+  through `select_eligible_activities(world, queue)`, including overdue and
+  exactly due work while preserving strictly future work in storage order.
+* Orders eligible work exactly by eligibility time, variant-derived phase rank,
+  and stable insertion sequence; same-time environmental events precede NPC
+  activities and System director hooks.
+* Returns a self-validating immutable selection that retains exact activity
+  objects and reuses the input queue when none are eligible.
 * Submits activities serially and records their ordering metadata in the step trace.
 * Does not run background ticks while awaiting player input.
+* Keeps selection separate from claiming, persistence, execution, retries,
+  recurrence, newly scheduled work, and world mutation.
 
 ### Perception engine
 
@@ -255,10 +263,16 @@ The design requires stable identifiers and explicit schemas for these concepts:
   than stored on the record. `ScheduledActivityQueue` preserves an immutable
   supplied tuple order, normalizes serialized lists, and rejects duplicate
   activity identities and insertion sequences while allowing equal times and
-  storage order unrelated to execution order. These structural records neither
-  resolve authored references nor select, execute, recur, cancel, persist, or
-  remove scheduled work; those remain later scheduler, package-validation, and
-  execution boundaries.
+  storage order unrelated to execution order. `ScheduledActivitySelection` is
+  the strict immutable result of pure canonical-time partitioning: it contains
+  selection time, due activities ordered by time, derived phase, and insertion
+  sequence, and a remaining strictly future queue in original storage order. It
+  validates those invariants plus metadata uniqueness across both groups,
+  retains exact activity objects, and reuses the input queue when none are due.
+  Structural records and selection do not resolve authored references, claim,
+  execute, recur, retry, cancel, persist, or mutate scheduled work or world
+  state; package validation, execution coordination, and persistence remain
+  separate boundaries.
 * `SystemNotification`: arbiter-confirmed mechanical payload and visibility.
 
 Exact Python models and storage representation remain implementation decisions. These conceptual boundaries must remain visible even if several records initially share one database table or document.
@@ -307,7 +321,8 @@ For the player, human cognition replaces NPC sensemaking and intent selection. T
 2. Interpret explicit thoughts, speech, and attempted actions into a structured input result.
 3. Validate the player proposal. Pure thought does not advance time.
 4. Resolve an accepted consequential action and advance time by its duration.
-5. Ask the scheduler for newly eligible activities in deterministic order.
+5. Ask the scheduler to partition due activities at canonical world time and
+   return them in deterministic order without executing or persisting them.
 6. Build bounded contexts and obtain NPC or System director action proposals as required.
 7. Validate and resolve each proposal through the arbiter.
 8. Produce observations for every affected observer. After the vertical slice, episodic memory and belief revisions use their own validated boundaries.
