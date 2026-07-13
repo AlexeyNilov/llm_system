@@ -369,6 +369,18 @@ Use a lightweight Architecture Decision Record (ADR) style:
 
 **Consequences:** A fresh Codex task can select a predictable lower-cost experiment role without receiving this planning transcript. The agent still inherits repository safety boundaries and must stop on design gaps or unauthorized mutations.
 
+### 2026-07-13: Configure an implementer for Ready code tasks
+
+**Status:** Accepted
+
+**Context:** Multiple Ready implementation tasks have used the same stable execution constraints: TDD, task-authorized writes, bounded context, explicit verification, design-gap escalation, and a Review-or-Blocked handoff. Leaving model, reasoning, sandbox, and these durable boundaries to inherited defaults makes otherwise comparable executions less predictable.
+
+**Decision:** Add the project custom agent `implementer` under `.codex/agents/`. Configure it with `gpt-5.6`, high reasoning, and workspace-write sandboxing. Restrict it to one Ready implementation or scenario-authoring task brief at a time. The task brief remains the source of task-specific context, accepted contracts, scope, verification, and artifact permissions; the role guide remains the detailed execution procedure.
+
+**Alternatives considered:** Continue using `Default`, use the faster Terra experimenter profile, or duplicate implementation procedure and task context in the custom-agent instructions. Default does not provide stable execution settings; the experimenter profile optimizes evidence gathering rather than code delivery; duplicated procedure and context would drift from the role guide and task brief.
+
+**Consequences:** New Ready implementation and scenario-authoring briefs select `implementer` unless they name a justified alternative. Historical task briefs remain unchanged. The parent session's live permission settings can still override the profile sandbox, so the delegated agent must report approval or sandbox limitations rather than treating the configured setting as guaranteed.
+
 ### 2026-07-11: Disable Gemma thinking for functional LLM roles
 
 **Status:** Accepted

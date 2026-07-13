@@ -57,11 +57,13 @@ Use `.codex/agents/*.toml` only when the same role repeatedly benefits from stab
 
 Current project custom agents:
 
-| Agent | Configuration | Use |
-| --- | --- | --- |
-| `terra_experimenter` | GPT-5.6 Terra, medium reasoning, workspace-write | Ready evidence and preflight tasks that authorize a report file |
+| Agent | Use |
+| --- | --- |
+| `terra_experimenter` | Ready evidence and preflight tasks that authorize a report file |
+| `implementer` | Ready implementation,coding, testing tasks with task-authorized writes |
 
 The custom agent supplies role and runtime configuration, not task context. It must still receive a Ready task brief.
+Use `implementer` for Ready implementation or scenario-authoring tasks unless a task brief has a reason to specify `Default` or another named custom agent.
 
 ### Skill
 

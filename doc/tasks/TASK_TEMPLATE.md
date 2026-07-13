@@ -12,7 +12,7 @@ Execution agents may set this task to In progress, Review, or Blocked. Only the 
 
 Use the implementer guide for implementation or scenario-authoring work. Use the reviewer guide for exploration, experiments, and independent review.
 
-**Agent:** Named custom agent or `Default`
+**Agent:** `implementer` for implementation or scenario-authoring work; named custom agent for specialized work; or `Default` when no custom profile is warranted
 
 **Depends on:** Task IDs or `None`
 
