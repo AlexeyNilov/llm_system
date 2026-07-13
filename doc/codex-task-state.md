@@ -2,14 +2,13 @@
 
 ## Current objective
 
-Delegate the Ready, read-only TASK-035 review from a clean committed baseline, then independently review its evidence before accepting any recommendation or starting M4.
+Define the first M4 persistence task: a minimal SQLite boundary for one authoritative world, without moving simulation rules into storage.
 
 ## Verified baseline
 
-* The last verified clean baseline is `ae57bb1 cleanup` on `main`, synchronized with `origin/main`.
+* TASK-035 reviewed commit `bc35b67 plan`; its permitted report and handoff diff is independently accepted but not yet committed.
 * Project and installed package version: `0.33.0`.
-* TASK-034 is committed and Done.
-* At the accepted TASK-034 review baseline, focused tests passed `36`, the full suite and `make check` passed `323`, and formatting, Ruff, mypy, lock, metadata, Greybridge-content, and diff checks passed.
+* `uv sync --locked`, collection of `323` tests, `make check` with `323` passing tests, `uv lock --check`, and `git diff --check` pass.
 
 ## Available foundation
 
@@ -19,29 +18,29 @@ Delegate the Ready, read-only TASK-035 review from a clean committed baseline, t
 * Current-state and selected immediate event-feedback perception paths are implemented.
 * Scheduled activities can be represented and deterministically partitioned; recorded integer draws have an injected boundary but no concrete generator.
 
-## Accepted transition
+## Accepted M3.5 findings
 
-* M3 is complete for the purpose of reviewing and designing persistence; it is not the complete Greybridge vertical slice.
-* Help and additional witness filtering are deferred.
-* Concrete randomness remains deferred until a real check and persistence consumer exist.
-* Scheduled-activity execution and simulation-step trace coordination move into the M4 atomic-step boundary; they must not be implied by the current selection-only scheduler.
-* M3.5 combines architecture, documentation-IA, and test-value review into one evidence artifact to reduce ceremony and context duplication.
+* The deterministic kernel is ready for M4; SQLite must persist validated domain results and must not evaluate rules.
+* One application transaction must own step completion across state, events, scheduled-queue effects, authoritative character data, and trace.
+* The successful authorization-to-perception Use regression belongs to the real atomic coordinator acceptance suite, not a temporary pre-coordinator test.
+* README restructuring and proposed low-value-test cleanup are useful but do not block persistence.
+* The independent evidence is in `doc/reviews/m3-5-kernel-review.md`; its recommendations are not automatically accepted implementation scope.
 
 ## Blockers and limitations
 
-No current blocker.
+No current blocker to SQLite boundary design.
 
 Greybridge cannot yet execute its flood, NPC activities, System director hooks, Help, or progression. Persistence work must not describe the scenario as fully playable until those capabilities exist.
 
 ## Exact next action
 
-Review and commit `doc/tasks/TASK-035-review-kernel-before-persistence.md` plus its roadmap and task-state routing changes. Then delegate it to a fresh Default reviewer without prior chat history.
+Commit the accepted TASK-035 report and integration disposition. Then specify the bounded SQLite schema/repository choices needed for TASK-036.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
-2. `doc/agent_workflow.md` review and task-brief sections
-3. `doc/roadmap.md` M3.5 and M4
-4. `doc/ideas.md` IDEA-010 and IDEA-011
-5. `doc/high_level_design.md` simulation-step flow, persistence, observability, and testing strategy
-6. `doc/tasks/TASK-035-review-kernel-before-persistence.md` context manifest and review contract
+2. `doc/reviews/m3-5-kernel-review.md`: verdict, KRV-002, and recommended M4 gate
+3. `doc/roadmap.md`: M4
+4. `doc/high_level_design.md`: principal records, simulation-step flow, persistence and consistency, and observability
+5. `doc/requirements.md`: `WORLD-001` through `WORLD-006`, `STATE-009`, and `STORE-001` through `STORE-005`
+6. `doc/decisions.md`: “Begin with one persistent world”, “Use SQLite as the initial authoritative store”, “Replace immutable world-state snapshots atomically”, and “Separate arbiter commitment from operation resolution”

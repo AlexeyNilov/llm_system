@@ -1,10 +1,10 @@
 # TASK-035: Review the kernel before persistence
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
-**Owner:** Unassigned
+**Owner:** Codex reviewer
 
 **Role:** Reviewer
 
@@ -120,12 +120,37 @@ Do not stop merely because a planned M4 component is absent. Record evidence lim
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Ready for M4 with prerequisites. The review found a coherent kernel
+authority and persistence seam, with one pre-M4 full-chain Use regression test as the
+minimal gate.
 
-**Changed files:** Pending
+**Changed files:** `doc/reviews/m3-5-kernel-review.md` and permitted task status,
+owner, and handoff fields in this brief.
 
-**Verification:** Pending
+**Verification:** `uv sync --locked`; `uv run pytest --collect-only -q` (323 tests);
+`make check` (Ruff, mypy, and 323 tests passed); `uv lock --check`; focused kernel
+evidence suite (75 passed); read-only successful Use-chain probe; `git diff --check`.
 
-**Deviations:** Pending
+**Deviations:** The first sandboxed `uv sync --locked` was blocked by Snap confinement;
+the exact command was rerun outside the sandbox and passed. No product, test, package,
+dependency, version, or governance artifact was changed.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** Before SQLite design, add one real-package behavioral
+test spanning authorization, successful Use dispatch, commitment, and self-event
+perception. During M4, preserve one transaction owner for state, events, scheduled-queue
+effects, authoritative character data, and trace. Documentation reshaping and named
+low-value test cleanup do not block M4.
+
+## Integration review
+
+The report and evidence are accepted. Independent review repeated `uv sync --locked`,
+test collection (`323`), `make check` (`323` passed), `uv lock --check`, scope
+inspection, and `git diff --check`; all passed.
+
+The integrator classifies the kernel as **Ready for M4**. KRV-001 identifies a real
+composition gap, but a manually assembled pre-coordinator test would not prove that the
+future application boundary uses authorization. Carry the full successful Use chain
+into the atomic simulation-step coordinator's acceptance tests instead of blocking the
+first SQLite design task. KRV-002 is an accepted M4 constraint: one application
+transaction must own completion. KRV-003 and KRV-004 remain non-blocking follow-up
+candidates; test removals require task-local evidence before deletion.

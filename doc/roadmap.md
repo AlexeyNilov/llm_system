@@ -12,7 +12,8 @@ Show the current delivery sequence, deferred scope, and readiness for delegation
 | M1: Feasibility and project foundation | Done | Measured local-model behavior, Python 3.12 project, and executable quality gates |
 | M2: Packages and domain contracts | Done | Strict versioned YAML packages load into validated typed definitions |
 | M3: Deterministic simulation kernel | Done | Pure Python validates worlds and deterministically resolves the supported minimal action set without an LLM or database |
-| M3.5: Review before persistence | Current | Audit the boundary before persistence makes it expensive to change |
+| M3.5: Review before persistence | Done | Accepted the kernel boundary and carried transaction ownership into M4 |
+| M4: Persistence and application boundary | Current | Persist one world and advance it through one atomic application-owned step |
 
 Completed task contracts and verification evidence remain under [`tasks/`](tasks/).
 
@@ -32,7 +33,7 @@ The application must keep unavailable behavior explicit. Greybridge is not yet a
 
 | Planned task | Status | Depends on | Outcome |
 | --- | --- | --- | --- |
-| [TASK-035](tasks/TASK-035-review-kernel-before-persistence.md): integrated architecture, documentation-IA, and test-value review | Ready | Completed M3 kernel | Trace a representative player action; assess authority, ownership, data flow, persistence seams, requirement coverage, testability, documentation architecture from IDEA-010 and IDEA-011, missing high-risk tests, redundant tests, and low-value tests; produce evidence and recommendations without implementation changes. |
+| [TASK-035](tasks/TASK-035-review-kernel-before-persistence.md): integrated architecture, documentation-IA, and test-value review | Done | Completed M3 kernel | Accepted the kernel as ready for M4; carry full-chain testing into the real coordinator boundary, preserve one transaction owner, and keep documentation/test cleanup non-blocking. |
 
 ## M4: Persistence and application boundary
 
@@ -40,7 +41,7 @@ The application must keep unavailable behavior explicit. Greybridge is not yet a
 
 | Planned task | Depends on |
 | --- | --- |
-| SQLite schema and repositories | Accepted M3.5 findings |
+| SQLite schema and repositories | Completed M3.5 review |
 | Atomic simulation-step coordinator, transaction, scheduled-activity execution, and trace | SQLite repositories and deterministic scheduling contracts |
 | World creation, resume, and reset | Packages and repositories |
 | FastAPI turn boundary | Atomic simulation step |
