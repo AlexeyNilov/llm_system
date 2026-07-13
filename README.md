@@ -167,6 +167,27 @@ implementation type. It also does not dispatch or resolve operations, generate
 outcomes, commit state, interpret events, invoke an LLM, or authorize world
 actions and scheduled activities.
 
+## Wait resolution
+
+Use `llm_system.simulation.resolve_wait()` with an `AuthorizedActorAction` whose
+proposal is `WaitActionProposal`. The caller must inject keyword-only UUID
+values for `outcome_id` and `event_id`; the resolver does not generate runtime
+identities. It returns one `SucceededOutcome` with reason `wait-completed`, the
+submission's proposal identity, and completion time equal to current simulation
+time plus the requested duration.
+
+The outcome contains exactly one `SimulationTimeChanged` from current time to
+completion time and one `ActorWaitedEvent` at completion identifying the actor,
+requested duration, supplied event identity, and supplied outcome identity as
+its cause. Passing an authorized non-Wait action is a programmer error and
+raises `TypeError` rather than producing a canonical rejection.
+
+Wait resolution is a pure evidence-producing boundary. Pass its outcome
+separately to `commit_outcome()` to advance canonical simulation time. The
+resolver does not commit state or process scheduled activities or NPC actions
+made eligible by elapsed time; scheduler processing remains a later, separate
+operation.
+
 ## Runtime-state contracts
 
 `llm_system.simulation` also exposes strict, immutable runtime-state contracts

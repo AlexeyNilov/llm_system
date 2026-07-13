@@ -884,3 +884,15 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Report every discoverable mismatch, use one unauthorized code, throw ad hoc exceptions, or compare policy before actor identity. These choices respectively create cascades, lose diagnostic meaning, weaken tooling, or validate against the wrong principal.
 
 **Consequences:** Every failure identifies the earliest authoritative broken link and current rules yield one root issue per submission. The error retains the project's immutable non-empty issue-tuple pattern for consistent inspection and future independent checks.
+
+### 2026-07-13: Implement Wait as the first deterministic operation resolver
+
+**Status:** Accepted
+
+**Context:** Dispatch needs at least one real resolver, but most actor operations still depend on unaccepted perception, hearing, accessibility, possession, or package mechanics. Wait already has a strict positive duration contract and an accepted requirement to advance time by exactly that duration.
+
+**Decision:** Implement `resolve_wait(action, *, outcome_id, event_id) -> SucceededOutcome` first. It accepts an authorized action, uses caller-injected identities, advances from current simulation time by the proposal duration, emits reason `wait-completed`, one exact time delta, and one actor-waited event at completion. It does not commit, schedule, invoke NPCs, or present results. Receiving a non-Wait proposal is a dispatcher/programmer `TypeError`, not a canonical rejection.
+
+**Alternatives considered:** Begin with a mechanically underspecified operation, implement all resolvers together, generate IDs inside the resolver, return rejection for incorrect dispatch, or process scheduled consequences immediately. These choices respectively invent rules, recreate oversized scope, hide nondeterminism, turn a code defect into fiction, or mix resolution with scheduling.
+
+**Consequences:** The project gains one honest end-to-end authorization-to-outcome path and a concrete resolver contract for later dispatch. Wait always succeeds at this layer; scheduler behavior after its time advancement remains a separate milestone.

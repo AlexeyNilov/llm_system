@@ -492,6 +492,20 @@ This helps ensure requirements are:
 
 **AUTHZ-015:** When an NPC-policy source matches an authored NPC but its policy identity differs from the NPC definition, authorization shall produce `policy-mismatch` at `submission.source.policy_id`.
 
+**WAIT-001:** The first operation resolver shall resolve an authorized Wait proposal without perception, package-rule lookup, randomness, or an LLM.
+
+**WAIT-002:** The public resolver shall have the contract `resolve_wait(action: AuthorizedActorAction, *, outcome_id: UUID, event_id: UUID) -> SucceededOutcome` and shall not generate runtime identities internally.
+
+**WAIT-003:** Wait resolution shall advance simulation time by exactly the proposal's strictly positive requested duration and shall use the resulting time as outcome completion and event occurrence time.
+
+**WAIT-004:** A resolved Wait shall produce reason code `wait-completed`, exactly one `SimulationTimeChanged`, and exactly one `ActorWaitedEvent` identifying the intended actor and requested duration.
+
+**WAIT-005:** Wait resolution shall preserve the authorized submission's proposal identity and shall use the caller-supplied outcome and event identities for causation.
+
+**WAIT-006:** Passing an authorized non-Wait proposal to the Wait resolver shall raise `TypeError` as a dispatch/programmer defect and shall not produce an in-world rejected outcome.
+
+**WAIT-007:** The Wait resolver shall not commit its outcome, process scheduled activity, invoke NPCs, or perform presentation.
+
 **ACTION-011:** The system shall keep an untrusted operation-specific proposal payload separate from its trusted application-created proposal-submission envelope.
 
 **ACTION-012:** A proposal submission shall contain proposal identity, source role and identity, intended actor when applicable, simulation-step context, and trace provenance, and generated output shall not supply or override that metadata.
