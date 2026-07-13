@@ -1,6 +1,6 @@
 # TASK-028: Resolve co-located speech
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -110,12 +110,12 @@ Stop and report a design gap if implementation requires recipient perception, wi
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented pure deterministic co-located Speak v0 resolution, public exports, and concrete actor-action dispatch while preserving uniform private rejection and zero-time exact-event evidence.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/resolvers/speak.py`, `src/llm_system/simulation/resolvers/__init__.py`, `src/llm_system/simulation/dispatch.py`, `src/llm_system/simulation/__init__.py`, `tests/test_speak_resolver.py`, `tests/test_actor_action_dispatch.py`, `tests/test_package.py`, `README.md`, `pyproject.toml`, `uv.lock`, and `doc/tasks/TASK-028-speak-resolver.md`.
 
-**Verification:** Pending
+**Verification:** Initial red: `uv run pytest tests/test_speak_resolver.py tests/test_actor_action_dispatch.py -q` failed during collection because `resolve_speak` was not publicly implemented or exported. Final green: required focused suite passed (22 tests); `uv sync --locked`, `make format`, `make lint`, `make mypy`, `make test` (256 tests), `make check` (256 tests), `uv lock --check`, and `git diff --check` all passed. Installed metadata reports `0.27.0`; `uv.lock` changes only the editable root version from `0.26.0` to `0.27.0`.
 
-**Deviations:** Pending
+**Deviations:** None. The accepted high-level design already described Speak v0, its dispatch availability, and its exclusions accurately, so no additional edit was necessary there.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** No design gap. Recipient addressed-speech event feedback remains the explicitly separate planned follow-up.

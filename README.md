@@ -301,22 +301,41 @@ identities. Observe v0 performs no rich inspection, search, capability or skill
 check, uncertainty, enrichment, event-feedback filtering, recording, memory,
 belief, persistence, narration, or presentation.
 
+## Speak resolution
+
+Use `llm_system.simulation.resolve_speak()` with an `AuthorizedActorAction`
+whose proposal is `SpeakActionProposal`. The caller injects keyword-only UUID
+values for `outcome_id` and `event_id`; passing an authorized non-Speak action
+raises `TypeError` as a programmer error.
+
+Speak v0 treats only another character at the authorized speaker's exact
+canonical runtime location as audible. Unknown, remote, self, object,
+connection, location, and otherwise absent recipient identifiers all produce
+the same effect-free `RejectedOutcome` with reason `recipient-not-audible`,
+without disclosing whether the identifier exists in another namespace or using
+the supplied event identity. Audibility does not reuse visual perception.
+
+Success uses reason `speech-completed` at the exact current simulation time,
+changes no state, advances no time, and contains exactly one `ActorSpokeEvent`
+with the authorized speaker, proposal recipient, exact unnormalized utterance,
+and caller-supplied identities. It establishes only audible addressed speech;
+it does not establish comprehension, memory, belief, agreement, response, or
+recipient state change and does not produce recipient event feedback.
+
 ## Actor-action dispatch
 
 Use `llm_system.simulation.dispatch_actor_action()` after authorization to route
 one `AuthorizedActorAction` by its concrete proposal type. The caller supplies
 required keyword-only UUID values for `outcome_id` and `event_id`; dispatch
-generates no identities. Move, Wait, and Observe proposals route to
-`resolve_move()`, `resolve_wait()`, and `resolve_observe()` respectively, and the
-selected resolver's outcome is returned without reconstruction or exception
-translation. Caller identities and the authorized action pass through
-unchanged.
+generates no identities. Move, Wait, Observe, and Speak proposals route to their
+corresponding concrete resolvers, and the selected resolver's outcome is
+returned without reconstruction or exception translation. Caller identities
+and the authorized action pass through unchanged.
 
-Speak, Take, Use, and Help are structurally valid proposals whose mechanics are
-not yet implemented. Dispatch raises `OperationResolverUnavailableError` for
-each, with its public typed `operation` attribute identifying the unavailable
-capability. This is a software-capability error, not a rejected or failed
-canonical outcome.
+Take, Use, and Help are structurally valid proposals whose mechanics are not yet
+implemented. Dispatch raises `OperationResolverUnavailableError` for each, with
+its public typed `operation` attribute identifying the unavailable capability.
+This is a software-capability error, not a rejected or failed canonical outcome.
 
 Dispatch does not authorize submissions, commit outcomes, process scheduler
 eligibility, invoke NPC policies or an LLM, perform perception or presentation,

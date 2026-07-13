@@ -86,7 +86,12 @@ from llm_system.simulation.randomness import (
     RandomSourceContractError,
     draw_recorded_integer,
 )
-from llm_system.simulation.resolvers import resolve_move, resolve_observe, resolve_wait
+from llm_system.simulation.resolvers import (
+    resolve_move,
+    resolve_observe,
+    resolve_speak,
+    resolve_wait,
+)
 from llm_system.simulation.scheduling import (
     EnvironmentalScheduledActivity,
     NpcScheduledActivity,
@@ -202,6 +207,7 @@ __all__ = [
     "project_self_event_feedback",
     "resolve_move",
     "resolve_observe",
+    "resolve_speak",
     "resolve_wait",
     "select_eligible_activities",
 ]

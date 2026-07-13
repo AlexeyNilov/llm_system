@@ -6,10 +6,12 @@ import pytest
 from llm_system.game_packages import (
     CharacterArchetypeDefinition,
     ConnectionDefinition,
+    DecisionPolicyDefinition,
     EntityCollectionDefinition,
     LoadedRulePackage,
     LoadedScenarioPackage,
     LocationDefinition,
+    NpcCharacterDefinition,
     PlayerCharacterDefinition,
     RulePackageManifest,
     RulePackDefinition,
@@ -18,6 +20,7 @@ from llm_system.game_packages import (
     SpatialGraphDefinition,
     validate_game_packages,
 )
+from llm_system.game_packages.entities import DecisionPolicyReference, GoalDefinition
 from llm_system.game_packages.models import RequiredRulePack
 from llm_system.simulation import (
     ActorActionOperation,
@@ -42,6 +45,7 @@ from llm_system.simulation import (
     dispatch_actor_action,
     resolve_move,
     resolve_observe,
+    resolve_speak,
     resolve_wait,
     validate_world_state,
 )
@@ -67,7 +71,11 @@ def _world() -> ValidatedWorldState:
             character_archetypes=(
                 CharacterArchetypeDefinition(id="person", name="Person"),
             ),
-            decision_policies=(),
+            decision_policies=(
+                DecisionPolicyDefinition(
+                    id="routine", name="Routine", policy_type="rule"
+                ),
+            ),
         ),
     )
     scenario = LoadedScenarioPackage(
@@ -108,6 +116,20 @@ def _world() -> ValidatedWorldState:
                         character_archetype_id="person",
                         initial_location_id="start",
                     ),
+                    NpcCharacterDefinition(
+                        entity_type="npc_character",
+                        id="sela",
+                        name="Sela",
+                        character_archetype_id="person",
+                        initial_location_id="start",
+                        identity_summary="A person.",
+                        goals=(
+                            GoalDefinition(id="remain", description="Remain present."),
+                        ),
+                        decision_policy=DecisionPolicyReference(
+                            policy_type="rule", policy_id="routine"
+                        ),
+                    ),
                 )
             ),
         ),
@@ -115,7 +137,10 @@ def _world() -> ValidatedWorldState:
     packages = validate_game_packages(rules, scenario)
     state = WorldState(
         simulation_time_seconds=10,
-        characters=(CharacterState(character_id="marin", location_id="start"),),
+        characters=(
+            CharacterState(character_id="marin", location_id="start"),
+            CharacterState(character_id="sela", location_id="start"),
+        ),
         objects=(),
         connections=(ConnectionState(connection_id="path", is_available=True),),
     )
@@ -194,18 +219,30 @@ def test_observe_dispatch_matches_direct_resolution_and_preserves_inputs() -> No
     assert action.model_dump(mode="json") == original
 
 
+def test_speak_dispatch_matches_direct_resolution_and_preserves_inputs() -> None:
+    action = _authorized(
+        SpeakActionProposal(
+            operation="speak", character_id="sela", utterance="Exact words"
+        )
+    )
+    original = action.model_dump(mode="json")
+
+    dispatched = dispatch_actor_action(action, outcome_id=OUTCOME_ID, event_id=EVENT_ID)
+    direct = resolve_speak(action, outcome_id=OUTCOME_ID, event_id=EVENT_ID)
+
+    assert dispatched == direct
+    assert dispatched.outcome_id == OUTCOME_ID
+    assert dispatched.status == "succeeded"
+    assert dispatched.events[0].event_id == EVENT_ID
+    assert action.model_dump(mode="json") == original
+
+
 UnavailableProposalFactory = Callable[[], ActorActionProposal]
 
 
 @pytest.mark.parametrize(
     ("proposal_factory", "operation"),
     [
-        (
-            lambda: SpeakActionProposal(
-                operation="speak", character_id="marin", utterance="Hello"
-            ),
-            "speak",
-        ),
         (lambda: TakeActionProposal(operation="take", object_id="rope"), "take"),
         (
             lambda: UseActionProposal(
