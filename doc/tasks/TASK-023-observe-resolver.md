@@ -1,6 +1,6 @@
 # TASK-023: Resolve focused current-state observation
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -111,12 +111,12 @@ Stop and report a design gap if implementation requires revealing a fact not alr
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented Observe v0 as a pure current-perception resolver, exposed it publicly, and routed Observe through actor-action dispatch while preserving capability errors for Speak, Take, Use, and Help.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/resolvers/observe.py`, `src/llm_system/simulation/resolvers/__init__.py`, `src/llm_system/simulation/dispatch.py`, `src/llm_system/simulation/__init__.py`, `tests/test_observe_resolver.py`, `tests/test_actor_action_dispatch.py`, `tests/test_package.py`, `README.md`, `doc/high_level_design.md`, `pyproject.toml`, `uv.lock`, and this task brief.
 
-**Verification:** Pending
+**Verification:** Initial red: `uv run pytest tests/test_observe_resolver.py tests/test_actor_action_dispatch.py -q` failed collection with two `ImportError` errors because `resolve_observe` was not exported. Focused green groups: success/evidence `6 passed`; rejection/information boundary `8 passed`; determinism/error `2 passed`; combined resolver and dispatch `24 passed`. `uv sync --locked` installed editable `llm-system==0.22.0`; `make format` completed; `make lint` passed; `make mypy` passed for 51 source files; `make test` passed all 199 tests; final `make check` passed formatting, lint, mypy, and all 199 tests; `uv lock --check` passed; `git diff --check` passed. The only `uv.lock` diff is editable root version `0.21.0` to `0.22.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.

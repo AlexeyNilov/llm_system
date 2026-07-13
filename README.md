@@ -218,21 +218,46 @@ commit state, dispatch operations, process scheduler eligibility or NPC
 activity, interpret traversal requirements, generate IDs, or perform
 perception, persistence, or presentation.
 
+## Observe resolution
+
+Use `llm_system.simulation.resolve_observe()` with an `AuthorizedActorAction`
+whose proposal is `ObserveActionProposal`. The caller injects keyword-only UUID
+values for `outcome_id` and `event_id`; passing an authorized non-Observe action
+raises `TypeError` as a programmer error.
+
+The resolver projects the actor's current perception through
+`project_current_perception()`. Surroundings are always perceptible after that
+projection. A location, connection, character, or object target succeeds only
+when the snapshot contains the corresponding typed current-state observation
+with the same typed identifier. This includes unavailable outgoing connections.
+Unknown, remote, incoming-only, self-character, wrong-namespace, and otherwise
+absent targets all produce the same effect-free `RejectedOutcome` with reason
+`target-not-perceptible`, without disclosing whether canonical truth contains
+the target or using the supplied event identity.
+
+Success uses reason `observation-completed` at the exact current simulation
+time, changes no state, advances no time, and contains exactly one
+`ActorObservedEvent` with the proposal's exact typed target and caller-supplied
+identities. Observe v0 performs no rich inspection, search, capability or skill
+check, uncertainty, enrichment, event-feedback filtering, recording, memory,
+belief, persistence, narration, or presentation.
+
 ## Actor-action dispatch
 
 Use `llm_system.simulation.dispatch_actor_action()` after authorization to route
 one `AuthorizedActorAction` by its concrete proposal type. The caller supplies
 required keyword-only UUID values for `outcome_id` and `event_id`; dispatch
-generates no identities. Move proposals route to `resolve_move()`, Wait proposals
-route to `resolve_wait()`, and the selected resolver's outcome is returned
-without reconstruction or exception translation. Caller identities and the
-authorized action pass through unchanged.
+generates no identities. Move, Wait, and Observe proposals route to
+`resolve_move()`, `resolve_wait()`, and `resolve_observe()` respectively, and the
+selected resolver's outcome is returned without reconstruction or exception
+translation. Caller identities and the authorized action pass through
+unchanged.
 
-Observe, Speak, Take, Use, and Help are structurally valid proposals whose
-mechanics are not yet implemented. Dispatch raises
-`OperationResolverUnavailableError` for each, with its public typed `operation`
-attribute identifying the unavailable capability. This is a software-capability
-error, not a rejected or failed canonical outcome.
+Speak, Take, Use, and Help are structurally valid proposals whose mechanics are
+not yet implemented. Dispatch raises `OperationResolverUnavailableError` for
+each, with its public typed `operation` attribute identifying the unavailable
+capability. This is a software-capability error, not a rejected or failed
+canonical outcome.
 
 Dispatch does not authorize submissions, commit outcomes, process scheduler
 eligibility, invoke NPC policies or an LLM, perform perception or presentation,

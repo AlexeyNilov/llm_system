@@ -76,7 +76,7 @@ from llm_system.simulation.perception_engine import (
     PerceptionObserverNotFoundError,
     project_current_perception,
 )
-from llm_system.simulation.resolvers import resolve_move, resolve_wait
+from llm_system.simulation.resolvers import resolve_move, resolve_observe, resolve_wait
 from llm_system.simulation.state import (
     CharacterState,
     ConnectionState,
@@ -168,5 +168,6 @@ __all__ = [
     "dispatch_actor_action",
     "project_current_perception",
     "resolve_move",
+    "resolve_observe",
     "resolve_wait",
 ]

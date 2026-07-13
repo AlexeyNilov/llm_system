@@ -41,6 +41,7 @@ from llm_system.simulation import (
     WorldState,
     dispatch_actor_action,
     resolve_move,
+    resolve_observe,
     resolve_wait,
     validate_world_state,
 )
@@ -174,19 +175,31 @@ def test_move_dispatch_matches_direct_resolution_and_preserves_inputs(
     assert action.model_dump(mode="json") == original
 
 
+def test_observe_dispatch_matches_direct_resolution_and_preserves_inputs() -> None:
+    action = _authorized(
+        ObserveActionProposal(
+            operation="observe",
+            target=SurroundingsTarget(target_type="surroundings"),
+        )
+    )
+    original = action.model_dump(mode="json")
+
+    dispatched = dispatch_actor_action(action, outcome_id=OUTCOME_ID, event_id=EVENT_ID)
+    direct = resolve_observe(action, outcome_id=OUTCOME_ID, event_id=EVENT_ID)
+
+    assert dispatched == direct
+    assert dispatched.outcome_id == OUTCOME_ID
+    assert dispatched.status == "succeeded"
+    assert dispatched.events[0].event_id == EVENT_ID
+    assert action.model_dump(mode="json") == original
+
+
 UnavailableProposalFactory = Callable[[], ActorActionProposal]
 
 
 @pytest.mark.parametrize(
     ("proposal_factory", "operation"),
     [
-        (
-            lambda: ObserveActionProposal(
-                operation="observe",
-                target=SurroundingsTarget(target_type="surroundings"),
-            ),
-            "observe",
-        ),
         (
             lambda: SpeakActionProposal(
                 operation="speak", character_id="marin", utterance="Hello"
