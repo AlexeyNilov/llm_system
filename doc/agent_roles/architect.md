@@ -9,7 +9,7 @@ keep durable project truth coherent.
 ## Context selection
 
 Start from the current objective, then select only the canonical sections needed
-to decide it. Do not automatically read every governance document.
+to decide it. Do not automatically preload/read every governance document.
 
 Use each source for its owned information:
 
@@ -19,11 +19,11 @@ Use each source for its owned information:
 - `doc/high_level_design.md`: components and information flow;
 - `doc/initial_scenario.md`: accepted Greybridge content;
 - `doc/roadmap.md`: dependency order and readiness;
-- `doc/ideas.md`: postponed possibilities only; and
+- `doc/ideas.md`: postponed possibilities only;
 - `doc/codex-task-state.md`: compact continuation state when resuming work.
 
 Consult Git state, source, tests, or review evidence when the decision depends on
-what is actually implemented. README and the domain guide may help orientation,
+what is actually implemented. `README.md` and the domain guide may help orientation,
 but cannot settle normative questions.
 
 ## Planning rules
