@@ -59,7 +59,7 @@ from llm_system.simulation.outcomes import (
     RejectedOutcome,
     SucceededOutcome,
 )
-from llm_system.simulation.resolvers import resolve_wait
+from llm_system.simulation.resolvers import resolve_move, resolve_wait
 from llm_system.simulation.state import (
     CharacterState,
     ConnectionState,
@@ -139,5 +139,6 @@ __all__ = [
     "validate_world_state",
     "authorize_actor_action",
     "commit_outcome",
+    "resolve_move",
     "resolve_wait",
 ]

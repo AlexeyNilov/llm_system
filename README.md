@@ -188,6 +188,36 @@ resolver does not commit state or process scheduled activities or NPC actions
 made eligible by elapsed time; scheduler processing remains a later, separate
 operation.
 
+## Move resolution
+
+Use `llm_system.simulation.resolve_move()` with an `AuthorizedActorAction` whose
+proposal is `MoveActionProposal`. The caller must inject keyword-only UUID
+values for `outcome_id` and `event_id`; the resolver generates no identities.
+Passing an authorized non-Move action raises `TypeError` as a programmer error.
+
+The resolver first finds the proposal's directed connection in authored
+scenario topology, then reads the actor's current location and that connection's
+runtime availability from the validated world. Actionability is gated in this
+exact order: unknown authored connection, actor not at the connection source,
+then unavailable runtime connection. The respective effect-free rejections use
+reasons `unknown-connection`, `actor-not-at-connection-source`, and
+`connection-unavailable` at the current simulation time. A rejected call does
+not use its supplied event identity.
+
+Valid movement always succeeds with reason `move-completed`. Completion time is
+the current simulation time plus the authored connection's exact positive
+integer `base_traversal_seconds`, without modifiers or an artificial maximum.
+The outcome contains exactly two ordered changes—`CharacterLocationChanged`
+from source to destination followed by `SimulationTimeChanged` to completion—
+and one `ActorMovedEvent` at completion using the supplied event identity and
+the supplied outcome identity as its cause.
+
+Move resolution only produces typed evidence. Pass the outcome separately to
+`commit_outcome()` to update canonical location and time. The resolver does not
+commit state, dispatch operations, process scheduler eligibility or NPC
+activity, interpret traversal requirements, generate IDs, or perform
+perception, persistence, or presentation.
+
 ## Runtime-state contracts
 
 `llm_system.simulation` also exposes strict, immutable runtime-state contracts

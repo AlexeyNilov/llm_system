@@ -51,7 +51,7 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | [`TASK-016`](tasks/TASK-016-outcome-commitment-core.md): Arbiter outcome-commitment core | Done | TASK-013, TASK-015 |
 | [`TASK-017`](tasks/TASK-017-actor-action-authorization.md): Actor-action submission authorization | Done | TASK-011, TASK-013 |
 | [`TASK-018`](tasks/TASK-018-wait-resolver.md): Deterministic Wait resolver | Done | TASK-014 through TASK-017 |
-| [`TASK-019`](tasks/TASK-019-move-resolver.md): Deterministic Move resolver | Ready | TASK-013 through TASK-018 |
+| [`TASK-019`](tasks/TASK-019-move-resolver.md): Deterministic Move resolver | Done | TASK-013 through TASK-018 |
 | Operation dispatch | Planned | TASK-017, TASK-018, TASK-019 |
 | Remaining operation resolvers | Planned | Authorization plus accepted per-operation mechanics |
 | Recorded random source | Planned | Simulation arbiter |

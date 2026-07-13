@@ -1,6 +1,6 @@
 # TASK-019: Resolve authorized Move actions
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -111,12 +111,27 @@ Stop and report a design gap if implementation requires a failed-attempt branch,
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the pure authorized Move resolver, public exports,
+behavioral coverage, commitment composition, documentation, and the `0.18.0`
+version milestone.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/resolvers/move.py`,
+`src/llm_system/simulation/resolvers/__init__.py`,
+`src/llm_system/simulation/__init__.py`, `tests/test_move_resolver.py`,
+`README.md`, `pyproject.toml`, `tests/test_package.py`, `uv.lock`, and this task
+brief.
 
-**Verification:** Pending
+**Verification:** Initial red: `uv run pytest -q tests/test_move_resolver.py`
+failed during collection with `ImportError: cannot import name 'resolve_move'`
+from `llm_system.simulation`. Focused success/determinism, rejection,
+programmer-error/required-ID, and success/rejection commitment groups passed;
+the complete focused file passed with 9 tests. `uv sync --locked`, `make format`,
+`make lint`, `make mypy`, `make test` (161 passed), `make check` (161 passed),
+`uv lock --check`, and `git diff --check` passed. The only `uv.lock` change is
+the editable root version from `0.17.0` to `0.18.0`.
 
-**Deviations:** Pending
+**Deviations:** None. The context manifest names a high-level-design section
+“Actor cognition and action loop”; the current document calls that section
+“Actor loop”, which was used as the intended context.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.
