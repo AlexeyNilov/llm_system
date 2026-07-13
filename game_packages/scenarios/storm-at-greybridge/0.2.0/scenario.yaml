@@ -1,0 +1,96 @@
+schema_version: 1
+spatial_graph:
+  locations:
+    - id: greybridge-waystation
+      name: Greybridge Waystation
+    - id: greybridge-span
+      name: Greybridge Span
+    - id: far-bank
+      name: Far Bank
+  connections:
+    - id: waystation-to-span
+      name: Waystation to Span
+      source_location_id: greybridge-waystation
+      destination_location_id: greybridge-span
+      base_traversal_seconds: 60
+    - id: span-to-waystation
+      name: Span to Waystation
+      source_location_id: greybridge-span
+      destination_location_id: greybridge-waystation
+      base_traversal_seconds: 60
+    - id: span-to-far-bank
+      name: Span to Far Bank
+      source_location_id: greybridge-span
+      destination_location_id: far-bank
+      base_traversal_seconds: 120
+    - id: far-bank-to-span
+      name: Far Bank to Span
+      source_location_id: far-bank
+      destination_location_id: greybridge-span
+      base_traversal_seconds: 120
+entity_collection:
+  entities:
+    - entity_type: player_character
+      id: player
+      name: Traveler
+      character_archetype_id: traveler
+      initial_location_id: greybridge-waystation
+    - entity_type: npc_character
+      id: injured-courier
+      name: Injured Courier
+      character_archetype_id: courier
+      initial_location_id: greybridge-waystation
+      identity_summary: An injured courier carrying urgent medicine across the river.
+      goals:
+        - id: deliver-medicine
+          description: Get the medicine safely to the far bank.
+        - id: protect-injury
+          description: Avoid worsening the injury while seeking help.
+      initial_plan: Find help and cross before the route closes.
+      decision_policy:
+        policy_type: llm
+        policy_id: courier-llm-policy
+    - entity_type: npc_character
+      id: bridge-caretaker
+      name: Bridge Caretaker
+      character_archetype_id: caretaker
+      initial_location_id: greybridge-span
+      identity_summary: The caretaker responsible for protecting people and the bridge.
+      goals:
+        - id: protect-people
+          description: Keep people from an unsafe crossing.
+        - id: preserve-bridge
+          description: Preserve the bridge while it remains feasible.
+        - id: protect-supplies
+          description: Protect critical supplies from loss.
+        - id: reach-safety
+          description: Reach safety if preservation is no longer viable.
+      initial_plan: Guard the bridge and preserve it while doing so remains feasible.
+      decision_policy:
+        policy_type: rule
+        policy_id: caretaker-rule-policy
+    - entity_type: object
+      id: medicine
+      name: Medicine
+      object_archetype_id: medicine
+      initial_placement:
+        placement_type: possessed
+        character_id: injured-courier
+    - entity_type: object
+      id: reinforcement-materials
+      name: Reinforcement Materials
+      object_archetype_id: reinforcement-materials
+      initial_placement:
+        placement_type: location
+        location_id: greybridge-waystation
+boolean_world_facts:
+  - id: bridge-reinforced
+    name: Bridge Reinforced
+    initial_value: false
+object_use_bindings:
+  - id: reinforce-greybridge
+    mechanic_id: reinforce-structure
+    object_id: reinforcement-materials
+    target_location_id: greybridge-span
+    fact_id: bridge-reinforced
+    fact_value: true

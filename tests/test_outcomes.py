@@ -6,6 +6,7 @@ from pydantic import TypeAdapter, ValidationError
 
 from llm_system.simulation import (
     ActorWaitedEvent,
+    BooleanWorldFactChanged,
     CharacterLocationChanged,
     ConnectionAvailabilityChanged,
     FailedOutcome,
@@ -221,6 +222,20 @@ def test_duplicate_change_conflict_keys_are_rejected() -> None:
                 connection_id="market-to-dock",
                 from_available=False,
                 to_available=True,
+            ),
+        ),
+        (
+            BooleanWorldFactChanged(
+                change_type="boolean_world_fact",
+                fact_id="bridge-safe",
+                from_value=False,
+                to_value=True,
+            ),
+            BooleanWorldFactChanged(
+                change_type="boolean_world_fact",
+                fact_id="bridge-safe",
+                from_value=True,
+                to_value=False,
             ),
         ),
         (

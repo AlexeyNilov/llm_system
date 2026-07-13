@@ -45,6 +45,19 @@ class ConnectionAvailabilityChanged(_StrictContract):
         return self
 
 
+class BooleanWorldFactChanged(_StrictContract):
+    change_type: Literal["boolean_world_fact"]
+    fact_id: AuthoredId
+    from_value: bool
+    to_value: bool
+
+    @model_validator(mode="after")
+    def require_value_change(self) -> Self:
+        if self.from_value == self.to_value:
+            raise ValueError("boolean world fact must change")
+        return self
+
+
 class SimulationTimeChanged(_StrictContract):
     change_type: Literal["simulation_time"]
     from_seconds: NonNegativeSeconds
@@ -61,6 +74,7 @@ StateChange = Annotated[
     CharacterLocationChanged
     | ObjectPlacementChanged
     | ConnectionAvailabilityChanged
+    | BooleanWorldFactChanged
     | SimulationTimeChanged,
     Field(discriminator="change_type"),
 ]

@@ -1,0 +1,9 @@
+schema_version: 1
+package_id: storm-at-greybridge
+package_version: 0.2.0
+package_type: scenario
+title: Storm at Greybridge
+entrypoint: scenario.yaml
+required_rule_pack:
+  package_id: greybridge-rules
+  package_version: 0.2.0

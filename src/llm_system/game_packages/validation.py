@@ -19,6 +19,11 @@ from llm_system.game_packages.rules import (
     CharacterArchetypeDefinition,
     DecisionPolicyDefinition,
     ObjectArchetypeDefinition,
+    ObjectUseMechanicDefinition,
+)
+from llm_system.game_packages.scenarios import (
+    BooleanWorldFactDefinition,
+    ObjectUseBindingDefinition,
 )
 from llm_system.game_packages.spatial import LocationDefinition
 
@@ -32,6 +37,8 @@ class ValidationIssueCode(StrEnum):
     UNREACHABLE_LOCATION = "unreachable-location"
     INVALID_PLAYER_COUNT = "invalid-player-count"
     INVALID_POSSESSION_TARGET = "invalid-possession-target"
+    OBJECT_ARCHETYPE_MISMATCH = "object-archetype-mismatch"
+    AMBIGUOUS_USE_BINDING = "ambiguous-use-binding"
 
 
 class ValidationIssue(BaseModel):
@@ -88,6 +95,12 @@ def _issue(code: ValidationIssueCode, path: str) -> ValidationIssue:
         ValidationIssueCode.UNREACHABLE_LOCATION: "location is not reachable from the player",
         ValidationIssueCode.INVALID_PLAYER_COUNT: "scenario must define exactly one player",
         ValidationIssueCode.INVALID_POSSESSION_TARGET: "possession target must be a character",
+        ValidationIssueCode.OBJECT_ARCHETYPE_MISMATCH: (
+            "object archetype does not match the mechanic requirement"
+        ),
+        ValidationIssueCode.AMBIGUOUS_USE_BINDING: (
+            "object and target location select more than one use binding"
+        ),
     }
     return ValidationIssue(code=code, path=path, message=messages[code])
 
@@ -305,6 +318,114 @@ def _validate_reachability(
             )
 
 
+def _validate_mechanic_references(
+    rule_package: LoadedRulePackage,
+    object_archetypes: Mapping[str, tuple[ObjectArchetypeDefinition, ...]],
+    issues: list[ValidationIssue],
+) -> None:
+    for position, mechanic in enumerate(rule_package.definition.object_use_mechanics):
+        if _is_missing(object_archetypes, mechanic.object_archetype_id):
+            issues.append(
+                _issue(
+                    ValidationIssueCode.UNKNOWN_REFERENCE,
+                    f"rule.definition.object_use_mechanics[{position}].object_archetype_id",
+                )
+            )
+
+
+def _validate_binding_references(
+    binding: ObjectUseBindingDefinition,
+    path: str,
+    dependency_matches: bool,
+    mechanics: Mapping[str, tuple[ObjectUseMechanicDefinition, ...]],
+    entities: Mapping[str, tuple[EntityDefinition, ...]],
+    locations: Mapping[str, tuple[LocationDefinition, ...]],
+    facts: Mapping[str, tuple[BooleanWorldFactDefinition, ...]],
+) -> list[ValidationIssue]:
+    issues: list[ValidationIssue] = []
+    if dependency_matches and _is_missing(mechanics, binding.mechanic_id):
+        issues.append(
+            _issue(ValidationIssueCode.UNKNOWN_REFERENCE, f"{path}.mechanic_id")
+        )
+    object_records = entities.get(binding.object_id, ())
+    if not object_records or (
+        len(object_records) == 1 and not isinstance(object_records[0], ObjectDefinition)
+    ):
+        issues.append(
+            _issue(ValidationIssueCode.UNKNOWN_REFERENCE, f"{path}.object_id")
+        )
+    checks = (
+        ("target_location_id", binding.target_location_id, locations),
+        ("fact_id", binding.fact_id, facts),
+    )
+    for field, identifier, index in checks:
+        if _is_missing(index, identifier):
+            issues.append(
+                _issue(ValidationIssueCode.UNKNOWN_REFERENCE, f"{path}.{field}")
+            )
+    return issues
+
+
+def _binding_archetype_issue(
+    binding: ObjectUseBindingDefinition,
+    path: str,
+    mechanics: Mapping[str, tuple[ObjectUseMechanicDefinition, ...]],
+    entities: Mapping[str, tuple[EntityDefinition, ...]],
+) -> ValidationIssue | None:
+    mechanic_records = mechanics.get(binding.mechanic_id, ())
+    object_records = entities.get(binding.object_id, ())
+    if len(mechanic_records) != 1 or len(object_records) != 1:
+        return None
+    obj = object_records[0]
+    if not isinstance(obj, ObjectDefinition):
+        return None
+    if obj.object_archetype_id != mechanic_records[0].object_archetype_id:
+        return _issue(
+            ValidationIssueCode.OBJECT_ARCHETYPE_MISMATCH, f"{path}.object_id"
+        )
+    return None
+
+
+def _validate_bindings(
+    scenario_package: LoadedScenarioPackage,
+    dependency_matches: bool,
+    mechanics: Mapping[str, tuple[ObjectUseMechanicDefinition, ...]],
+    entities: Mapping[str, tuple[EntityDefinition, ...]],
+    locations: Mapping[str, tuple[LocationDefinition, ...]],
+    facts: Mapping[str, tuple[BooleanWorldFactDefinition, ...]],
+    issues: list[ValidationIssue],
+) -> None:
+    seen_pairs: set[tuple[str, str]] = set()
+    for position, binding in enumerate(scenario_package.definition.object_use_bindings):
+        path = f"scenario.definition.object_use_bindings[{position}]"
+        issues.extend(
+            _validate_binding_references(
+                binding, path, dependency_matches, mechanics, entities, locations, facts
+            )
+        )
+        if dependency_matches:
+            mismatch = _binding_archetype_issue(binding, path, mechanics, entities)
+            if mismatch is not None:
+                issues.append(mismatch)
+        object_records = entities.get(binding.object_id, ())
+        object_resolves = len(object_records) == 1 and isinstance(
+            object_records[0], ObjectDefinition
+        )
+        if not object_resolves or not _has_unique(
+            locations, binding.target_location_id
+        ):
+            continue
+        pair = (binding.object_id, binding.target_location_id)
+        if pair in seen_pairs:
+            issues.append(
+                _issue(
+                    ValidationIssueCode.AMBIGUOUS_USE_BINDING,
+                    f"{path}.target_location_id",
+                )
+            )
+        seen_pairs.add(pair)
+
+
 def validate_game_packages(
     rule_package: LoadedRulePackage, scenario_package: LoadedScenarioPackage
 ) -> ValidatedGamePackages:
@@ -327,12 +448,22 @@ def validate_game_packages(
     policies = _index_records(
         definition.decision_policies, "rule.definition.decision_policies", issues
     )
+    mechanics = _index_records(
+        definition.object_use_mechanics,
+        "rule.definition.object_use_mechanics",
+        issues,
+    )
     graph = scenario_package.definition.spatial_graph
     locations = _index_records(
         graph.locations, "scenario.definition.spatial_graph.locations", issues
     )
     connections = _index_records(
         graph.connections, "scenario.definition.spatial_graph.connections", issues
+    )
+    facts = _index_records(
+        scenario_package.definition.boolean_world_facts,
+        "scenario.definition.boolean_world_facts",
+        issues,
     )
     entities = _index_records(
         scenario_package.definition.entity_collection.entities,
@@ -348,6 +479,11 @@ def validate_game_packages(
                 f"scenario.definition.entity_collection.entities[{position}].goals",
                 issues,
             )
+    _index_records(
+        scenario_package.definition.object_use_bindings,
+        "scenario.definition.object_use_bindings",
+        issues,
+    )
     players = [
         entity
         for entity in scenario_package.definition.entity_collection.entities
@@ -372,6 +508,16 @@ def validate_game_packages(
         object_archetypes,
         character_archetypes,
         policies,
+        issues,
+    )
+    _validate_mechanic_references(rule_package, object_archetypes, issues)
+    _validate_bindings(
+        scenario_package,
+        dependency_matches,
+        mechanics,
+        entities,
+        locations,
+        facts,
         issues,
     )
     _validate_reachability(

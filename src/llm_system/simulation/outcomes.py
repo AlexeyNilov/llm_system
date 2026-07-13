@@ -5,6 +5,7 @@ from pydantic import Field, StringConstraints, model_validator
 
 from llm_system.simulation._types import _StrictContract
 from llm_system.simulation.changes import (
+    BooleanWorldFactChanged,
     CharacterLocationChanged,
     ConnectionAvailabilityChanged,
     ObjectPlacementChanged,
@@ -86,6 +87,8 @@ def _change_conflict_key(change: StateChange) -> tuple[str, str]:
         return ("object_placement", change.object_id)
     if isinstance(change, ConnectionAvailabilityChanged):
         return ("connection_availability", change.connection_id)
+    if isinstance(change, BooleanWorldFactChanged):
+        return ("boolean_world_fact", change.fact_id)
     if isinstance(change, SimulationTimeChanged):
         return ("simulation_time", "singleton")
     raise AssertionError("unreachable closed state-change variant")

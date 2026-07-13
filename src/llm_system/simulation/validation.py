@@ -182,6 +182,7 @@ def validate_world_state(
     connection_ids = tuple(
         connection.id for connection in scenario.spatial_graph.connections
     )
+    fact_ids = tuple(fact.id for fact in scenario.boolean_world_facts)
     location_ids = {location.id for location in scenario.spatial_graph.locations}
     issues: list[WorldStateValidationIssue] = []
     valid_character_ids = _validate_overlay(
@@ -206,6 +207,14 @@ def validate_world_state(
         "connections",
         "connection_id",
         lambda item: item.connection_id,
+        issues,
+    )
+    _validate_overlay(
+        state.boolean_world_facts,
+        fact_ids,
+        "boolean_world_facts",
+        "fact_id",
+        lambda item: item.fact_id,
         issues,
     )
     _validate_character_references(

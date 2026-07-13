@@ -2,6 +2,7 @@ import pytest
 from pydantic import ValidationError
 
 from llm_system.game_packages import (
+    BooleanWorldFactDefinition,
     CharacterArchetypeDefinition,
     ConnectionDefinition,
     DecisionPolicyDefinition,
@@ -28,6 +29,7 @@ from llm_system.game_packages.entities import (
 )
 from llm_system.game_packages.models import RequiredRulePack
 from llm_system.simulation import (
+    BooleanWorldFactState,
     CharacterState,
     ConnectionState,
     ObjectAtLocation,
@@ -125,6 +127,11 @@ def _packages() -> ValidatedGamePackages:
                     ),
                 )
             ),
+            boolean_world_facts=(
+                BooleanWorldFactDefinition(
+                    id="bridge-safe", name="Bridge Safe", initial_value=False
+                ),
+            ),
         ),
     )
     return validate_game_packages(rule, scenario)
@@ -134,6 +141,7 @@ def _state(
     characters: tuple[CharacterState, ...] | None = None,
     objects: tuple[ObjectState, ...] | None = None,
     connections: tuple[ConnectionState, ...] | None = None,
+    boolean_world_facts: tuple[BooleanWorldFactState, ...] | None = None,
 ) -> WorldState:
     return WorldState(
         simulation_time_seconds=0,
@@ -156,6 +164,9 @@ def _state(
         connections=connections
         if connections is not None
         else (ConnectionState(connection_id="path", is_available=True),),
+        boolean_world_facts=boolean_world_facts
+        if boolean_world_facts is not None
+        else (BooleanWorldFactState(fact_id="bridge-safe", value=False),),
     )
 
 
@@ -271,6 +282,42 @@ def test_duplicate_issues_follow_first_duplicate_encounter_order() -> None:
             WorldStateValidationIssueCode.DUPLICATE_STATE_ID,
             "characters[3].character_id",
         ),
+    ]
+
+
+def test_boolean_fact_overlay_is_complete_and_ordered_after_connections() -> None:
+    issues = _issues(
+        _state(
+            connections=(
+                ConnectionState(connection_id="path", is_available=True),
+                ConnectionState(connection_id="path", is_available=False),
+            ),
+            boolean_world_facts=(
+                BooleanWorldFactState(fact_id="bridge-safe", value=False),
+                BooleanWorldFactState(fact_id="bridge-safe", value=True),
+                BooleanWorldFactState(fact_id="extra", value=False),
+            ),
+        )
+    )
+
+    assert [(issue.code, issue.path) for issue in issues] == [
+        (
+            WorldStateValidationIssueCode.DUPLICATE_STATE_ID,
+            "connections[1].connection_id",
+        ),
+        (
+            WorldStateValidationIssueCode.DUPLICATE_STATE_ID,
+            "boolean_world_facts[1].fact_id",
+        ),
+        (
+            WorldStateValidationIssueCode.UNEXPECTED_STATE,
+            "boolean_world_facts[2].fact_id",
+        ),
+    ]
+
+    missing = _issues(_state(boolean_world_facts=()))
+    assert [(issue.code, issue.path) for issue in missing] == [
+        (WorldStateValidationIssueCode.MISSING_STATE, "boolean_world_facts")
     ]
 
 

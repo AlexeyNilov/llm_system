@@ -28,6 +28,7 @@ from llm_system.simulation.authorization import (
     authorize_actor_action,
 )
 from llm_system.simulation.changes import (
+    BooleanWorldFactChanged,
     CharacterLocationChanged,
     ConnectionAvailabilityChanged,
     ObjectPlacementChanged,
@@ -108,6 +109,7 @@ from llm_system.simulation.scheduling import (
     select_eligible_activities,
 )
 from llm_system.simulation.state import (
+    BooleanWorldFactState,
     CharacterState,
     ConnectionState,
     ObjectAtLocation,
@@ -140,6 +142,8 @@ __all__ = [
     "ActorSpokeEvent",
     "ActorWaitedEvent",
     "CanonicalEvent",
+    "BooleanWorldFactChanged",
+    "BooleanWorldFactState",
     "CharacterObserved",
     "CharacterLocationChanged",
     "CharacterState",

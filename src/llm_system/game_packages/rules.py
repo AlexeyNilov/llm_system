@@ -1,6 +1,6 @@
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from llm_system.game_packages._types import DecisionPolicyType, NonBlankText, RecordId
 
@@ -25,11 +25,21 @@ class DecisionPolicyDefinition(_StrictRuleDefinition):
     policy_type: DecisionPolicyType
 
 
+class ObjectUseMechanicDefinition(_StrictRuleDefinition):
+    id: RecordId
+    name: NonBlankText
+    object_archetype_id: RecordId
+    target_type: Literal["location"]
+    duration_seconds: Annotated[int, Field(gt=0)]
+    effect_type: Literal["set_boolean_world_fact"]
+
+
 class RulePackDefinition(_StrictRuleDefinition):
     schema_version: Literal[1]
     object_archetypes: tuple[ObjectArchetypeDefinition, ...]
     character_archetypes: tuple[CharacterArchetypeDefinition, ...]
     decision_policies: tuple[DecisionPolicyDefinition, ...]
+    object_use_mechanics: tuple[ObjectUseMechanicDefinition, ...] = ()
 
     @field_validator("schema_version", mode="before")
     @classmethod
@@ -39,7 +49,11 @@ class RulePackDefinition(_StrictRuleDefinition):
         return value
 
     @field_validator(
-        "object_archetypes", "character_archetypes", "decision_policies", mode="before"
+        "object_archetypes",
+        "character_archetypes",
+        "decision_policies",
+        "object_use_mechanics",
+        mode="before",
     )
     @classmethod
     def normalize_yaml_catalog_lists_to_tuples(cls, value: object) -> object:

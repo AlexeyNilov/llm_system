@@ -2,10 +2,61 @@ import pytest
 from pydantic import ValidationError
 
 from llm_system.game_packages import (
+    BooleanWorldFactDefinition,
     EntityCollectionDefinition,
+    ObjectUseBindingDefinition,
     ScenarioPackDefinition,
     SpatialGraphDefinition,
 )
+
+
+def test_scenario_pack_parses_strict_ordered_authored_use_catalogs() -> None:
+    definition = ScenarioPackDefinition.model_validate(
+        {
+            "schema_version": 1,
+            "spatial_graph": {"locations": [], "connections": []},
+            "entity_collection": {"entities": []},
+            "boolean_world_facts": [
+                {"id": "bridge-safe", "name": "Bridge Safe", "initial_value": False}
+            ],
+            "object_use_bindings": [
+                {
+                    "id": "reinforce-bridge",
+                    "mechanic_id": "reinforce",
+                    "object_id": "materials",
+                    "target_location_id": "bridge",
+                    "fact_id": "bridge-safe",
+                    "fact_value": True,
+                }
+            ],
+        }
+    )
+
+    assert isinstance(definition.boolean_world_facts[0], BooleanWorldFactDefinition)
+    assert isinstance(definition.object_use_bindings[0], ObjectUseBindingDefinition)
+    assert definition.boolean_world_facts[0].initial_value is False
+    assert definition.object_use_bindings[0].fact_value is True
+    with pytest.raises(ValidationError):
+        definition.object_use_bindings = ()
+
+
+@pytest.mark.parametrize("value", [0, 1, "true"])
+def test_authored_boolean_fact_values_are_strict(value: object) -> None:
+    with pytest.raises(ValidationError):
+        BooleanWorldFactDefinition.model_validate(
+            {"id": "bridge-safe", "name": "Bridge Safe", "initial_value": value}
+        )
+    with pytest.raises(ValidationError):
+        ObjectUseBindingDefinition.model_validate(
+            {
+                "id": "reinforce-bridge",
+                "mechanic_id": "reinforce",
+                "object_id": "materials",
+                "target_location_id": "bridge",
+                "fact_id": "bridge-safe",
+                "fact_value": value,
+            }
+        )
 
 
 def test_scenario_pack_parses_its_typed_nested_aggregates() -> None:
@@ -20,6 +71,8 @@ def test_scenario_pack_parses_its_typed_nested_aggregates() -> None:
     assert definition.schema_version == 1
     assert definition.spatial_graph.locations == ()
     assert definition.entity_collection.entities == ()
+    assert definition.boolean_world_facts == ()
+    assert definition.object_use_bindings == ()
 
 
 def test_scenario_pack_exposes_existing_typed_aggregate_models() -> None:

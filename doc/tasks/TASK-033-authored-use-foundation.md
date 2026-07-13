@@ -1,6 +1,6 @@
 # TASK-033: Add the authored Use and boolean-world-fact foundation
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -122,12 +122,53 @@ Stop and report a design gap if implementation requires a resolver, a second eff
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the authored Use foundation, complete boolean-world-fact
+runtime overlay, fifth state-change variant, atomic fact commitment, retained
+Greybridge `0.1.0` packages, new validated `0.2.0` packages, public exports,
+README contract documentation, and project version `0.32.0`.
 
-**Changed files:** Pending
+**Changed files:** `README.md`; `pyproject.toml`; `uv.lock`;
+`src/llm_system/game_packages/{__init__.py,rules.py,scenarios.py,validation.py}`;
+`src/llm_system/simulation/{__init__.py,changes.py,commitment.py,outcomes.py,state.py,validation.py}`;
+`game_packages/rules/greybridge-rules/0.2.0/{manifest.yaml,rules.yaml}`;
+`game_packages/scenarios/storm-at-greybridge/0.2.0/{manifest.yaml,scenario.yaml}`;
+`tests/{test_game_package_validation.py,test_greybridge_packages.py,test_outcome_commitment.py,test_outcomes.py,test_package.py,test_rule_pack_definition.py,test_runtime_state.py,test_scenario_pack_definition.py,test_state_changes.py,test_world_state_validation.py}`;
+and this task brief for its authorized status transition and handoff.
 
-**Verification:** Pending
+**Verification:** Genuine red evidence was recorded before implementation:
 
-**Deviations:** Pending
+* `.venv/bin/pytest -q tests/test_rule_pack_definition.py tests/test_scenario_pack_definition.py tests/test_runtime_state.py tests/test_state_changes.py tests/test_package.py` -> collection failed with four import errors for the absent new public contracts.
+* `.venv/bin/pytest -q tests/test_game_package_validation.py -k 'authored_use or binding_validates or dependency_mismatch_suppresses_only_binding'` -> `3 failed, 13 deselected`; validation did not yet report the authored Use defects.
+* `.venv/bin/pytest -q tests/test_world_state_validation.py` -> `1 failed, 8 passed`; boolean fact overlay defects were not yet reported.
+* `.venv/bin/pytest -q tests/test_outcome_commitment.py` after the new change contract existed -> `2 failed, 6 passed`; the outcome aggregate still rejected the new closed-union variant.
+* `.venv/bin/pytest -q tests/test_game_package_validation.py -k 'requires_an_unambiguous_object'` -> `1 failed, 16 deselected`; a character incorrectly produced mismatch and ambiguity conclusions instead of an unresolved typed object reference.
 
-**Design gaps or follow-ups:** Pending
+Final verification:
+
+* Focused package/state/validation/change/commitment/Greybridge/version command -> `92 passed in 0.21s` after `uv sync --locked`.
+* `uv sync --locked` -> resolved 19 packages, rebuilt the editable root, and replaced `llm-system==0.31.0` with `llm-system==0.32.0`.
+* `make format` -> `1 file reformatted, 63 files left unchanged` on the final formatting pass.
+* `make lint` -> `All checks passed!`.
+* Initial `make mypy` -> five test narrowing errors in the retained-package compatibility test; explicit loaded-package type assertions were added. Final `make mypy` -> `Success: no issues found in 64 source files`.
+* `make test` -> `306 passed in 0.31s`.
+* `make check` -> 64 files already formatted; Ruff passed; mypy passed across 64 source files; `306 passed in 0.30s`.
+* `uv lock --check` -> exit 0, `Resolved 19 packages in 0.60ms`.
+* `.venv/bin/python -c "import importlib.metadata; print(importlib.metadata.version('llm-system'))"` -> `0.32.0`.
+* `git diff --exit-code -- game_packages/rules/greybridge-rules/0.1.0 game_packages/scenarios/storm-at-greybridge/0.1.0` -> exit 0 with no output; retained `0.1.0` files are unchanged.
+* `git diff -- uv.lock` -> only the editable root-package version changes from `0.31.0` to `0.32.0`.
+* `git diff --check` -> exit 0 with no output.
+* Independent integration review repeated `uv sync --locked`; an expanded
+  focused package, state, validation, outcome, commitment, Greybridge, and
+  version suite (`99 passed`); `make format`; `make lint`; `make mypy`; `make
+  test` (`306 passed`); `make check` (`306 passed` plus every quality gate); `uv
+  lock --check`; installed-version inspection (`0.32.0`); retained-`0.1.0`
+  no-diff inspection; root-only lockfile version inspection; and `git diff
+  --check`. All passed, and the changed-file audit found no TASK-034 resolver or
+  dispatch behavior.
+
+**Deviations:** None. No dependency, schema-version change, resolver, dispatch,
+generic effect system, automatic world initialization, consumption, quantity,
+randomness, progression, flood consequence, staging, or commit was added.
+
+**Design gaps or follow-ups:** No design gap encountered. TASK-034 remains the
+owner of Use proposal resolution and dispatch behavior and was not implemented.

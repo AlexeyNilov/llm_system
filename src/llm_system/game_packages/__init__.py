@@ -27,9 +27,14 @@ from llm_system.game_packages.rules import (
     CharacterArchetypeDefinition,
     DecisionPolicyDefinition,
     ObjectArchetypeDefinition,
+    ObjectUseMechanicDefinition,
     RulePackDefinition,
 )
-from llm_system.game_packages.scenarios import ScenarioPackDefinition
+from llm_system.game_packages.scenarios import (
+    BooleanWorldFactDefinition,
+    ObjectUseBindingDefinition,
+    ScenarioPackDefinition,
+)
 from llm_system.game_packages.spatial import (
     ConnectionDefinition,
     LocationDefinition,
@@ -52,6 +57,7 @@ __all__ = [
     "LoadedScenarioPackage",
     "CharacterDefinition",
     "CharacterArchetypeDefinition",
+    "BooleanWorldFactDefinition",
     "ConnectionDefinition",
     "DecisionPolicyReference",
     "DecisionPolicyDefinition",
@@ -64,6 +70,8 @@ __all__ = [
     "ObjectDefinition",
     "ObjectArchetypeDefinition",
     "ObjectPlacementDefinition",
+    "ObjectUseBindingDefinition",
+    "ObjectUseMechanicDefinition",
     "PlayerCharacterDefinition",
     "PossessedPlacementDefinition",
     "RulePackageManifest",

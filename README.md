@@ -53,17 +53,18 @@ semantic validation responsibilities outside this structural loading boundary.
 
 ## Greybridge content foundation
 
-The repository includes its first authored schema-version-1 package pair:
+The repository includes the schema-version-1 Greybridge package pair with its
+first authored Use foundation, while retaining the compatible `0.1.0` pair:
 
 ```text
-game_packages/rules/greybridge-rules/0.1.0/
-game_packages/scenarios/storm-at-greybridge/0.1.0/
+game_packages/rules/greybridge-rules/0.2.0/
+game_packages/scenarios/storm-at-greybridge/0.2.0/
 ```
 
-Schema version 1 represents only typed reference catalogs, authored spatial
-topology, entities, initial placement and possession, and NPC identity, goals,
-plans, and policy references. Load both repository directories and validate the
-pair through the public boundary:
+Schema version 1 represents typed reference catalogs, reusable object-use
+mechanics, authored spatial topology and entities, and concrete scenario
+bindings to boolean world facts. Load both repository directories and validate
+the pair through the public boundary:
 
 ```python
 from pathlib import Path
@@ -72,18 +73,19 @@ from llm_system.game_packages import load_game_package, validate_game_packages
 
 repository_root = Path.cwd()  # Run this from the repository root.
 rules = load_game_package(
-    repository_root / "game_packages/rules/greybridge-rules/0.1.0"
+    repository_root / "game_packages/rules/greybridge-rules/0.2.0"
 )
 scenario = load_game_package(
-    repository_root / "game_packages/scenarios/storm-at-greybridge/0.1.0"
+    repository_root / "game_packages/scenarios/storm-at-greybridge/0.2.0"
 )
 validated = validate_game_packages(rules, scenario)
 ```
 
-This is a validated content foundation, not a playable or world-ready scenario.
-It does not encode Fieldcraft, actions, bridge condition or damage, perceptible
-facts, flood scheduling, System director hooks, objectives, checks,
-progression, or mutable runtime state.
+The rule pack authors the reusable `reinforce-structure` mechanic; the scenario
+binds it to concrete reinforcement materials, Greybridge Span, and the
+`bridge-reinforced` fact. This makes the mechanic representable but does not
+resolve or dispatch a Use proposal, initialize runtime state, consume an object,
+or trigger flood, progression, scheduling, perception, or presentation behavior.
 
 ## Game-package semantic validation
 
@@ -94,7 +96,8 @@ pair preserving those loaded inputs, or raises `GamePackageValidationError`
 with an ordered immutable tuple of structured `ValidationIssue` records.
 
 Validation aggregates independent dependency, namespace-uniqueness, typed
-reference, player-count, self-loop, and topology defects while gating checks
+reference, object-archetype agreement, binding ambiguity, player-count,
+self-loop, and topology defects while gating checks
 whose prerequisites are invalid. A scenario's rule-package pin must match
 exactly. Every authored location must be reachable by directed connections from
 the one player's valid start; reverse reachability is not required, and
@@ -375,19 +378,22 @@ operation-specific resolution, and commitment remain separate boundaries.
 
 `llm_system.simulation` also exposes strict, immutable runtime-state contracts
 for the minimal changing facts in a canonical snapshot: simulation time,
-character locations, object placement or possession, and connection
-availability. The snapshot is an ID-linked overlay on immutable package
+character locations, object placement or possession, connection availability,
+and strict boolean world facts. The snapshot is an ID-linked overlay on immutable package
 definitions; it does not copy authored names, topology, durations, archetypes,
 goals, plans, or package identity.
 
 ```python
-from llm_system.simulation import CharacterState, WorldState
+from llm_system.simulation import BooleanWorldFactState, CharacterState, WorldState
 
 state = WorldState(
     simulation_time_seconds=0,
     characters=(CharacterState(character_id="marin", location_id="waystation"),),
     objects=(),
     connections=(),
+    boolean_world_facts=(
+        BooleanWorldFactState(fact_id="bridge-reinforced", value=False),
+    ),
 )
 ```
 
@@ -401,9 +407,9 @@ separate boundary.
 State changes and canonical events are separate public leaf contracts.
 `StateChange` is a closed union of self-verifying snapshot deltas:
 `CharacterLocationChanged`, `ObjectPlacementChanged`,
-`ConnectionAvailabilityChanged`, and `SimulationTimeChanged`. Each delta records
-explicit before and after values and rejects a no-op; object changes reuse the
-runtime `ObjectPlacement` variants.
+`ConnectionAvailabilityChanged`, `BooleanWorldFactChanged`, and
+`SimulationTimeChanged`. Each delta records explicit before and after values and
+rejects a no-op; object changes reuse the runtime `ObjectPlacement` variants.
 
 `CanonicalEvent` is durable factual history, not a mutation command. Its closed
 initial union contains `ActorObservedEvent`, `ActorMovedEvent`,
@@ -424,8 +430,8 @@ event tuples, even when either tuple is intentionally empty.
 
 Outcome construction guarantees that nested events share the outcome identity
 and completion time, event IDs are unique within the outcome, and no affected
-character location, object placement, connection availability, or simulation
-time appears in more than one state change. It does not apply changes, inspect
+character location, object placement, connection availability, boolean fact, or
+simulation time appears in more than one state change. It does not apply changes, inspect
 a world snapshot or proposal, validate before values or time deltas, infer
 agreement between changes and events, resolve references, authorize sources,
 or commit effects. Those state-dependent guarantees belong to the simulation
@@ -577,7 +583,8 @@ responsibilities.
 Use `llm_system.simulation.validate_world_state()` to compare one structural
 `WorldState` with a `ValidatedGamePackages` pair. On success it returns a frozen
 `ValidatedWorldState` that preserves both input objects and guarantees exactly
-one runtime overlay for each authored character, object, and connection, plus
+one runtime overlay for each authored character, object, connection, and boolean
+world fact, plus
 current location and object-possession references that resolve to authored
 definitions.
 
@@ -597,7 +604,8 @@ or mechanics, establish persistence compatibility, or prove scenario playability
 Use `llm_system.simulation.commit_outcome()` to commit an already resolved
 `Outcome` against one `ValidatedWorldState`. The pure deterministic boundary
 checks completion time, runtime targets, before values, and authored after-state
-references before applying anything. A successful change set produces one new
+references before applying anything. Boolean deltas resolve against the fact
+overlay and need no after-reference lookup. A successful change set produces one new
 validated snapshot paired with the exact existing validated packages; unchanged
 records retain identity and tuple order. Rejected and effect-free outcomes return
 the exact input world, while the result always retains the exact supplied outcome
@@ -612,30 +620,30 @@ agreement between events and state changes.
 ## Scenario-pack definitions
 
 `ScenarioPackDefinition` is the strict immutable content-schema-version-1 root
-for scenario-pack entrypoints. It has exactly two explicit aggregate sections:
-`spatial_graph` with authored `locations` and `connections`, and
-`entity_collection` with authored `entities`. Empty aggregates are structurally
-valid; they do not establish a playable scenario.
+for scenario-pack entrypoints. It contains `spatial_graph`,
+`entity_collection`, an authored-order `BooleanWorldFactDefinition` catalog,
+and an authored-order `ObjectUseBindingDefinition` catalog. The two new catalogs
+default to empty for compatible schema-version-1 content.
 
 This contract does not load YAML entrypoints or perform relational validation.
-Connection endpoints, entity placements, archetype and policy references,
-uniqueness, graph invariants, and player-count requirements remain deferred to
-semantic validation. It also does not define events, director hooks, objectives,
-or mechanics.
+Connection endpoints, entity placements, mechanic, fact, archetype and policy
+references, uniqueness, graph invariants, and player-count requirements remain
+deferred to semantic validation. Bindings are authored data, not executable
+effects, conditions, callbacks, generic fact dictionaries, or resolver behavior.
 
 ## Rule-pack definitions
 
 `RulePackDefinition` is the strict immutable content-schema-version-1 root for
 rule-pack entrypoints. It contains authored-order catalogs of
-`ObjectArchetypeDefinition`, `CharacterArchetypeDefinition`, and
-`DecisionPolicyDefinition`. Archetypes currently declare only a stable ID and a
-non-blank name; decision policies additionally declare their `rule`, `llm`, or
-`hybrid` type.
+`ObjectArchetypeDefinition`, `CharacterArchetypeDefinition`,
+`DecisionPolicyDefinition`, and `ObjectUseMechanicDefinition`. The initial
+mechanic contract declares one required object archetype, a location target,
+positive integer duration, and the closed boolean-world-fact effect kind.
 
-These definitions are reference catalogs, not executable mechanics. Content
-loading, duplicate-ID validation, scenario-reference resolution, policy
-implementation lookup, policy execution, and mechanics such as actions,
-abilities, effects, or settings remain outside this initial schema.
+These definitions contain no executable callbacks, expressions, generic effect
+payloads, conditions, randomness, consumption, quantities, or presentation.
+Content loading, duplicate-ID validation, scenario-reference resolution, policy
+implementation lookup, policy execution, and Use resolution remain separate.
 
 ## Spatial definitions
 

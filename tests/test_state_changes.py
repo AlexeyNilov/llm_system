@@ -4,6 +4,7 @@ import pytest
 from pydantic import TypeAdapter, ValidationError
 
 from llm_system.simulation import (
+    BooleanWorldFactChanged,
     CharacterLocationChanged,
     ConnectionAvailabilityChanged,
     ObjectAtLocation,
@@ -38,6 +39,12 @@ def test_state_change_discriminates_and_round_trips_all_delta_variants() -> None
             "from_available": True,
             "to_available": False,
         },
+        {
+            "change_type": "boolean_world_fact",
+            "fact_id": "bridge-safe",
+            "from_value": False,
+            "to_value": True,
+        },
         {"change_type": "simulation_time", "from_seconds": 0, "to_seconds": 30},
     )
 
@@ -47,6 +54,7 @@ def test_state_change_discriminates_and_round_trips_all_delta_variants() -> None
         CharacterLocationChanged,
         ObjectPlacementChanged,
         ConnectionAvailabilityChanged,
+        BooleanWorldFactChanged,
         SimulationTimeChanged,
     )
     for change, payload in zip(changes, payloads, strict=True):
@@ -84,6 +92,24 @@ def test_state_changes_reject_no_ops_invalid_scalars_and_unknown_fields() -> Non
                 "connection_id": "market-to-dock",
                 "from_available": True,
                 "to_available": True,
+            },
+        ),
+        (
+            BooleanWorldFactChanged,
+            {
+                "change_type": "boolean_world_fact",
+                "fact_id": "bridge-safe",
+                "from_value": False,
+                "to_value": False,
+            },
+        ),
+        (
+            BooleanWorldFactChanged,
+            {
+                "change_type": "boolean_world_fact",
+                "fact_id": "bridge-safe",
+                "from_value": 0,
+                "to_value": True,
             },
         ),
         (

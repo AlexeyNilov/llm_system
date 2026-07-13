@@ -85,6 +85,275 @@ def test_validate_game_packages_returns_frozen_pair_preserving_valid_inputs() ->
         validated_packages.rule_package = rule_package
 
 
+def test_authored_use_validation_orders_new_namespaces_and_reference_issues() -> None:
+    rule = _rule_content()
+    rule["object_use_mechanics"] = [
+        {
+            "id": "use-kit",
+            "name": "Use Kit",
+            "object_archetype_id": "missing-archetype",
+            "target_type": "location",
+            "duration_seconds": 1,
+            "effect_type": "set_boolean_world_fact",
+        },
+        {
+            "id": "use-kit",
+            "name": "Duplicate",
+            "object_archetype_id": "kit",
+            "target_type": "location",
+            "duration_seconds": 1,
+            "effect_type": "set_boolean_world_fact",
+        },
+    ]
+    scenario = _scenario_content()
+    scenario["boolean_world_facts"] = [
+        {"id": "ready", "name": "Ready", "initial_value": False},
+        {"id": "ready", "name": "Duplicate", "initial_value": True},
+    ]
+    scenario["object_use_bindings"] = [
+        {
+            "id": "binding",
+            "mechanic_id": "missing-mechanic",
+            "object_id": "missing-object",
+            "target_location_id": "missing-location",
+            "fact_id": "missing-fact",
+            "fact_value": True,
+        },
+        {
+            "id": "binding",
+            "mechanic_id": "use-kit",
+            "object_id": "missing-object",
+            "target_location_id": "start",
+            "fact_id": "ready",
+            "fact_value": True,
+        },
+    ]
+
+    issues = _issues(*_packages(rule, scenario))
+
+    assert [(issue.code, issue.path) for issue in issues] == [
+        (
+            ValidationIssueCode.DUPLICATE_ID,
+            "rule.definition.object_use_mechanics[1].id",
+        ),
+        (
+            ValidationIssueCode.DUPLICATE_ID,
+            "scenario.definition.boolean_world_facts[1].id",
+        ),
+        (
+            ValidationIssueCode.DUPLICATE_ID,
+            "scenario.definition.object_use_bindings[1].id",
+        ),
+        (
+            ValidationIssueCode.UNKNOWN_REFERENCE,
+            "rule.definition.object_use_mechanics[0].object_archetype_id",
+        ),
+        (
+            ValidationIssueCode.UNKNOWN_REFERENCE,
+            "scenario.definition.object_use_bindings[0].mechanic_id",
+        ),
+        (
+            ValidationIssueCode.UNKNOWN_REFERENCE,
+            "scenario.definition.object_use_bindings[0].object_id",
+        ),
+        (
+            ValidationIssueCode.UNKNOWN_REFERENCE,
+            "scenario.definition.object_use_bindings[0].target_location_id",
+        ),
+        (
+            ValidationIssueCode.UNKNOWN_REFERENCE,
+            "scenario.definition.object_use_bindings[0].fact_id",
+        ),
+        (
+            ValidationIssueCode.UNKNOWN_REFERENCE,
+            "scenario.definition.object_use_bindings[1].object_id",
+        ),
+    ]
+
+
+def test_binding_validates_archetype_agreement_and_ambiguous_object_location_pair() -> (
+    None
+):
+    rule = _rule_content()
+    rule["object_archetypes"] = [
+        {"id": "kit", "name": "Kit"},
+        {"id": "materials", "name": "Materials"},
+    ]
+    rule["object_use_mechanics"] = [
+        {
+            "id": "reinforce",
+            "name": "Reinforce",
+            "object_archetype_id": "materials",
+            "target_type": "location",
+            "duration_seconds": 300,
+            "effect_type": "set_boolean_world_fact",
+        }
+    ]
+    scenario = _scenario_content()
+    entities = scenario["entity_collection"]
+    assert isinstance(entities, dict)
+    entity_records = entities["entities"]
+    assert isinstance(entity_records, list)
+    entity_records.append(
+        {
+            "entity_type": "object",
+            "id": "wrong-kit",
+            "name": "Wrong Kit",
+            "object_archetype_id": "kit",
+            "initial_placement": {"placement_type": "location", "location_id": "start"},
+        }
+    )
+    scenario["boolean_world_facts"] = [
+        {"id": "ready", "name": "Ready", "initial_value": False}
+    ]
+    scenario["object_use_bindings"] = [
+        {
+            "id": "first",
+            "mechanic_id": "reinforce",
+            "object_id": "wrong-kit",
+            "target_location_id": "start",
+            "fact_id": "ready",
+            "fact_value": True,
+        },
+        {
+            "id": "second",
+            "mechanic_id": "reinforce",
+            "object_id": "wrong-kit",
+            "target_location_id": "start",
+            "fact_id": "ready",
+            "fact_value": False,
+        },
+    ]
+
+    issues = _issues(*_packages(rule, scenario))
+
+    assert [(issue.code, issue.path) for issue in issues] == [
+        (
+            ValidationIssueCode.OBJECT_ARCHETYPE_MISMATCH,
+            "scenario.definition.object_use_bindings[0].object_id",
+        ),
+        (
+            ValidationIssueCode.OBJECT_ARCHETYPE_MISMATCH,
+            "scenario.definition.object_use_bindings[1].object_id",
+        ),
+        (
+            ValidationIssueCode.AMBIGUOUS_USE_BINDING,
+            "scenario.definition.object_use_bindings[1].target_location_id",
+        ),
+    ]
+
+
+def test_dependency_mismatch_suppresses_only_binding_mechanic_checks() -> None:
+    rule = _rule_content()
+    rule["object_use_mechanics"] = [
+        {
+            "id": "broken",
+            "name": "Broken",
+            "object_archetype_id": "missing-archetype",
+            "target_type": "location",
+            "duration_seconds": 1,
+            "effect_type": "set_boolean_world_fact",
+        }
+    ]
+    scenario = _scenario_content()
+    scenario["object_use_bindings"] = [
+        {
+            "id": "binding",
+            "mechanic_id": "missing-mechanic",
+            "object_id": "missing-object",
+            "target_location_id": "missing-location",
+            "fact_id": "missing-fact",
+            "fact_value": True,
+        }
+    ]
+    rule_package, scenario_package = _packages(rule, scenario)
+    scenario_package = scenario_package.model_copy(
+        update={
+            "manifest": scenario_package.manifest.model_copy(
+                update={
+                    "required_rule_pack": RequiredRulePack(
+                        package_id="other", package_version="1.0.0"
+                    )
+                }
+            )
+        }
+    )
+
+    issues = _issues(rule_package, scenario_package)
+
+    assert [(issue.code, issue.path) for issue in issues] == [
+        (
+            ValidationIssueCode.DEPENDENCY_MISMATCH,
+            "scenario.manifest.required_rule_pack",
+        ),
+        (
+            ValidationIssueCode.UNKNOWN_REFERENCE,
+            "rule.definition.object_use_mechanics[0].object_archetype_id",
+        ),
+        (
+            ValidationIssueCode.UNKNOWN_REFERENCE,
+            "scenario.definition.object_use_bindings[0].object_id",
+        ),
+        (
+            ValidationIssueCode.UNKNOWN_REFERENCE,
+            "scenario.definition.object_use_bindings[0].target_location_id",
+        ),
+        (
+            ValidationIssueCode.UNKNOWN_REFERENCE,
+            "scenario.definition.object_use_bindings[0].fact_id",
+        ),
+    ]
+
+
+def test_binding_object_reference_requires_an_unambiguous_object_definition() -> None:
+    rule = _rule_content()
+    rule["object_use_mechanics"] = [
+        {
+            "id": "use-kit",
+            "name": "Use Kit",
+            "object_archetype_id": "kit",
+            "target_type": "location",
+            "duration_seconds": 1,
+            "effect_type": "set_boolean_world_fact",
+        }
+    ]
+    scenario = _scenario_content()
+    scenario["boolean_world_facts"] = [
+        {"id": "ready", "name": "Ready", "initial_value": False}
+    ]
+    scenario["object_use_bindings"] = [
+        {
+            "id": "first",
+            "mechanic_id": "use-kit",
+            "object_id": "marin",
+            "target_location_id": "start",
+            "fact_id": "ready",
+            "fact_value": True,
+        },
+        {
+            "id": "second",
+            "mechanic_id": "use-kit",
+            "object_id": "marin",
+            "target_location_id": "start",
+            "fact_id": "ready",
+            "fact_value": False,
+        },
+    ]
+
+    issues = _issues(*_packages(rule, scenario))
+
+    assert [(issue.code, issue.path) for issue in issues] == [
+        (
+            ValidationIssueCode.UNKNOWN_REFERENCE,
+            "scenario.definition.object_use_bindings[0].object_id",
+        ),
+        (
+            ValidationIssueCode.UNKNOWN_REFERENCE,
+            "scenario.definition.object_use_bindings[1].object_id",
+        ),
+    ]
+
+
 def _packages(
     rule_content: dict[str, object], scenario_content: dict[str, object]
 ) -> tuple[LoadedRulePackage, LoadedScenarioPackage]:

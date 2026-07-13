@@ -4,6 +4,7 @@ import pytest
 from pydantic import ValidationError
 
 from llm_system.game_packages import (
+    BooleanWorldFactDefinition,
     CharacterArchetypeDefinition,
     ConnectionDefinition,
     DecisionPolicyDefinition,
@@ -31,6 +32,8 @@ from llm_system.game_packages.entities import (
 from llm_system.game_packages.models import RequiredRulePack
 from llm_system.simulation import (
     ActorWaitedEvent,
+    BooleanWorldFactChanged,
+    BooleanWorldFactState,
     CanonicalEvent,
     CharacterLocationChanged,
     CharacterState,
@@ -147,6 +150,14 @@ def _packages() -> ValidatedGamePackages:
                     ),
                 )
             ),
+            boolean_world_facts=(
+                BooleanWorldFactDefinition(
+                    id="bridge-safe", name="Bridge Safe", initial_value=False
+                ),
+                BooleanWorldFactDefinition(
+                    id="signal-lit", name="Signal Lit", initial_value=True
+                ),
+            ),
         ),
     )
     return validate_game_packages(rule, scenario)
@@ -169,6 +180,10 @@ def _world() -> ValidatedWorldState:
             ),
         ),
         connections=(ConnectionState(connection_id="path", is_available=True),),
+        boolean_world_facts=(
+            BooleanWorldFactState(fact_id="bridge-safe", value=False),
+            BooleanWorldFactState(fact_id="signal-lit", value=True),
+        ),
     )
     return validate_world_state(packages, state)
 
@@ -290,6 +305,12 @@ def test_all_change_types_apply_atomically_preserving_order_and_unaffected_ident
             from_available=True,
             to_available=False,
         ),
+        BooleanWorldFactChanged(
+            change_type="boolean_world_fact",
+            fact_id="bridge-safe",
+            from_value=False,
+            to_value=True,
+        ),
         SimulationTimeChanged(
             change_type="simulation_time", from_seconds=10, to_seconds=20
         ),
@@ -312,6 +333,14 @@ def test_all_change_types_apply_atomically_preserving_order_and_unaffected_ident
     assert isinstance(object_change, ObjectPlacementChanged)
     assert result.world.state.objects[0].placement == object_change.to_placement
     assert result.world.state.connections[0].is_available is False
+    assert [item.fact_id for item in result.world.state.boolean_world_facts] == [
+        "bridge-safe",
+        "signal-lit",
+    ]
+    assert result.world.state.boolean_world_facts[0].value is True
+    assert (
+        result.world.state.boolean_world_facts[1] is world.state.boolean_world_facts[1]
+    )
     assert world.state.simulation_time_seconds == 10
     assert world.state.characters[0].location_id == "start"
 
@@ -452,6 +481,41 @@ def test_outcome_level_time_mismatch_applies_to_rejection() -> None:
             "outcome.resolved_at_seconds",
         )
     ]
+
+
+def test_boolean_fact_commitment_reports_exact_target_and_before_paths_atomically() -> (
+    None
+):
+    world = _world()
+    outcome = _succeeded(
+        BooleanWorldFactChanged(
+            change_type="boolean_world_fact",
+            fact_id="missing",
+            from_value=False,
+            to_value=True,
+        ),
+        BooleanWorldFactChanged(
+            change_type="boolean_world_fact",
+            fact_id="bridge-safe",
+            from_value=True,
+            to_value=False,
+        ),
+    )
+
+    with pytest.raises(OutcomeCommitError) as error:
+        commit_outcome(world, outcome)
+
+    assert [(issue.code, issue.path) for issue in error.value.issues] == [
+        (
+            OutcomeCommitIssueCode.UNKNOWN_CHANGE_TARGET,
+            "outcome.state_changes[0].fact_id",
+        ),
+        (
+            OutcomeCommitIssueCode.BEFORE_VALUE_MISMATCH,
+            "outcome.state_changes[1].from_value",
+        ),
+    ]
+    assert world.state.boolean_world_facts[0].value is False
 
 
 def test_unexpected_final_world_validation_failure_is_chained_as_invariant_defect(

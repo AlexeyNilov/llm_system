@@ -38,13 +38,21 @@ class ConnectionState(_StrictContract):
     is_available: bool
 
 
+class BooleanWorldFactState(_StrictContract):
+    fact_id: AuthoredId
+    value: bool
+
+
 class WorldState(_StrictContract):
     simulation_time_seconds: NonNegativeSeconds
     characters: tuple[CharacterState, ...]
     objects: tuple[ObjectState, ...]
     connections: tuple[ConnectionState, ...]
+    boolean_world_facts: tuple[BooleanWorldFactState, ...] = ()
 
-    @field_validator("characters", "objects", "connections", mode="before")
+    @field_validator(
+        "characters", "objects", "connections", "boolean_world_facts", mode="before"
+    )
     @classmethod
     def normalize_json_arrays_to_tuples(cls, value: object) -> object:
         if type(value) is list:

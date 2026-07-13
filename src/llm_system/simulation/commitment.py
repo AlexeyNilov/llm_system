@@ -8,6 +8,7 @@ from llm_system.game_packages.entities import (
     PlayerCharacterDefinition,
 )
 from llm_system.simulation.changes import (
+    BooleanWorldFactChanged,
     CharacterLocationChanged,
     ConnectionAvailabilityChanged,
     ObjectPlacementChanged,
@@ -16,6 +17,7 @@ from llm_system.simulation.changes import (
 )
 from llm_system.simulation.outcomes import Outcome, RejectedOutcome
 from llm_system.simulation.state import (
+    BooleanWorldFactState,
     CharacterState,
     ConnectionState,
     ObjectAtLocation,
@@ -98,6 +100,19 @@ def _find_connection(
 ) -> ConnectionState | None:
     return next(
         (item for item in world.state.connections if item.connection_id == identifier),
+        None,
+    )
+
+
+def _find_fact(
+    world: ValidatedWorldState, identifier: str
+) -> BooleanWorldFactState | None:
+    return next(
+        (
+            item
+            for item in world.state.boolean_world_facts
+            if item.fact_id == identifier
+        ),
         None,
     )
 
@@ -199,6 +214,19 @@ def _connection_issues(
     return []
 
 
+def _fact_issues(
+    world: ValidatedWorldState,
+    change: BooleanWorldFactChanged,
+    path: str,
+) -> list[OutcomeCommitIssue]:
+    target = _find_fact(world, change.fact_id)
+    if target is None:
+        return [_unknown_target(f"{path}.fact_id")]
+    if target.value != change.from_value:
+        return [_before_mismatch(f"{path}.from_value")]
+    return []
+
+
 def _time_issues(
     world: ValidatedWorldState,
     outcome: Outcome,
@@ -227,6 +255,8 @@ def _change_issues(
         return _object_issues(world, change, path, location_ids, character_ids)
     if isinstance(change, ConnectionAvailabilityChanged):
         return _connection_issues(world, change, path)
+    if isinstance(change, BooleanWorldFactChanged):
+        return _fact_issues(world, change, path)
     if isinstance(change, SimulationTimeChanged):
         return _time_issues(world, outcome, change, path)
     raise AssertionError("unreachable closed state-change variant")
@@ -291,10 +321,22 @@ def _replace_connection(
     )
 
 
+def _replace_fact(
+    records: tuple[BooleanWorldFactState, ...], change: BooleanWorldFactChanged
+) -> tuple[BooleanWorldFactState, ...]:
+    return tuple(
+        item.model_copy(update={"value": change.to_value})
+        if item.fact_id == change.fact_id
+        else item
+        for item in records
+    )
+
+
 def _apply_changes(state: WorldState, changes: tuple[StateChange, ...]) -> WorldState:
     characters = state.characters
     objects = state.objects
     connections = state.connections
+    facts = state.boolean_world_facts
     time = state.simulation_time_seconds
     for change in changes:
         if isinstance(change, CharacterLocationChanged):
@@ -303,6 +345,8 @@ def _apply_changes(state: WorldState, changes: tuple[StateChange, ...]) -> World
             objects = _replace_object(objects, change)
         elif isinstance(change, ConnectionAvailabilityChanged):
             connections = _replace_connection(connections, change)
+        elif isinstance(change, BooleanWorldFactChanged):
+            facts = _replace_fact(facts, change)
         elif isinstance(change, SimulationTimeChanged):
             time = change.to_seconds
         else:
@@ -312,6 +356,7 @@ def _apply_changes(state: WorldState, changes: tuple[StateChange, ...]) -> World
         characters=characters,
         objects=objects,
         connections=connections,
+        boolean_world_facts=facts,
     )
 
 

@@ -7,8 +7,52 @@ from llm_system.game_packages import (
     CharacterArchetypeDefinition,
     DecisionPolicyDefinition,
     ObjectArchetypeDefinition,
+    ObjectUseMechanicDefinition,
     RulePackDefinition,
 )
+
+
+def test_object_use_mechanic_is_strict_frozen_and_preserves_authored_order() -> None:
+    definition = RulePackDefinition.model_validate(
+        {
+            "schema_version": 1,
+            "object_archetypes": [{"id": "materials", "name": "Materials"}],
+            "character_archetypes": [],
+            "decision_policies": [],
+            "object_use_mechanics": [
+                {
+                    "id": "reinforce",
+                    "name": "Reinforce",
+                    "object_archetype_id": "materials",
+                    "target_type": "location",
+                    "duration_seconds": 300,
+                    "effect_type": "set_boolean_world_fact",
+                }
+            ],
+        }
+    )
+
+    assert isinstance(definition.object_use_mechanics[0], ObjectUseMechanicDefinition)
+    assert definition.object_use_mechanics[0].duration_seconds == 300
+    with pytest.raises(ValidationError):
+        definition.object_use_mechanics[0].name = "Changed"
+
+
+@pytest.mark.parametrize("duration", [True, 0, -1, 1.0, "1"])
+def test_object_use_mechanic_rejects_non_positive_strict_integer_duration(
+    duration: object,
+) -> None:
+    with pytest.raises(ValidationError):
+        ObjectUseMechanicDefinition.model_validate(
+            {
+                "id": "reinforce",
+                "name": "Reinforce",
+                "object_archetype_id": "materials",
+                "target_type": "location",
+                "duration_seconds": duration,
+                "effect_type": "set_boolean_world_fact",
+            }
+        )
 
 
 def test_rule_pack_records_preserve_valid_stable_identifiers_and_names() -> None:
@@ -73,6 +117,7 @@ def test_rule_pack_allows_all_catalogs_to_be_empty() -> None:
     assert definition.object_archetypes == ()
     assert definition.character_archetypes == ()
     assert definition.decision_policies == ()
+    assert definition.object_use_mechanics == ()
 
 
 def test_rule_pack_defers_duplicate_identifier_checks() -> None:

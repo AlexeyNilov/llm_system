@@ -4,6 +4,7 @@ import pytest
 from pydantic import TypeAdapter, ValidationError
 
 from llm_system.simulation import (
+    BooleanWorldFactState,
     CharacterState,
     ConnectionState,
     ObjectAtLocation,
@@ -35,6 +36,9 @@ def test_world_state_models_exact_runtime_overlay_facts() -> None:
         connections=(
             ConnectionState(connection_id="waystation-to-span", is_available=True),
         ),
+        boolean_world_facts=(
+            BooleanWorldFactState(fact_id="bridge-safe", value=False),
+        ),
     )
 
     assert world.model_dump(mode="json") == {
@@ -59,6 +63,7 @@ def test_world_state_models_exact_runtime_overlay_facts() -> None:
         "connections": [
             {"connection_id": "waystation-to-span", "is_available": True},
         ],
+        "boolean_world_facts": [{"fact_id": "bridge-safe", "value": False}],
     }
 
 
@@ -138,11 +143,13 @@ def test_world_state_normalizes_json_arrays_to_immutable_tuples() -> None:
                 "characters": [{"character_id": "marin", "location_id": "waystation"}],
                 "objects": [],
                 "connections": [],
+                "boolean_world_facts": [{"fact_id": "bridge-safe", "value": False}],
             }
         )
     )
 
     assert isinstance(world.characters, tuple)
+    assert isinstance(world.boolean_world_facts, tuple)
     assert world.model_dump(mode="json")["characters"] == [
         {"character_id": "marin", "location_id": "waystation"}
     ]
@@ -163,3 +170,9 @@ def test_structure_allows_empty_duplicate_and_unresolved_references() -> None:
 
     assert empty_world.characters == ()
     assert len(unresolved_world.characters) == 2
+
+
+@pytest.mark.parametrize("value", [0, 1, "false"])
+def test_boolean_world_fact_state_rejects_non_boolean_values(value: object) -> None:
+    with pytest.raises(ValidationError):
+        BooleanWorldFactState.model_validate({"fact_id": "bridge-safe", "value": value})
