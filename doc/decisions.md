@@ -896,3 +896,15 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Begin with a mechanically underspecified operation, implement all resolvers together, generate IDs inside the resolver, return rejection for incorrect dispatch, or process scheduled consequences immediately. These choices respectively invent rules, recreate oversized scope, hide nondeterminism, turn a code defect into fiction, or mix resolution with scheduling.
 
 **Consequences:** The project gains one honest end-to-end authorization-to-outcome path and a concrete resolver contract for later dispatch. Wait always succeeds at this layer; scheduler behavior after its time advancement remains a separate milestone.
+
+### 2026-07-13: Resolve basic movement before introducing generic dispatch
+
+**Status:** Accepted
+
+**Context:** Wait provides one real operation branch, so a generic dispatcher could now be written, but routing a single operation would add an abstraction without testing meaningful selection. Move is the next operation whose current contracts fully determine actionability and effects: an authored directed connection supplies endpoints and positive base duration, while canonical state supplies actor location and connection availability. The schemas do not yet represent traversal requirements or modifiers.
+
+**Decision:** Implement `resolve_move(action, *, outcome_id, event_id) -> RejectedOutcome | SucceededOutcome` before generic dispatch. Require both caller-supplied identities even though rejection does not consume the event identity. Resolve actionability in order: unknown authored connection, actor not at the connection source, then unavailable connection. These cases produce effect-free rejection reasons `unknown-connection`, `actor-not-at-connection-source`, and `connection-unavailable`. Valid movement deterministically uses the exact authored base traversal duration, emits `move-completed`, changes the actor from source to destination, advances simulation time, and records one actor-moved event at completion. A non-Move proposal is a programmer `TypeError`; basic Move has no failed-attempt branch.
+
+**Alternatives considered:** Add generic dispatch with only Wait, let Move target a destination instead of its authored connection, generate identities inside the resolver, allocate an event identity only after resolution, treat non-actionable movement as failed, or introduce skill, terrain, encumbrance, interruption, and requirement rules now. These choices respectively create an uninformative routing layer, lose route identity, hide nondeterminism, complicate the uniform resolver call boundary, invent an attempted action where none began, or exceed the data and mechanics currently accepted.
+
+**Consequences:** Wait and Move will provide two distinct resolver branches against which dispatch can be designed and tested. Initial movement remains deliberately simple and inspectable; richer traversal requires explicit package/runtime contracts and accepted mechanics later. Rejected calls may reserve an unused event UUID, which is an acceptable cost for one uniform caller-injected identity convention.

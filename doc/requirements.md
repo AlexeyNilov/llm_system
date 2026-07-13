@@ -506,6 +506,26 @@ This helps ensure requirements are:
 
 **WAIT-007:** The Wait resolver shall not commit its outcome, process scheduled activity, invoke NPCs, or perform presentation.
 
+**MOVE-001:** The initial Move resolver shall resolve an authorized Move proposal using only immutable authored connection topology, authored base traversal duration, canonical character location, and canonical connection availability; it shall not interpret traversal requirements, skills, terrain, encumbrance, interruption, randomness, or an LLM.
+
+**MOVE-002:** The public resolver shall have the contract `resolve_move(action: AuthorizedActorAction, *, outcome_id: UUID, event_id: UUID) -> RejectedOutcome | SucceededOutcome` and shall not generate runtime identities internally.
+
+**MOVE-003:** Move actionability checks shall occur in the deterministic order unknown connection, actor not at the connection source, then unavailable connection, with later checks suppressed after the first applicable rejection.
+
+**MOVE-004:** A Move referencing an unknown authored connection shall return a rejected outcome with reason code `unknown-connection`; a Move whose actor is not at the connection source shall return a rejected outcome with reason code `actor-not-at-connection-source`; and a Move over an unavailable connection shall return a rejected outcome with reason code `connection-unavailable`.
+
+**MOVE-005:** Every rejected Move shall use the input snapshot's current simulation time, preserve the originating proposal and caller-supplied outcome identities, and contain no state changes, canonical events, or time advancement; the caller-supplied event identity shall remain unused.
+
+**MOVE-006:** A valid Move shall advance simulation time by exactly the authored connection's `base_traversal_seconds` and shall return a succeeded outcome with reason code `move-completed` at the resulting completion time.
+
+**MOVE-007:** A succeeded Move shall contain exactly two ordered state changes: first one `CharacterLocationChanged` from the actor's current location to the connection destination, then one `SimulationTimeChanged` from current time to completion time.
+
+**MOVE-008:** A succeeded Move shall contain exactly one `ActorMovedEvent` using the caller-supplied event identity and outcome causation, occurring at completion and identifying the actor, connection, source location, and destination location.
+
+**MOVE-009:** Passing an authorized non-Move proposal to the Move resolver shall raise `TypeError` as a dispatch/programmer defect and shall not produce an in-world outcome.
+
+**MOVE-010:** The Move resolver shall not commit its outcome, dispatch another operation, process scheduled activity, invoke NPCs, perform perception or presentation, or introduce movement modifiers and requirement mechanics.
+
 **ACTION-011:** The system shall keep an untrusted operation-specific proposal payload separate from its trusted application-created proposal-submission envelope.
 
 **ACTION-012:** A proposal submission shall contain proposal identity, source role and identity, intended actor when applicable, simulation-step context, and trace provenance, and generated output shall not supply or override that metadata.
