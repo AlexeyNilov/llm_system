@@ -300,6 +300,30 @@ or commit effects. Those state-dependent guarantees belong to the simulation
 arbiter. Events also contain no visibility, observer, or narration decisions;
 those remain perception and presentation concerns.
 
+## Observation and perception-snapshot contracts
+
+`llm_system.simulation` exposes five strict immutable transient observation
+variants: `LocationObserved`, `ConnectionObserved`, `CharacterObserved`,
+`ObjectObserved`, and `EventObserved`. Their closed `Observation` union carries
+one observer ID, one observation time, and fixed provenance. Current-state
+variants retain only authored IDs plus the perceived mutable fact where needed:
+connection availability or typed object placement. Event observations preserve
+the exact typed `CanonicalEvent` and reject an event from later than the
+observation time; same-time and earlier events are valid.
+
+`PerceptionSnapshot` groups an ordered immutable tuple of these observations for
+one observer at one simulation time. Every observation must match the snapshot's
+observer and time. Empty snapshots and exact duplicates are valid, input lists
+normalize to tuples, and supplied order is preserved.
+
+These values are ID-linked projections, not copies of package definitions or
+proof that perceptual filtering occurred. Construction performs no world lookup,
+visibility decision, definition enrichment, ordering, or deduplication. It also
+does not generate durable observation identities, persist observations, create
+memories, score confidence or salience, produce narration, or invoke an LLM.
+Those responsibilities remain separate filtering, restricted enrichment,
+recording, cognition, and presentation boundaries.
+
 ## Relational world-state validation
 
 Use `llm_system.simulation.validate_world_state()` to compare one structural

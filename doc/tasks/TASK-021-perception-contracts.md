@@ -1,6 +1,6 @@
 # TASK-021: Define observation and perception-snapshot contracts
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -109,12 +109,12 @@ Stop and report a design gap if implementation requires world-aware filtering, a
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the five strict frozen observation variants, their closed discriminated union, and the actor-specific perception snapshot with the required temporal and envelope invariants. Added public exports, behavioral coverage, README boundaries, and the `0.20.0` version milestone.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/perception.py`, `src/llm_system/simulation/__init__.py`, `tests/test_perception_contracts.py`, `README.md`, `pyproject.toml`, `tests/test_package.py`, `uv.lock`, and this task brief.
 
-**Verification:** Pending
+**Verification:** Initial red: `uv run pytest -q tests/test_perception_contracts.py` stopped during collection with `ImportError: cannot import name 'CharacterObserved' from 'llm_system.simulation'`. Final green: focused variants `3 passed`, focused event timing `2 passed`, focused snapshots `5 passed`, and the complete focused file `10 passed`; `uv sync --locked`, `make format`, `make lint`, `make mypy`, `make test` (`179 passed`), `make check` (`179 passed`), `uv lock --check`, installed metadata check (`0.20.0`), and `git diff --check` all succeeded. The only `uv.lock` change is the editable root package version from `0.19.0` to `0.20.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None found.
