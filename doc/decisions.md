@@ -1270,3 +1270,27 @@ Independent review is selective rather than mandatory after every implementation
 **Alternatives considered:** Reject V1 databases, recreate them destructively, keep traces outside SQLite, or introduce Alembic or a generic migration registry. Rejection and recreation violate persistence continuity; external trace files break atomicity; migration infrastructure remains unjustified for one direct transition.
 
 **Consequences:** Existing V1 state survives the first real schema evolution, and trace history joins the authoritative transaction. Migration tests must prove retained world and event data, atomic failure behavior, current-version reopen, and rejection of unsupported versions.
+
+### 2026-07-13: Materialize initial state without requiring future actor policies
+
+**Status:** Accepted
+
+**Context:** The package-validation requirement previously required every declared NPC policy implementation before world creation. That conflicts with the accepted roadmap: M4 must create and resume the world before M5 implements rule and LLM actor policies. Adding placeholder policy registrations would claim executable capability that does not exist and make a deterministic data-materialization boundary depend on later cognition infrastructure.
+
+**Decision:** World creation requires structurally loaded and semantically validated packages, then deterministically materializes their authored initial placements and facts. Application-owned policy implementation compatibility is checked before the corresponding NPC policy is executed, not before its immutable reference can participate in initial world state. Package validation continues to prove policy reference identity and type agreement.
+
+**Alternatives considered:** Reorder M5 before persistence lifecycle, register non-executable placeholder policies, or prohibit creating Greybridge until all actor policies exist. Reordering couples persistence to LLM work; placeholders weaken truthful readiness; prohibition blocks restart and API work that does not execute NPC cognition.
+
+**Consequences:** M4 can establish an honest persistent lifecycle while the Greybridge NPCs remain inert. No caller may infer executable policy availability from world creation or `ValidatedGamePackages`; M5 must introduce and enforce the implementation registry at the policy-execution boundary.
+
+### 2026-07-13: Use explicit create, resume, and destructive development-reset operations
+
+**Status:** Accepted
+
+**Context:** The singleton repository can create and replace snapshots but does not yet define how authored initial data becomes runtime state, how restart resolves exact packages, or what reset does to append-only history. Treating reset as ordinary replacement would retain history belonging to a different initial timeline and continue its revision sequence, while general CRUD would weaken the one-world boundary.
+
+**Decision:** Add a small application lifecycle boundary. Creation accepts validated packages and a caller-assigned world identity, deterministically builds and validates the initial state, stores an empty scheduled queue, and commits revision 0. Resume reads the durable package references, loads only those exact directories beneath a configured package root, validates the package pair and world state, and returns an active-world result without writing. The explicitly named development reset requires an existing world and transactionally deletes the singleton world plus all event and trace history before creating a caller-identified known initial world at revision 0.
+
+**Alternatives considered:** Hide lifecycle behavior in SQLite repositories, preserve old histories across reset, make reset an alias for create, discover the newest package version, generate a world identity, or add save-slot abstractions. These respectively mix application and storage concerns, join unrelated timelines, blur authority, make restarts non-reproducible, hide identity provenance, or exceed the initial product scope.
+
+**Consequences:** Creation and reset are explicit mutations that return only after commit; reset failure preserves the complete prior timeline. Resume is reproducible from recorded package ownership and remains read-only. Reset is intentionally destructive development tooling, produces no event or trace, and does not represent an in-world action.

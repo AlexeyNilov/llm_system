@@ -419,6 +419,8 @@ Schema version 2 is created transactionally for an empty database and recorded w
 
 The world repository strictly decodes stored identity, revision, package references, `WorldState`, and `ScheduledActivityQueue`, but does not resolve package files. A resume application service later loads the exact recorded packages and validates the decoded state against them before constructing a `ValidatedWorldState` for the kernel.
 
+The application lifecycle service owns create, resume, and explicit development reset. Creation deterministically projects package-authored initial placements, available connections, and initial boolean facts into a complete time-zero runtime snapshot with an empty scheduled queue, validates it, and commits revision 0. Resume resolves only the recorded package versions beneath the configured package root and performs no authoritative write. Development reset is a deliberately destructive transaction: it requires an existing world, deletes its event and trace histories, and creates a caller-identified known initial world at revision 0; any failure preserves the prior timeline. Policy implementation availability is enforced when a policy is executed, not while its package reference is materialized into an otherwise inert world.
+
 The singleton world begins at revision 0. Each replacement uses the loaded revision as a compare-and-swap condition and increments it by one; a stale revision aborts the unit of work rather than overwriting newer state.
 
 Canonical events are stored as strict JSON plus explicit identity, type, occurrence time, world identity, resulting revision, and a durable insertion sequence. Batch order is preserved and history is read by insertion sequence because several events may share one simulation timestamp.

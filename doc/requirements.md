@@ -150,7 +150,7 @@ This helps ensure requirements are:
 
 **RULE-004:** Rule-pack content definitions shall preserve authored catalog order while exposing immutable collections, and each catalog may be empty at the structural-model boundary; the object-use-mechanic catalog shall default to empty for backward-compatible schema-version-1 packages.
 
-**RULE-005:** Before rule-pack content is accepted for world creation, validation shall reject duplicate identifiers within each catalog and shall require every declared decision policy to have a compatible application-owned implementation.
+**RULE-005:** Before rule-pack content is accepted for world creation, semantic package validation shall reject duplicate identifiers within each catalog. Before an NPC decision policy is executed, the application shall require the referenced policy to have a compatible application-owned implementation; world creation shall not require future actor-policy implementations merely to materialize package-authored initial state.
 
 **RULE-006:** Rule-pack content schema version 1 shall not include executable code, generic property dictionaries, arbitrary tags, abilities, skills, open-ended effects, policy settings, or implicit behavioral defaults.
 
@@ -975,6 +975,24 @@ This helps ensure requirements are:
 **STORE-013:** Simulation-step trace history shall be a separate append-only SQLite record ordered by database-assigned insertion sequence and associated with its world, resulting world revision, unique simulation-step identity, outcome identity, outcome status, and strict trace payload.
 
 **STORE-014:** A trace insert shall require the current world identity and revision, reject a duplicate simulation-step identity, and strictly cross-check explicit trace metadata against its payload; any failure shall poison and roll back the surrounding unit of work.
+
+### World lifecycle
+
+**LIFECYCLE-001:** Initial-world construction shall deterministically derive a complete `WorldState` from one `ValidatedGamePackages` pair: simulation time 0, characters and objects in authored entity order at their authored initial placements, connections in authored order and initially available, and boolean world facts in authored order at their authored initial values.
+
+**LIFECYCLE-002:** Initial-world construction shall produce an empty scheduled-activity queue until accepted scenario schemas author initial scheduled occurrences, and shall validate the derived state against the same packages before persistence.
+
+**LIFECYCLE-003:** Creating a world shall accept caller-assigned world identity and validated packages, derive the known initial state, persist the exact package identities and versions at revision 0, explicitly commit, and return an active-world result only after durable success; it shall fail without changing an existing singleton world.
+
+**LIFECYCLE-004:** Resuming shall load the singleton stored world, resolve only the exact recorded rule and scenario package identities and versions beneath the configured game-package root, semantically validate that pair, require exact ownership agreement, validate the decoded runtime state against it, and return the stored scheduled queue without modifying authoritative data.
+
+**LIFECYCLE-005:** Missing, malformed, wrong-kind, dependency-incompatible, package-incompatible, or world-state-incompatible data shall prevent creation or resume from returning an active world; package resolution shall remain outside persistence repositories.
+
+**LIFECYCLE-006:** The explicit development-reset operation shall require an existing singleton world, accept caller-assigned replacement world identity and validated packages, and transactionally delete the prior current world, canonical-event history, and simulation-step-trace history before creating the known initial world at revision 0.
+
+**LIFECYCLE-007:** Development reset shall either commit the complete replacement and empty histories or preserve the prior world and histories unchanged. It shall not preserve revision continuity, emit a canonical event or trace, invoke a world-creation hook, authorize production callers, or expose general state editing.
+
+**LIFECYCLE-008:** World creation, resume, and development reset shall not discover package versions, generate identities, inspect policy implementation registries, invoke an LLM, execute actor policies or scheduled activities, advance simulation time, or create save slots.
 
 ### Simulation-step coordination
 
