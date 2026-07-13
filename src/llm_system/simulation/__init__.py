@@ -72,6 +72,10 @@ from llm_system.simulation.perception import (
     Observation,
     PerceptionSnapshot,
 )
+from llm_system.simulation.perception_engine import (
+    PerceptionObserverNotFoundError,
+    project_current_perception,
+)
 from llm_system.simulation.resolvers import resolve_move, resolve_wait
 from llm_system.simulation.state import (
     CharacterState,
@@ -142,6 +146,7 @@ __all__ = [
     "ObserveActionProposal",
     "PlayerInterpreterActionSource",
     "PerceptionSnapshot",
+    "PerceptionObserverNotFoundError",
     "RejectedOutcome",
     "SpeakActionProposal",
     "SimulationTimeChanged",
@@ -161,6 +166,7 @@ __all__ = [
     "authorize_actor_action",
     "commit_outcome",
     "dispatch_actor_action",
+    "project_current_perception",
     "resolve_move",
     "resolve_wait",
 ]

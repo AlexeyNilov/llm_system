@@ -324,6 +324,28 @@ memories, score confidence or salience, produce narration, or invoke an LLM.
 Those responsibilities remain separate filtering, restricted enrichment,
 recording, cognition, and presentation boundaries.
 
+## Current-state perception projection
+
+Use `llm_system.simulation.project_current_perception()` with a
+`ValidatedWorldState` and an authored character ID to produce the exact
+current-state `PerceptionSnapshot` available to that observer. The projection
+uses canonical simulation time and returns observations in this fixed group
+order: the observer's location, outgoing authored connections, co-located other
+characters, then visible objects. Connections and entities preserve authored
+package order rather than runtime-state tuple order.
+
+All outgoing connections are included with their exact runtime availability;
+incoming-only connections are excluded. The observer and remote characters are
+excluded. Objects are included only when directly at the observer's location or
+possessed by the observer. Remote objects and objects possessed by anyone else
+remain excluded, including possessions of a co-located character.
+
+An identifier absent from the runtime character namespace, including an object
+identifier, raises `PerceptionObserverNotFoundError` with the supplied
+`observer_id`. This pure deterministic boundary does not accept canonical
+events or emit `EventObserved`, and it adds no sensory mechanics, definition
+enrichment, recording, memory, belief, narration, persistence, or LLM behavior.
+
 ## Relational world-state validation
 
 Use `llm_system.simulation.validate_world_state()` to compare one structural

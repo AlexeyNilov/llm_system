@@ -1,6 +1,6 @@
 # TASK-022: Project deterministic current-state perception
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -109,12 +109,24 @@ Stop and report a design gap if implementation requires event visibility, a diff
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented deterministic current-state projection with the public
+observer error, authored grouping and ordering, conservative visibility rules,
+canonical timestamps, public exports, and documented boundaries.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/perception_engine.py`,
+`src/llm_system/simulation/__init__.py`,
+`tests/test_current_state_perception.py`, `tests/test_package.py`, `README.md`,
+`pyproject.toml`, `uv.lock`, and this task brief.
 
-**Verification:** Pending
+**Verification:** Initial focused test collection failed as required with
+`ImportError: cannot import name 'PerceptionObserverNotFoundError' from
+'llm_system.simulation'`. After implementation, the full-snapshot group passed
+1 test, the exclusion/error group passed 2 tests, and the determinism group
+passed 1 test. Final focused verification passed 4 tests. `uv sync --locked`,
+`make format`, `make lint`, `make mypy`, `make test` (183 passed), `make check`
+(183 passed), `uv lock --check`, and `git diff --check` all passed. The only
+`uv.lock` change is the editable root version from `0.20.0` to `0.21.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.
