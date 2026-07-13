@@ -8,6 +8,10 @@ Execution agents may set this task to In progress, Review, or Blocked. Only the 
 
 **Role:** Explorer | Experimenter | Implementer | Scenario author | Reviewer
 
+**Role guide:** `doc/agent_roles/implementer.md` | `doc/agent_roles/reviewer.md`
+
+Use the implementer guide for implementation or scenario-authoring work. Use the reviewer guide for exploration, experiments, and independent review.
+
 **Agent:** Named custom agent or `Default`
 
 **Depends on:** Task IDs or `None`
@@ -21,6 +25,7 @@ State one observable outcome. Explain why it is needed in no more than two short
 Read only the following project context before tracing task-local code:
 
 * `AGENTS.md`
+* the exact role guide named above
 * `doc/glossary.md`: named entries
 * `doc/requirements.md`: exact requirement IDs
 * `doc/decisions.md`: exact decision titles
@@ -38,6 +43,7 @@ Use the soft 8,000-word pre-code documentation limit from `doc/agent_workflow.md
 | Context | Why required | Exact selection | Approximate words |
 | --- | --- | --- | ---: |
 | Repository rules | Durable execution constraints | `AGENTS.md` | Pending |
+| Role guide | Rules for this responsibility | Exact guide named above | Pending |
 | Task brief | Execution contract | This file | Pending |
 | Canonical documentation | Behavior or authority | Named extracts above | Pending |
 | Other pre-code context | Task-specific evidence | Named extracts above | Pending |

@@ -6,7 +6,7 @@ Define the first M4 persistence task using the new bounded-context template: a m
 
 ## Verified baseline
 
-* TASK-035 reviewed commit `bc35b67 plan`; its permitted report and handoff diff plus the direct M3.6 documentation changes are not yet committed.
+* TASK-035 and the initial M3.6 documentation/context restructuring are committed through `a031368 refactoring`.
 * Project and installed package version: `0.33.0`.
 * `uv sync --locked`, collection of `323` tests, `make check` with `323` passing tests, `uv lock --check`, and `git diff --check` pass.
 
@@ -33,6 +33,8 @@ Define the first M4 persistence task using the new bounded-context template: a m
 * Canonical responsibilities remain with glossary, requirements, decisions, high-level design, and executable evidence.
 * Future Ready briefs use an 8,000-word soft pre-code documentation budget, exact extracts, default context exclusions, and a context-used handoff record.
 * Completed tasks and reviews remain inspectable history but are not default implementation context.
+* Root agent instructions now contain only universal rules and route work to one architect, implementer, or reviewer guide.
+* Ready task briefs explicitly name and budget one responsibility-specific role guide.
 
 ## Blockers and limitations
 
@@ -42,13 +44,14 @@ Greybridge cannot yet execute its flood, NPC activities, System director hooks, 
 
 ## Exact next action
 
-Commit the accepted TASK-035 and M3.6 documentation changes. Then specify the bounded SQLite schema and repository choices for the first M4 task using the revised template.
+Commit the final M3.6 role-routing changes. Then specify the bounded SQLite schema and repository choices for the first M4 task using the revised template.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
-2. `doc/agent_workflow.md`: task briefs, context routing, and context budget
-3. `doc/tasks/TASK_TEMPLATE.md`
-4. `doc/reviews/m3-5-kernel-review.md`: KRV-002 and recommended M4 gate
-5. `doc/roadmap.md`: M4
-6. Persistence sections and decisions selected by the future task's context manifest
+2. `doc/agent_roles/architect.md`
+3. `doc/agent_workflow.md`: task briefs, context routing, and context budget
+4. `doc/tasks/TASK_TEMPLATE.md`
+5. `doc/reviews/m3-5-kernel-review.md`: KRV-002 and recommended M4 gate
+6. `doc/roadmap.md`: M4
+7. Persistence sections and decisions selected by the future task's context manifest

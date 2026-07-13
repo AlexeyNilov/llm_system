@@ -1113,6 +1113,18 @@ Use a lightweight Architecture Decision Record (ADR) style:
 
 **Consequences:** Human onboarding and agent execution use different paths over the same repository knowledge. Task authors must justify broad context, reviewers can detect irrelevant routing, and stable contracts remain inspectable without being repeated in every task. The initial budget is a soft diagnostic threshold and may be revised from measured delegation evidence.
 
+### 2026-07-13: Route agent work through one responsibility-specific guide
+
+**Status:** Accepted
+
+**Context:** The root agent instructions mixed universal repository rules with coding, planning, integration, and review procedures. They were useful to an implementer but noisy and incomplete for architecture review, while adding more role sections would make every agent pay the context cost. Filesystem-scoped instructions would not solve the distinction because architects, implementers, and reviewers may inspect the same source paths.
+
+**Decision:** Keep root `AGENTS.md` as a compact repository-wide rule set and semantic work-mode router. Select exactly one detailed guide for the active responsibility: architect and integrator, implementer, or reviewer. Ready task briefs name the execution guide explicitly and include it in their context budget. A materially changed responsibility is completed or handed off before another guide is selected; role guides are not combined by default.
+
+**Alternatives considered:** Keep one comprehensive root file, use nested instructions under source directories, or create a guide for every prospective agent label. One root file repeats irrelevant procedure; directory routing describes file location rather than responsibility; speculative roles add maintenance and prompt cost before their workflows stabilize.
+
+**Consequences:** Planning, implementation, and independent evaluation receive different procedures while sharing the same canonical project truth. Root instructions stay broadly applicable, delegated context becomes measurable, and new role guides require demonstrated repetition rather than anticipation.
+
 ### 2026-07-13: Give one application transaction ownership of step completion
 
 **Status:** Accepted

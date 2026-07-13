@@ -1098,6 +1098,8 @@ This helps ensure requirements are:
 
 **DOC-005:** Delegated implementation shall exclude human-orientation, planning, continuation, review, and completed-task artifacts by default, and its handoff shall identify the bounded documentation and initial source or test context actually used.
 
+**DOC-006:** Repository-wide agent instructions shall route each substantial activity to exactly one responsibility-specific guide for architecture and integration, implementation, or independent review, and delegated task briefs shall name the selected guide explicitly.
+
 ### Development foundation
 
 **DEV-001:** The initial application shall target Python 3.12 and shall reject installation on a different Python minor version.

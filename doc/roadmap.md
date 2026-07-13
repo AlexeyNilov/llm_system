@@ -13,7 +13,7 @@ Show the current delivery sequence, deferred scope, and readiness for delegation
 | M2: Packages and domain contracts | Done | Strict versioned YAML packages load into validated typed definitions |
 | M3: Deterministic simulation kernel | Done | Pure Python validates worlds and deterministically resolves the supported minimal action set without an LLM or database |
 | M3.5: Review before persistence | Done | Accepted the kernel boundary and carried transaction ownership into M4 |
-| M3.6: Documentation and context architecture | Done | Separated human orientation from canonical contracts and bounded delegated pre-code context |
+| M3.6: Documentation and context architecture | Done | Separated human orientation from canonical contracts and routed bounded agent context by responsibility |
 | M4: Persistence and application boundary | Current | Persist one world and advance it through one atomic application-owned step |
 
 Completed task contracts and verification evidence remain under [`tasks/`](tasks/).

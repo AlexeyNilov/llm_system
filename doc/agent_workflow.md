@@ -12,7 +12,8 @@ Use each artifact for one kind of information:
 
 | Artifact | Purpose |
 | --- | --- |
-| `AGENTS.md` | Small set of durable rules that apply across the repository |
+| `AGENTS.md` | Compact repository-wide rules and work-mode router |
+| `doc/agent_roles/` | Detailed rules selected for one active responsibility |
 | `README.md` | Human landing page for purpose, status, setup, and navigation |
 | `doc/domain_guide.md` | Non-normative human orientation to stable domain relationships |
 | `doc/glossary.md` | Canonical domain vocabulary |
@@ -37,7 +38,13 @@ The current product references are [Codex customization](https://learn.chatgpt.c
 
 ### `AGENTS.md`
 
-Use for durable repository conventions, safety boundaries, test expectations, and task-routing rules. Keep it compact. Do not copy detailed architecture or task instructions into it.
+Use for durable repository conventions, safety boundaries, and routing to one role guide. Keep it compact. Put responsibility-specific planning, implementation, or review procedure in `doc/agent_roles/`, not in the root file.
+
+### Role guide
+
+Use one role guide for the active responsibility. The root `AGENTS.md` routes planning and integration to the architect guide, implementation and content work to the implementer guide, and independent evaluation to the reviewer guide. A Ready task names its guide explicitly.
+
+Do not preload all role guides. If work changes responsibility materially, complete or hand off the current responsibility before selecting another guide. A role guide defines procedure; it does not supply task-specific domain context.
 
 ### Task brief
 
@@ -76,6 +83,8 @@ Roles describe responsibility. They do not require custom-agent files initially.
 
 ### Architect and integrator
 
+Detailed procedure: [`agent_roles/architect.md`](agent_roles/architect.md).
+
 * Maintains requirements, decisions, glossary, high-level design, and roadmap.
 * Resolves ambiguity before implementation is delegated.
 * Writes or approves task briefs.
@@ -91,6 +100,8 @@ Roles describe responsibility. They do not require custom-agent files initially.
 
 ### Implementer
 
+Detailed procedure: [`agent_roles/implementer.md`](agent_roles/implementer.md).
+
 * Implements one ready task through TDD.
 * Preserves named contracts and stays inside explicit scope.
 * Does not change governance artifacts unless the task authorizes it.
@@ -103,6 +114,8 @@ Roles describe responsibility. They do not require custom-agent files initially.
 * Treats package validation and scenario acceptance tests as the contract.
 
 ### Reviewer
+
+Detailed procedure: [`agent_roles/reviewer.md`](agent_roles/reviewer.md).
 
 * Reviews a task against its brief, diff, requirements, decisions, and tests.
 * Prioritizes correctness, authority boundaries, information leaks, regressions, and missing tests.
@@ -127,6 +140,7 @@ Start from [`tasks/TASK_TEMPLATE.md`](tasks/TASK_TEMPLATE.md). A ready task must
 
 * one outcome stated in behavioral terms;
 * stable requirement IDs and decision references;
+* exactly one role guide matching the assigned responsibility;
 * a context manifest listing exact files and sections;
 * a context budget showing why each documentation source is required;
 * fixed assumptions that the agent must not revisit;
@@ -154,6 +168,7 @@ The budget excludes source and tests discovered while tracing the named implemen
 ### Always read
 
 * repository `AGENTS.md`;
+* the role guide named by the task brief;
 * the assigned task brief; and
 * the glossary entries named by the task brief.
 
@@ -248,9 +263,10 @@ specified by the task brief. `Default` means no custom-agent profile.
 Do not pass prior chat history.
 
 The task brief is the context router. Read only its exact pre-code selections,
-then trace task-local source and tests. Do not preload README, the domain guide,
-roadmap, ideas, reviews, completed tasks, or architect continuation state unless
-the task explicitly names them.
+including its one named role guide, then trace task-local source and tests. Do
+not preload other role guides, README, the domain guide, roadmap, ideas, reviews,
+completed tasks, or architect continuation state unless the task explicitly
+names them.
 
 The execution agent may set the task to In progress, then Review or Blocked.
 Neither the execution agent nor this parent task may mark it Done, review or
