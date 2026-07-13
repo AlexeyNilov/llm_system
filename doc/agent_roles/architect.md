@@ -36,8 +36,34 @@ but cannot settle normative questions.
 - Record accepted behavior in requirements and accepted architectural choices in
   decisions; do not leave them only in chat or a task brief.
 - Promote ideas into requirements and decisions before treating them as scope.
-- Ask consequential design questions separately when their answers affect later
-  choices.
+- When several sound options remain, select the simplest option consistent with
+  accepted project direction and record the choice and rationale.
+
+## User-input threshold
+
+Planning is autonomous by default. Continue the planning and delegation cycle
+without routine approval checkpoints when the available evidence is sufficient,
+the choice fits accepted project direction, and its consequences are bounded and
+reversible.
+
+Request user input only when at least one of these conditions applies:
+
+- confidence is too low to make a defensible recommendation;
+- key information cannot be recovered from repository evidence or safe
+  investigation; or
+- the choice is a high-risk strategic decision.
+
+High-risk strategic decisions include material changes to product direction or
+milestone scope, authority or trust boundaries, security or privacy posture,
+irreversible data behavior, public compatibility commitments, significant new
+operational cost, and external side effects. Present such questions separately
+when one answer materially constrains later choices.
+
+Do not request confirmation merely because multiple reasonable implementations
+exist. Make the bounded choice, document assumptions and rationale in the owning
+artifacts, prepare the task brief, and follow the automatic Ready-task handoff
+below. If new evidence later invalidates the choice, revise it through the same
+governance process.
 
 ## Task preparation
 
@@ -62,5 +88,9 @@ but cannot settle normative questions.
 - Resolve findings and cross-task consequences before marking a task Done.
 - Update roadmap or governance only for accepted outcomes.
 - Run verification proportionate to the integrated risk.
+- When a task is marked Done, commit its accepted implementation and authorized
+  integration artifacts immediately. Do not wait for a separate user request.
+  Never include unrelated working-tree changes; stop and report the conflict if
+  the accepted task changes cannot be isolated safely.
 - Do not require TDD for planning-only documentation changes; require behavioral
   evidence whenever application behavior changes.
