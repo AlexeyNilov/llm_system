@@ -8,6 +8,7 @@ This workflow applies to subagents in one Codex task, agents in separate chats, 
 
 ## Information hierarchy
 
+Do not automatically preload atrifacts.
 Use each artifact for one kind of information:
 
 | Artifact | Purpose |
@@ -106,12 +107,6 @@ Detailed procedure: [`agent_roles/implementer.md`](agent_roles/implementer.md).
 * Preserves named contracts and stays inside explicit scope.
 * Does not change governance artifacts unless the task authorizes it.
 * Reports a design gap instead of inventing architecture.
-
-### Scenario author
-
-* Authors content against stable rule and scenario package schemas.
-* Does not add unsupported mechanics to make the scenario convenient.
-* Treats package validation and scenario acceptance tests as the contract.
 
 ### Reviewer
 
