@@ -194,7 +194,7 @@ The deterministic post-authorization boundary that routes an authorized action t
 
 ### Observation
 
-A structured item of information made available to one character by perceptual filtering. It records what that character could perceive, with relevant time, provenance, confidence, and salience.
+A structured typed item of information made available to one character by perceptual filtering. Initial observations are transient ID-linked values carrying observer, time, and current-state or canonical-event provenance; durable identity and confidence or salience metadata are added only when accepted recording or scoring semantics require them.
 
 ### Outcome
 
@@ -210,7 +210,7 @@ The process performed by the perception engine to determine which observations a
 
 ### Perception snapshot
 
-The structured collection of observations currently available to one character. It is an actor-specific projection, not a copy of canonical world state.
+The immutable ordered collection of observations currently available to one character at one simulation time. It is an actor-specific ID-linked projection, not a copy of canonical world state or unrestricted package content.
 
 ### Player
 

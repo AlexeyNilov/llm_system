@@ -236,7 +236,8 @@ The design requires stable identifiers and explicit schemas for these concepts:
 * Outcome reason codes: strict kebab-case machine values whose meanings are owned by deterministic resolvers rather than one central enum, generated prose, or package strings.
 * `Event`: a closed discriminated union of canonical domain facts with stable identity, simulation time, causation, and event-specific payload. Events do not contain narration or observer visibility and are durable history rather than the sole world-state persistence mechanism.
 * Initial event variants: actor observed, moved, spoke, helped, waited, or failed an action; and an object was taken or used. Their payloads reuse typed targets and placements where applicable.
-* `Observation`: observer-specific perceived facts, source event, time, confidence, and salience.
+* `Observation`: a closed union of observer-specific location, connection, character, object, or canonical-event facts with observation time and fixed current-state or event provenance. Initial transient observations are ID-linked and have no generated observation UUID, confidence score, or salience score.
+* `PerceptionSnapshot`: one observer's immutable ordered observations at one simulation time, with envelope identity and time required to match every contained item. It may be empty and does not itself prove world-aware perceptual filtering.
 * `EpisodicMemory`: durable character history derived from observations.
 * `Belief`: character-held claim with confidence, provenance, and revision state.
 * `ScheduledActivity`: eligibility time, owner, operation, and ordering metadata.

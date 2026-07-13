@@ -598,6 +598,34 @@ This helps ensure requirements are:
 
 **EVENT-013:** Failed and succeeded outcomes may contain no canonical event, and the contract layer shall not require one event merely because an operation was validly attempted.
 
+**PERCEPTION-001:** Initial perceived information shall use a closed discriminated union of strict typed observation variants rather than an arbitrary payload mapping or generated prose.
+
+**PERCEPTION-002:** The initial observation union shall contain exactly `LocationObserved`, `ConnectionObserved`, `CharacterObserved`, `ObjectObserved`, and `EventObserved`, discriminated by `observation_type` values `location`, `connection`, `character`, `object`, and `event` respectively.
+
+**PERCEPTION-003:** Every initial observation shall contain the observing character's authored identifier and non-negative integer `observed_at_seconds`.
+
+**PERCEPTION-004:** Location, connection, character, and object observations shall use `source_type="current_state"`; event observations shall use `source_type="canonical_event"` and contain the exact typed `CanonicalEvent` that passed filtering.
+
+**PERCEPTION-005:** `LocationObserved` shall contain `location_id`; `ConnectionObserved` shall contain `connection_id` and strict boolean `is_available`; `CharacterObserved` shall contain `character_id`; and `ObjectObserved` shall contain `object_id` plus the existing typed `ObjectPlacement` perceived for that object.
+
+**PERCEPTION-006:** Initial observations shall remain ID-linked projections and shall not copy authored names, descriptions, connection endpoints, traversal durations, archetypes, goals, plans, or unrestricted package records.
+
+**PERCEPTION-007:** `PerceptionSnapshot` shall be a strict immutable record containing one `observer_id`, one non-negative integer `perceived_at_seconds`, and an immutable ordered tuple of initial observations.
+
+**PERCEPTION-008:** Every observation in a perception snapshot shall have the same observer identity and observation time as the snapshot envelope.
+
+**PERCEPTION-009:** An event observation shall reject a contained canonical event whose occurrence time is later than that observation's time.
+
+**PERCEPTION-010:** Perception snapshots shall accept structurally valid empty observation collections, normalize JSON/YAML-style lists to immutable tuples, and preserve supplied observation order.
+
+**PERCEPTION-011:** Initial observation and snapshot construction shall not resolve world references, determine visibility, enforce actionability, deduplicate observations, perform restricted definition enrichment, invoke an LLM, or claim that a structurally valid snapshot was produced by the perception engine.
+
+**PERCEPTION-012:** Initial transient observation values shall not contain generated observation UUIDs, confidence scores, or salience scores; durable observation identity and scored uncertainty or salience require later accepted recording and rule semantics.
+
+**PERCEPTION-013:** The later initial perception engine shall not infer that an object possessed by another co-located character is visible merely from canonical possession; directly located objects and the observer's own possessions are the safe initial possession boundary until explicit visibility mechanics exist.
+
+**PERCEPTION-014:** Restricted context enrichment shall resolve only identifiers already present in a perception snapshot into approved authored display fields and shall not expose unrestricted canonical world or package content to a narrator or actor policy.
+
 **LOOP-001:** When canonical state or events may be observable by a character, the system shall apply that character's perceptual constraints before producing observations.
 
 **LOOP-002:** When an NPC performs sensemaking, the system shall limit its inputs to current observations and character-available identity, goals, plans, beliefs, and memories.
