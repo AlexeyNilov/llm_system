@@ -16,6 +16,7 @@ from llm_system.simulation.outcomes import Outcome
 from llm_system.simulation.resolvers.move import resolve_move
 from llm_system.simulation.resolvers.observe import resolve_observe
 from llm_system.simulation.resolvers.speak import resolve_speak
+from llm_system.simulation.resolvers.take import resolve_take
 from llm_system.simulation.resolvers.wait import resolve_wait
 
 
@@ -39,10 +40,11 @@ def dispatch_actor_action(
         return resolve_observe(action, outcome_id=outcome_id, event_id=event_id)
     if isinstance(proposal, SpeakActionProposal):
         return resolve_speak(action, outcome_id=outcome_id, event_id=event_id)
+    if isinstance(proposal, TakeActionProposal):
+        return resolve_take(action, outcome_id=outcome_id, event_id=event_id)
     if isinstance(
         proposal,
         (
-            TakeActionProposal,
             UseActionProposal,
             HelpActionProposal,
         ),

@@ -322,17 +322,44 @@ and caller-supplied identities. It establishes only audible addressed speech;
 it does not establish comprehension, memory, belief, agreement, response, or
 recipient state change and does not produce recipient event feedback.
 
+## Take resolution
+
+Use `llm_system.simulation.resolve_take()` with an `AuthorizedActorAction`
+whose proposal is `TakeActionProposal`. The caller injects keyword-only UUID
+values for `outcome_id` and `event_id`; passing an authorized non-Take action
+raises `TypeError` as a programmer error.
+
+Take v0 reads canonical runtime character and object state directly. An object
+is accessible only when its exact current placement is directly at the
+authorized actor's exact current location. Unknown, remote, actor-possessed,
+other-character-possessed, location, connection, character, and otherwise
+inaccessible identifiers all produce the same effect-free `RejectedOutcome`
+with reason `object-not-accessible`, without disclosing which condition applied
+or using the supplied event identity. Authored initial placement and perception
+do not authorize acquisition.
+
+Success uses reason `object-taken` at the exact current simulation time and
+advances no time. It contains exactly one `ObjectPlacementChanged` from the
+exact current `ObjectAtLocation` placement to `ObjectPossessedByCharacter` for
+the actor, plus one `ObjectTakenEvent` with the same previous placement and the
+caller-supplied identities. Pass the outcome separately to `commit_outcome()`
+to update canonical state.
+
+Take v0 does not implement transfer, giving, dropping, theft, consent,
+permission, carrying capacity, weight, checks, duration, object-specific rules,
+witness feedback, reactions, persistence, narration, or presentation.
+
 ## Actor-action dispatch
 
 Use `llm_system.simulation.dispatch_actor_action()` after authorization to route
 one `AuthorizedActorAction` by its concrete proposal type. The caller supplies
 required keyword-only UUID values for `outcome_id` and `event_id`; dispatch
-generates no identities. Move, Wait, Observe, and Speak proposals route to their
-corresponding concrete resolvers, and the selected resolver's outcome is
+generates no identities. Move, Wait, Observe, Speak, and Take proposals route to
+their corresponding concrete resolvers, and the selected resolver's outcome is
 returned without reconstruction or exception translation. Caller identities
 and the authorized action pass through unchanged.
 
-Take, Use, and Help are structurally valid proposals whose mechanics are not yet
+Use and Help are structurally valid proposals whose mechanics are not yet
 implemented. Dispatch raises `OperationResolverUnavailableError` for each, with
 its public typed `operation` attribute identifying the unavailable capability.
 This is a software-capability error, not a rejected or failed canonical outcome.

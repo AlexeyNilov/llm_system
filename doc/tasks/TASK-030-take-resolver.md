@@ -1,6 +1,6 @@
 # TASK-030: Resolve co-located object acquisition
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -113,12 +113,12 @@ Stop and report a design gap if implementation requires perception-based mutatio
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented Take v0 as pure deterministic co-located acquisition, exposed it publicly, and routed Take through actor-action dispatch while preserving unavailable-capability errors for Use and Help.
 
-**Changed files:** Pending
+**Changed files:** `README.md`; `pyproject.toml`; `uv.lock`; `src/llm_system/simulation/__init__.py`; `src/llm_system/simulation/dispatch.py`; `src/llm_system/simulation/resolvers/__init__.py`; `src/llm_system/simulation/resolvers/take.py`; `tests/test_actor_action_dispatch.py`; `tests/test_package.py`; `tests/test_take_resolver.py`; `doc/tasks/TASK-030-take-resolver.md`.
 
-**Verification:** Pending
+**Verification:** Genuine red: after correcting a test-fixture class-name mismatch, `uv run pytest tests/test_take_resolver.py tests/test_actor_action_dispatch.py -q` failed during collection because public `resolve_take` did not exist. Green: the required focused suite passed with 31 tests; `uv sync --locked`, `make format`, `make lint`, and `make mypy` passed; `make test` and `make check` each passed all 271 tests; `uv lock --check` and `git diff --check` passed. Independent integration review repeated the focused 31-test suite, all individual quality gates, full 271-test suite, aggregate `make check`, lock validation, installed-version check, and diff check successfully. The only `uv.lock` change is editable root version `0.28.0` to `0.29.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.
