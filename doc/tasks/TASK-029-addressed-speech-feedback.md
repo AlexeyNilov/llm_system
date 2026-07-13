@@ -1,6 +1,6 @@
 # TASK-029: Project addressed-speech recipient feedback
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -108,12 +108,26 @@ Stop and report a design gap if implementation requires event-time location reco
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented pure addressed-speech recipient feedback with public
+export, exact committed-event retention, observer-first and whole-batch temporal
+validation, and committed-recipient delivery semantics independent of current
+location or visual perception.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/perception_engine.py`,
+`src/llm_system/simulation/__init__.py`,
+`tests/test_addressed_speech_feedback.py`, `tests/test_package.py`, `README.md`,
+`doc/high_level_design.md`, `pyproject.toml`, `uv.lock`, and this task brief.
 
-**Verification:** Pending
+**Verification:** Genuine red: `uv run pytest
+tests/test_addressed_speech_feedback.py -q` failed during collection because
+`project_addressed_speech_feedback` was not yet exported. Final green: focused
+required pytest command, 18 passed; `uv sync --locked`; `make format`; `make
+lint`; `make mypy`; `make test`, 260 passed; `make check`, 260 passed; `uv lock
+--check`; lock diff inspection confirmed only editable root `0.27.0` to `0.28.0`;
+and `git diff --check`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None within TASK-029 scope. Candidate-window
+selection, delivery tracking, composition, ordering, deduplication, overhearing,
+memory, and response generation remain explicitly deferred.

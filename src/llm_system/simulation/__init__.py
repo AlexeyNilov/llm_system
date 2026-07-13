@@ -75,6 +75,7 @@ from llm_system.simulation.perception import (
 from llm_system.simulation.perception_engine import (
     FutureEventFeedbackError,
     PerceptionObserverNotFoundError,
+    project_addressed_speech_feedback,
     project_current_perception,
     project_self_event_feedback,
 )
@@ -203,6 +204,7 @@ __all__ = [
     "commit_outcome",
     "dispatch_actor_action",
     "draw_recorded_integer",
+    "project_addressed_speech_feedback",
     "project_current_perception",
     "project_self_event_feedback",
     "resolve_move",

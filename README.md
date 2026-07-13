@@ -470,6 +470,29 @@ deduplicate, determine witness visibility or audibility, compose current-state
 observations or a `PerceptionSnapshot`, enrich or record observations, persist
 delivery state, create memory or beliefs, narrate, or invoke an LLM.
 
+## Addressed-speech event feedback projection
+
+Use `llm_system.simulation.project_addressed_speech_feedback()` with a
+`ValidatedWorldState`, an authored character ID, and a caller-selected tuple of
+canonical events to produce exact speech events addressed to that character.
+Only an `ActorSpokeEvent` whose committed `recipient_id` equals the observer
+matches. Speaker ownership, other participant roles, possession, and proximity
+do not make an event recipient feedback.
+
+The projection validates the observer before inspecting event time, then
+validates the entire batch in input order before filtering. Past and current-time
+events are eligible; the first future event raises `FutureEventFeedbackError`
+even when it is non-speech or addressed to someone else. Matching observations
+use current canonical time and preserve exact event objects, input order, and
+duplicates. Committed recipient identity is sufficient evidence of delivery at
+occurrence time, so later movement and current visual perception are irrelevant.
+
+This pure operation does not select an event window, track delivery, deduplicate,
+compose self feedback or current-state perception, infer overhearing or general
+witness audibility, record memory or belief, generate a response, persist data,
+narrate, or invoke a policy or LLM. Those remain caller, coordinator, perception,
+cognition, persistence, and presentation responsibilities.
+
 ## Relational world-state validation
 
 Use `llm_system.simulation.validate_world_state()` to compare one structural

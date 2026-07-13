@@ -158,10 +158,13 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 * Ensures feedback re-enters an actor through perception rather than direct outcome access.
 * Begins with a pure current-state projection ordered as current location, authored outgoing connections, authored co-located other characters, and authored directly located or observer-possessed objects.
 * Separately projects a caller-selected canonical-event batch into stateless self-action feedback after observer-first and whole-batch temporal validation; the actor or speaker owns an event, while witness rules, delivery tracking, and current-state composition remain outside this boundary.
-* Separately projects addressed-speech recipient feedback after the same observer
-  and whole-batch temporal validation. A committed actor-spoke event's recipient
-  identity proves delivery at occurrence time; present location and visual
-  perception are not reapplied to historical speech.
+* Separately projects addressed-speech recipient feedback through pure
+  `project_addressed_speech_feedback(world, observer_id, events)` after the same
+  observer-first and whole-batch temporal validation. A committed actor-spoke
+  event's recipient identity proves delivery at occurrence time; present
+  location and visual perception are not reapplied to historical speech, while
+  candidate windows, delivery tracking, composition, ordering, and deduplication
+  remain caller responsibilities.
 
 ### Actor runtime
 

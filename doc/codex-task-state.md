@@ -2,9 +2,9 @@
 
 ## Current objective
 
-Complete the remaining M3 deterministic-kernel boundaries through small accepted contracts and delegated TDD tasks. TASK-029 now defines addressed-speech recipient feedback and is Ready for implementation after its planning artifacts are committed.
+Complete the remaining M3 deterministic-kernel boundaries through small accepted contracts and delegated TDD tasks. TASK-029 is implemented and accepted; the next grounded boundary should be selected from Take, Use, Help, or remaining witness feedback.
 
-Repository baseline: commit `e4963a4 t28`, package version `0.27.0`.
+Repository baseline before TASK-029 implementation: commit `5335b74 t29`. The accepted uncommitted implementation advances the package to `0.28.0`.
 
 ## Completed work
 
@@ -14,7 +14,7 @@ Repository baseline: commit `e4963a4 t28`, package version `0.27.0`.
 * TASK-026, deterministic selection, is Done and committed. `src/llm_system/simulation/scheduling.py::ScheduledActivitySelection` and `select_eligible_activities` partition at canonical world time, order due work, preserve pending order, and retain exact activity objects. Review corrected validation precedence and added a regression test in `tests/test_scheduled_activity_selection.py`.
 * TASK-027, recorded integer draws, is Done and committed. `src/llm_system/simulation/randomness.py` defines `IntegerDrawRequest`, `IntegerDrawRecord`, `IntegerRandomSource`, `RandomSourceContractError`, and `draw_recorded_integer`; public exports and focused behavioral tests are included.
 * TASK-028, co-located Speak v0, is Done and committed. `src/llm_system/simulation/resolvers/speak.py::resolve_speak` resolves audible addressed speech at current time, rejects every non-audible category uniformly, and dispatch now routes Speak while Take, Use, and Help remain unavailable.
-* TASK-029 planning is complete and Ready but not implemented. It projects exact committed actor-spoke events to their explicit recipient without rechecking present location or visual perception.
+* TASK-029, addressed-speech recipient feedback, is Done and awaiting commit. `src/llm_system/simulation/perception_engine.py::project_addressed_speech_feedback` validates observer and whole-batch time before preserving exact matching actor-spoke events for their recipient.
 * Public exports are maintained in `src/llm_system/simulation/__init__.py`; accepted architecture and usage are reflected in `README.md`, `doc/high_level_design.md`, `doc/requirements.md`, `doc/decisions.md`, `doc/glossary.md`, and `doc/roadmap.md`.
 
 ## Decisions and rationale
@@ -43,25 +43,26 @@ Repository baseline: commit `e4963a4 t28`, package version `0.27.0`.
 * TASK-028 planning review -> `git diff --check` passed; no production code or package metadata changed, so tests were not rerun.
 * TASK-028 implementation review -> focused `22 passed`; `make format`, `make lint`, `make mypy`, `uv sync --locked`, and `uv lock --check` passed; `make check` passed all gates with `256 passed`; `git diff --check` passed.
 * TASK-029 planning review -> `git diff --check` passed; no production code or package metadata changed, so tests were not rerun.
+* TASK-029 implementation review -> focused `18 passed`; `make format`, `make lint`, `make mypy`, `uv sync --locked`, and `uv lock --check` passed; `make check` passed all gates with `260 passed`; `git diff --check` passed.
 
 ## Tests
 
-The last full-suite verification passed all `256` tests. No production code changed during TASK-029 planning, so the suite was not rerun. No known failing test, lint, formatting, typing, lock, or diff check exists.
+All `260` tests pass. No known failing test, lint, formatting, typing, lock, or diff check exists.
 
 ## Blockers and unresolved questions
 
 No current blocker.
 
-Unresolved planned work includes TASK-029 implementation; Take, Use, and Help mechanics; remaining witness event feedback; authored environmental schedules and System-director hooks; activity execution/claiming/persistence/cascading semantics; later draw history and simulation-step trace integration; a concrete seeded generator plus persisted state when the first random mechanic exists; and M3.5 architecture and test-value reviews. Scheduled-activity execution should not be invented before its environmental mechanics, NPC policies, and director-hook consumers are grounded.
+Unresolved planned work includes Take, Use, and Help mechanics; remaining witness event feedback; authored environmental schedules and System-director hooks; activity execution/claiming/persistence/cascading semantics; later draw history and simulation-step trace integration; a concrete seeded generator plus persisted state when the first random mechanic exists; and M3.5 architecture and test-value reviews. Scheduled-activity execution should not be invented before its environmental mechanics, NPC policies, and director-hook consumers are grounded.
 
 ## Exact next action
 
-Review and commit the Ready TASK-029 planning artifacts. After that, delegate `doc/tasks/TASK-029-addressed-speech-feedback.md` only when explicitly requested; implementation and independent review remain separate workflow steps.
+Commit the accepted TASK-029 implementation. Then choose and design the next grounded M3 boundary one consequential question at a time; do not delegate until a new Ready brief is accepted and committed.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/codex-task-state.md`
 3. `doc/roadmap.md` M3 and M3.5
-4. `doc/tasks/TASK-029-addressed-speech-feedback.md`
-5. The exact context manifest in TASK-029; do not load unrelated planning documents during delegated implementation
+4. Relevant operation and perception requirements for the selected boundary
+5. Relevant decisions, high-level-design sections, glossary entries, source contracts, and tests named by the next task brief

@@ -216,3 +216,24 @@ def project_self_event_feedback(
         for event in events
         if _event_owner_id(event) == observer_id
     )
+
+
+def project_addressed_speech_feedback(
+    world: ValidatedWorldState,
+    observer_id: AuthoredId,
+    events: tuple[CanonicalEvent, ...],
+) -> tuple[EventObserved, ...]:
+    _find_observer(world, observer_id)
+    time = world.state.simulation_time_seconds
+    _validate_event_times(events, time)
+    return tuple(
+        EventObserved(
+            observation_type="event",
+            source_type="canonical_event",
+            observer_id=observer_id,
+            observed_at_seconds=time,
+            event=event,
+        )
+        for event in events
+        if isinstance(event, ActorSpokeEvent) and event.recipient_id == observer_id
+    )
