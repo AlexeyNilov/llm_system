@@ -8,7 +8,7 @@ This workflow applies to subagents in one Codex task, agents in separate chats, 
 
 ## Information hierarchy
 
-Do not automatically preload atrifacts.
+Do not automatically read/preload atrifacts.
 Use each artifact for one kind of information:
 
 | Artifact | Purpose |

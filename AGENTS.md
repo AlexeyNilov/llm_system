@@ -11,6 +11,7 @@ not a coding manual or an architecture reference.
 
 ## Select the work mode
 
+Do not automatically read/preload guides.
 Read exactly one guide before substantial work:
 
 | Work being performed | Role guide |
