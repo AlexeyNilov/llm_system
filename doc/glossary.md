@@ -60,6 +60,10 @@ Authoritative for simulation truth. A statement becomes canonical only through v
 
 The authoritative current state of the simulated world, including simulation time, locations, entities, conditions, and other rule-governed facts. In conceptual actor-loop diagrams, this is **reality**.
 
+### Boolean world fact
+
+A narrowly typed canonical scenario fact with an authored identifier and strict boolean value. It supports small rule-governed vertical-slice transitions such as whether Greybridge has been reinforced; it is not an arbitrary property dictionary or a general condition system.
+
 ### Character
 
 An actor represented inside the simulated world with a location, perceptions, memories, beliefs, and other character-specific state. The player character and NPCs are characters.
@@ -194,7 +198,15 @@ A non-player character whose behavior is produced by an interchangeable decision
 
 ### Object archetype definition
 
-An immutable rule-pack catalog record identifying reusable object mechanics. Content schema version 1 contains only its stable identifier and name; later schemas define actual mechanics.
+An immutable rule-pack catalog record identifying an object category through a stable identifier and name. Separate typed mechanic definitions may reference the archetype without embedding arbitrary properties in it.
+
+### Object-use binding
+
+An immutable scenario-package record that binds one reusable rule-pack object-use mechanic to a concrete object, target location, boolean world fact, and target value. Semantic validation guarantees that its references and object archetype agree and that a concrete object-location pair selects at most one binding.
+
+### Object-use mechanic definition
+
+An immutable rule-pack record defining the reusable constraints of the initial Use mechanic: required object archetype, location target, duration, and the closed boolean-world-fact effect kind. Scenario-specific identities are supplied by an object-use binding.
 
 ### Object definition
 

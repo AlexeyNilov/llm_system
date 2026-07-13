@@ -126,7 +126,7 @@ This helps ensure requirements are:
 
 **PACK-021:** A game-package validation error shall contain an immutable deterministic ordered collection of strict structured issues, each with a typed stable code, an authored-field path, and a human-readable message; validation shall aggregate independent issues rather than fail on the first defect.
 
-**PACK-022:** Identifier uniqueness shall be enforced within semantic namespaces: locations, connections, all entity variants together, each rule-pack catalog separately, and NPC goals within their owning NPC. Reusing one identifier across distinct typed namespaces shall remain valid.
+**PACK-022:** Identifier uniqueness shall be enforced within semantic namespaces: locations, connections, all entity variants together, boolean world facts, object-use bindings, each rule-pack catalog separately, and NPC goals within their owning NPC. Reusing one identifier across distinct typed namespaces shall remain valid.
 
 **PACK-023:** Validation shall require the scenario's exact rule-package pin to match the supplied rule manifest and shall resolve connection endpoints, initial locations, object placements, archetypes, and NPC policy references against their typed target namespaces. Possession targets shall be characters, NPC policy types shall match their resolved definitions, and exactly one player shall exist.
 
@@ -136,19 +136,37 @@ This helps ensure requirements are:
 
 **PACK-026:** `ValidatedGamePackages` shall prove only the dependency, uniqueness, reference, player-count, and topology checks defined for this boundary. It shall not by itself prove policy implementation availability, supported operations, compatibility with persistent state, playability, or readiness for world creation.
 
+**PACK-027:** Object-use mechanic definitions shall resolve their object-archetype references within the paired rule package; scenario object-use bindings shall resolve their mechanic, concrete object, target location, and boolean-world-fact references in their typed namespaces.
+
+**PACK-028:** A scenario object-use binding's concrete object shall use the object archetype required by its resolved mechanic, and semantic validation shall reject more than one binding for the same concrete object and target location so runtime resolution remains deterministic.
+
 ### Rule-pack content definitions
 
-**RULE-001:** A rule-pack entrypoint shall validate into a strict immutable root definition with content `schema_version: 1` and ordered object-archetype, character-archetype, and decision-policy catalogs.
+**RULE-001:** A rule-pack entrypoint shall validate into a strict immutable root definition with content `schema_version: 1` and ordered object-archetype, character-archetype, decision-policy, and object-use-mechanic catalogs.
 
 **RULE-002:** Every object and character archetype definition shall contain exactly a stable lowercase kebab-case identifier and non-blank human-readable name in content schema version 1.
 
 **RULE-003:** Every decision-policy definition shall contain exactly a stable identifier, non-blank name, and policy type `rule`, `llm`, or `hybrid`.
 
-**RULE-004:** Rule-pack content definitions shall preserve authored catalog order while exposing immutable collections, and each catalog may be empty at the structural-model boundary.
+**RULE-004:** Rule-pack content definitions shall preserve authored catalog order while exposing immutable collections, and each catalog may be empty at the structural-model boundary; the object-use-mechanic catalog shall default to empty for backward-compatible schema-version-1 packages.
 
 **RULE-005:** Before rule-pack content is accepted for world creation, validation shall reject duplicate identifiers within each catalog and shall require every declared decision policy to have a compatible application-owned implementation.
 
-**RULE-006:** Rule-pack content schema version 1 shall not include executable code, generic property dictionaries, arbitrary tags, abilities, actions, skills, effects, policy settings, or implicit behavioral defaults.
+**RULE-006:** Rule-pack content schema version 1 shall not include executable code, generic property dictionaries, arbitrary tags, abilities, skills, open-ended effects, policy settings, or implicit behavioral defaults.
+
+**RULE-007:** The initial `ObjectUseMechanicDefinition` shall contain a stable identifier, non-blank name, required object-archetype identifier, `target_type="location"`, strictly positive integer duration seconds, and the closed effect discriminator `effect_type="set_boolean_world_fact"`.
+
+**RULE-008:** Object-use mechanics shall describe reusable typed resolution constraints but shall not reference scenario-specific object, location, or world-fact identifiers or contain callbacks, expressions, arbitrary parameters, randomness, consumption, progression, or presentation data.
+
+### Scenario mechanic bindings
+
+**SCHEMA-001:** Content schema version 1 shall support an ordered immutable boolean-world-fact catalog and object-use-binding catalog on `ScenarioPackDefinition`, both defaulting to empty for backward-compatible packages.
+
+**SCHEMA-002:** A `BooleanWorldFactDefinition` shall contain exactly a stable identifier, non-blank name, and strict boolean initial value.
+
+**SCHEMA-003:** An `ObjectUseBindingDefinition` shall contain exactly a stable identifier, rule-pack mechanic identifier, concrete object identifier, target location identifier, boolean-world-fact identifier, and strict boolean target value.
+
+**SCHEMA-004:** Scenario bindings shall instantiate accepted rule mechanics through typed references and shall not contain executable code, generic effect payloads, conditions, formulas, random checks, consumption behavior, or narrative text.
 
 ### Player experience
 
@@ -236,7 +254,7 @@ This helps ensure requirements are:
 
 **STATE-002:** Before resolving the initial supported operations, canonical runtime state shall provide the current simulation time, character locations, object placement or possession, and connection availability required for deterministic validation and resolution.
 
-**STATE-003:** The initial runtime-state contracts shall not introduce richer conditions or Greybridge-specific mechanics until their rule semantics are accepted.
+**STATE-003:** Runtime-state contracts shall introduce new rule-governed facts only after their semantics are accepted; the first extension is an identifier-linked strict boolean world fact rather than a Greybridge-specific field or arbitrary fact dictionary.
 
 **STATE-004:** Canonical runtime state shall be represented as an immutable validated snapshot, and simulation resolution shall not mutate its input snapshot in place.
 
@@ -250,7 +268,7 @@ This helps ensure requirements are:
 
 **STATE-009:** World persistence identity and recorded package-version ownership shall belong to the later persistent world-record boundary rather than the pure M3 runtime-state snapshot.
 
-**STATE-010:** A world-ready runtime snapshot shall contain exactly one character-state record for every authored character, one object-state record for every authored object, and one connection-state record for every authored connection.
+**STATE-010:** A world-ready runtime snapshot shall contain exactly one character-state record for every authored character, one object-state record for every authored object, one connection-state record for every authored connection, and one boolean-world-fact state for every authored boolean world fact.
 
 **STATE-011:** World-readiness validation shall reject duplicate runtime identifiers, missing runtime records, runtime records without matching definitions, and invalid runtime references.
 
@@ -258,7 +276,7 @@ This helps ensure requirements are:
 
 **STATE-013:** Resolution shall not infer current availability, location, or possession from a missing runtime-state record or fall back to an entity's initial package placement after world creation.
 
-**STATE-014:** `WorldState` shall expose character, object, and connection state as immutable ordered tuples; initial world creation shall preserve authored order, but semantic validity and resolution shall not depend on runtime record order.
+**STATE-014:** `WorldState` shall expose character, object, connection, and boolean-world-fact state as immutable ordered tuples; initial world creation shall preserve authored order, but semantic validity and resolution shall not depend on runtime record order.
 
 **STATE-015:** Public runtime-state contracts shall not expose mutable dictionaries as canonical collections; consumers may derive temporary identifier indexes without making them part of canonical state.
 
@@ -268,13 +286,15 @@ This helps ensure requirements are:
 
 **STATE-018:** `ConnectionState` shall contain exactly an authored connection identifier and one explicit strict boolean availability value.
 
-**STATE-019:** `WorldState` shall contain a non-negative integer `simulation_time_seconds` and the ordered immutable character, object, and connection state tuples.
+**STATE-045:** `BooleanWorldFactState` shall contain exactly an authored boolean-world-fact identifier and one explicit strict boolean current value.
 
-**STATE-020:** The initial runtime-state contracts shall not represent unplaced, destroyed, consumed, hidden, quantified, conditioned, or nested objects, and shall not represent character or connection conditions beyond the accepted minimal fields.
+**STATE-019:** `WorldState` shall contain a non-negative integer `simulation_time_seconds` and the ordered immutable character, object, connection, and boolean-world-fact state tuples; the fact tuple shall default to empty for worlds whose scenario defines no facts.
+
+**STATE-020:** Runtime-state contracts shall not represent unplaced, destroyed, consumed, hidden, quantified, conditioned, or nested objects, and shall not represent character or connection conditions beyond the accepted minimal fields; boolean world facts shall not become an arbitrary value or metadata store.
 
 **STATE-021:** Successful relational world-state validation shall return an immutable `ValidatedWorldState` pairing exactly one `ValidatedGamePackages` value with exactly one `WorldState` snapshot.
 
-**STATE-022:** `ValidatedWorldState` shall guarantee complete and unique character, object, and connection overlays; matching runtime and authored definition identities; and valid current location and character-possessor references.
+**STATE-022:** `ValidatedWorldState` shall guarantee complete and unique character, object, connection, and boolean-world-fact overlays; matching runtime and authored definition identities; and valid current location and character-possessor references.
 
 **STATE-023:** The simulation arbiter shall accept a `ValidatedWorldState` rather than an unvalidated runtime snapshot and package pair.
 
@@ -290,7 +310,7 @@ This helps ensure requirements are:
 
 **STATE-029:** World-state validation shall aggregate independent root defects while suppressing dependent reference conclusions when a runtime record cannot be identified uniquely and authoritatively.
 
-**STATE-030:** World-state validation shall process character, object, and connection overlay namespaces in that order, then validate current runtime references from uniquely identified expected records.
+**STATE-030:** World-state validation shall process character, object, connection, and boolean-world-fact overlay namespaces in that order, then validate current runtime references from uniquely identified expected records.
 
 **STATE-031:** Within an overlay namespace, duplicate issues shall follow first-duplicate encounter order, missing-state issues shall follow authored definition order, and unexpected-state issues shall follow runtime tuple order.
 
@@ -308,13 +328,17 @@ This helps ensure requirements are:
 
 **STATE-038:** A resolved change to canonical runtime state shall be represented as one member of a closed discriminated union of typed state-change contracts.
 
-**STATE-039:** The initial state-change variants shall be character location change, object placement change, connection availability change, and simulation-time change.
+**STATE-039:** State-change variants shall be character location change, object placement change, connection availability change, boolean-world-fact change, and simulation-time change.
 
 **STATE-040:** Every state change shall contain the affected runtime identity together with explicit before and after values, and structural validation shall reject equal before and after values.
 
 **STATE-041:** A simulation-time change shall contain non-negative integer before and after seconds and shall require the after value to be strictly greater than the before value.
 
 **STATE-042:** State changes shall describe exact immutable-snapshot deltas and shall remain distinct from canonical events, which describe facts that occurred.
+
+**STATE-043:** `BooleanWorldFactChanged` shall identify one authored fact, carry distinct strict boolean `from_value` and `to_value`, and use discriminator `boolean_world_fact`.
+
+**STATE-044:** Outcome commitment shall validate a boolean-world-fact change against the complete runtime fact overlay, report unknown targets and before-value mismatches through existing commitment issue codes, and replace only the matching fact at its existing tuple position.
 
 ### Character knowledge and memory
 
@@ -867,6 +891,8 @@ This helps ensure requirements are:
 **SCENARIO-011:** The Greybridge content foundation shall include one player at the waystation, the injured LLM-assisted courier at the waystation, the rule-driven caretaker at the span, medicine possessed by the courier, and reinforcement materials at the waystation, with all archetype and policy references resolving through the paired rule package.
 
 **SCENARIO-012:** Until dedicated schemas exist, the Greybridge content foundation shall not encode Fieldcraft, actions, bridge damage, perceptible facts, scheduled flood activity, System director hooks, objectives, progression, or other mechanics as unknown fields or misleading substitutes, and shall not be described as a complete playable scenario.
+
+**SCENARIO-013:** Greybridge package version `0.2.0` shall preserve the `0.1.0` foundation and add one authored `reinforce-structure` object-use mechanic, one initially false `bridge-reinforced` boolean world fact, and one deterministic binding from `reinforcement-materials` at `greybridge-span` to that fact becoming true after 300 simulation seconds; the scenario shall pin `greybridge-rules` version `0.2.0` exactly.
 
 ### Primary persistence
 

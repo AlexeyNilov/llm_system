@@ -56,7 +56,9 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | [`TASK-023`](tasks/TASK-023-observe-resolver.md): Deterministic Observe v0 resolver | Done | TASK-017, TASK-020, TASK-022 |
 | [`TASK-028`](tasks/TASK-028-speak-resolver.md): Deterministic co-located Speak v0 resolver | Done | TASK-017, TASK-020 |
 | [`TASK-030`](tasks/TASK-030-take-resolver.md): Deterministic co-located Take v0 resolver | Done | TASK-013 through TASK-020 |
-| Remaining Use and Help resolvers | Planned | Authorization plus accepted per-operation mechanics |
+| [`TASK-033`](tasks/TASK-033-authored-use-foundation.md): Authored Use mechanics and boolean-world-fact foundation | Ready | TASK-003 through TASK-016, TASK-030 |
+| TASK-034: Deterministic bound Use resolver and dispatch | Planned | TASK-033, TASK-017, TASK-020 |
+| Remaining Help resolver | Planned | Authorization plus accepted Help mechanics |
 | [`TASK-027`](tasks/TASK-027-recorded-integer-draw-boundary.md): Recorded integer-draw contracts and injected source boundary | Done | Simulation arbiter |
 | [`TASK-025`](tasks/TASK-025-scheduled-activity-contracts.md): Scheduled-activity and queue contracts | Done | M3 domain models |
 | [`TASK-026`](tasks/TASK-026-scheduled-activity-selection.md): Deterministic eligibility selection and ordering | Done | TASK-025, TASK-013 |
