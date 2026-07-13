@@ -20,15 +20,18 @@ The deterministic Python kernel is implemented and reviewed. It can:
   events atomically in SQLite;
 * coordinate a trusted actor action through authorization, resolution,
   commitment, perception, and one atomic world/event/trace transaction;
+* create the singleton world from validated package-authored initial state,
+  resume it from exact recorded package versions, and reset its complete
+  development timeline atomically;
 * migrate SQLite V1 worlds directly to V2 append-only completed-step trace
   history;
 * partition scheduled activities deterministically; and
 * validate caller-injected recorded integer draws.
 
-Help resolution, scheduled-activity execution, world lifecycle orchestration,
-FastAPI, Streamlit, player-text interpretation, NPC execution, the System
-director, narration, and the complete Greybridge scenario remain later work. See
-the [roadmap](doc/roadmap.md) for current delivery order.
+Help resolution, scheduled-activity execution, FastAPI, Streamlit, player-text
+interpretation, NPC execution, the System director, narration, and the complete
+Greybridge scenario remain later work. See the [roadmap](doc/roadmap.md) for
+current delivery order.
 
 ## Development setup
 

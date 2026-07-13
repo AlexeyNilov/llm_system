@@ -1,6 +1,6 @@
 # TASK-038: Create, resume, and reset the singleton world
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -156,14 +156,14 @@ Stop and report a design gap if implementation requires:
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented deterministic initial-world construction, durable create and exact-version resume services, strict active-world coherence, and atomic destructive development reset with complete event and trace cleanup.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/application/world_lifecycle.py`, `src/llm_system/application/__init__.py`, `src/llm_system/persistence/sqlite.py`, `tests/test_world_lifecycle.py`, `tests/test_package.py`, `pyproject.toml`, `uv.lock`, and this task brief.
 
-**Verification:** Pending
+**Verification:** `uv sync --locked` passed; focused lifecycle and SQLite tests passed (14 tests); `make format`, `make lint`, `make mypy`, `make test`, and `make check` passed (349 tests); `uv lock --check` and `git diff --check` passed.
 
-**Context used:** Pending; list the documentation extracts and initially named source or test files actually consulted. Do not list every transitive implementation file.
+**Context used:** `AGENTS.md`; `doc/agent_roles/implementer.md`; the named glossary, requirements, decisions, and high-level-design extracts; all initially named source and test entrypoints; the Greybridge rule and scenario package fixtures at `0.2.0`; and `pyproject.toml`.
 
-**Deviations:** Pending
+**Deviations:** This retry inherited partial implementation and behavioral tests. The first focused run available in this resumed checkout passed, so the original pre-implementation failing-test output was not recoverable from the task-routed context.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.

@@ -45,7 +45,7 @@ The application must keep unavailable behavior explicit. Greybridge is not yet a
 | [TASK-036](tasks/TASK-036-sqlite-world-and-event-persistence.md): SQLite world and canonical-event persistence | Done; depended on completed M3.5 review and M3.6 context-routing rules |
 | [TASK-037](tasks/TASK-037-atomic-actor-action-step.md): atomic actor-action coordinator and minimal durable trace | Done; composed the deterministic authority chain and atomically committed SQLite V2 world, event, and completed-trace history |
 | Scheduled-activity execution through the atomic coordinator | TASK-037 plus accepted execution semantics for environmental, NPC, and System-director activity variants |
-| [TASK-038](tasks/TASK-038-world-lifecycle.md): deterministic world creation, exact-package resume, and destructive development reset | Ready; depends on validated packages and SQLite V2 repositories |
+| [TASK-038](tasks/TASK-038-world-lifecycle.md): deterministic world creation, exact-package resume, and destructive development reset | Done; derives and validates revision-0 state, resumes only recorded package versions, and atomically replaces the complete development timeline |
 | FastAPI turn boundary | Atomic simulation step |
 | Deterministic Streamlit player page | FastAPI turn boundary |
 

@@ -179,6 +179,23 @@ class SQLiteUnitOfWork:
         connection.commit()
         self._committed = True
 
+    def clear_world_timeline_for_development(self) -> None:
+        self._require_active_transaction()
+        connection = self._require_connection()
+        current = connection.execute(
+            "SELECT 1 FROM current_world WHERE singleton = 1"
+        ).fetchone()
+        if current is None:
+            self._mark_failed()
+            raise MissingWorldError("the singleton world does not exist")
+        try:
+            connection.execute("DELETE FROM simulation_step_traces")
+            connection.execute("DELETE FROM canonical_events")
+            connection.execute("DELETE FROM current_world WHERE singleton = 1")
+        except sqlite3.DatabaseError:
+            self._mark_failed()
+            raise
+
     def _mark_failed(self) -> None:
         self._failed = True
 
