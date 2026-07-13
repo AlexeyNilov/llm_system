@@ -2,9 +2,9 @@
 
 ## Current objective
 
-Complete the remaining M3 deterministic-kernel boundaries with larger vertical-slice increments where the package and authority boundaries are accepted. TASK-033 authored Use mechanics and boolean-world-fact support is implemented, independently reviewed, and accepted.
+Complete the remaining M3 deterministic-kernel boundaries with larger vertical-slice increments where the package and authority boundaries are accepted. TASK-034 is now Ready to make the TASK-033 authored Use capability executable through deterministic resolution and dispatch.
 
-Verified repository baseline before TASK-033 implementation: planning commit `6093a6f t33`, package version `0.31.0`, branch `main` ahead of `origin/main` by nine commits, and a clean worktree.
+Verified repository baseline before TASK-034 planning: implementation commit `d14d6e4 t33`, package version `0.32.0`, clean `main` worktree, and no divergence from `origin/main` reported by Git.
 
 ## Completed work
 
@@ -16,7 +16,8 @@ Verified repository baseline before TASK-033 implementation: planning commit `60
 * TASK-030, Take v0, is Done and committed at `f041275`. `src/llm_system/simulation/resolvers/take.py::resolve_take` performs zero-time canonical co-located acquisition, emits the exact placement change and object-taken event, and dispatch routes Take while Use and Help remain unavailable.
 * TASK-031, immediate Take-witness feedback, is Done and committed at `d5fe97a`. `src/llm_system/simulation/perception_engine.py::project_take_witness_feedback` validates exact-current-time batches and projects exact object-taken events to eligible co-located non-actors. `WitnessEventTimeMismatchError` exposes stale or future candidate-window defects. The package version is `0.30.0`.
 * TASK-032, immediate third-party speech-overhearing feedback, is Done and committed at `5cdcba6`. `src/llm_system/simulation/perception_engine.py::project_speech_overhearing_feedback` validates observer, exact-current-time batch, and speech-event speakers before projecting exact speech events to eligible co-located third parties. `SpeechSpeakerNotFoundError` exposes malformed missing-speaker evidence. The package version is `0.31.0`.
-* TASK-033, authored Use and boolean-world-fact foundation, is Done and awaiting commit. Rule and scenario packages now express a narrow bound Use mechanic; runtime state validates complete fact overlays; outcomes prevent duplicate fact changes; commitment atomically applies them; Greybridge `0.2.0` adds reinforcement while retained `0.1.0` remains unchanged. The package version is `0.32.0`.
+* TASK-033, authored Use and boolean-world-fact foundation, is Done and committed at `d14d6e4`. Rule and scenario packages now express a narrow bound Use mechanic; runtime state validates complete fact overlays; outcomes prevent duplicate fact changes; commitment atomically applies them; Greybridge `0.2.0` adds reinforcement while retained `0.1.0` remains unchanged. The package version is `0.32.0`.
+* TASK-034 planning is complete. `USE-001` through `USE-012`, the accepted deterministic-bound-Use decision, design and scenario updates, roadmap linkage, and `doc/tasks/TASK-034-bound-use-resolver.md` fix the resolver and dispatch behavior without adding implementation.
 
 ## Decisions and rationale
 
@@ -32,6 +33,8 @@ Verified repository baseline before TASK-033 implementation: planning commit `60
 * Use v0 begins with a narrow package-authored boolean-world-fact effect rather than hard-coded Greybridge logic, effectless success, or a general effects language.
 * TASK-033 groups authoring contracts, semantic validation, complete runtime fact overlays, typed fact changes, commitment, and Greybridge `0.2.0`; TASK-034 will add the resolver and dispatch.
 * Greybridge reinforcement takes an authored provisional 300 seconds and does not consume materials in v0.
+* Use selects a validated binding only by exact object and location target; it requires actor co-location, exact actor possession, and a fact value that can change.
+* Every inapplicable Use rejects as `use-not-applicable`; success is `object-used`, changes the fact then simulation time, emits one exact `ObjectUsedEvent`, and leaves Help unavailable.
 
 ## Commands and verified results
 
@@ -46,25 +49,29 @@ Verified repository baseline before TASK-033 implementation: planning commit `60
 * TASK-032 commit verification: `git status --short --branch` -> clean `main`, ahead of `origin/main` by eight; `git log -4 --oneline` -> HEAD `5cdcba6 t32`.
 * TASK-033 planning baseline: `git status --short --branch` -> clean `main`, ahead of `origin/main` by nine; `git log -3 --oneline` -> HEAD `6093a6f t33`.
 * TASK-033 independent implementation review: expanded focused suite -> `99 passed`; `uv sync --locked`; `make format`; `make lint`; `make mypy`; `make test` -> `306 passed`; `make check` -> all gates and `306 passed`; `uv lock --check`; installed version `0.32.0`; retained Greybridge `0.1.0` no-diff audit; root-only lockfile version diff; and `git diff --check` -> all passed.
+* TASK-033 commit verification: `git status --short --branch` -> clean `main`; `git log -3 --oneline` -> HEAD `d14d6e4 t33`.
+* TASK-034 planning inspected accepted package, state, change, event, outcome, authorization, resolver, dispatch, commitment, export, Greybridge, test, requirement, decision, glossary, design, scenario, roadmap, README, and version contracts.
+* TASK-034 planning verification: `make format` -> 64 files unchanged; `git diff --check` -> passed; requirement IDs, decision linkage, Ready brief, and roadmap routing were verified with `rg`.
 
 ## Tests
 
-All `306` tests pass. No known lint, formatting, typing, lock, or diff failure exists.
+All `306` tests passed at the accepted TASK-033 baseline. TASK-034 planning changes are documentation-only; formatting and diff checks pass.
 
 ## Blockers and unresolved questions
 
 No current blocker.
 
-Remaining planned work includes TASK-033 and TASK-034 for Use; Help mechanics; authored environmental schedules and System-director hooks; activity execution and persistence semantics; trace integration; the deferred concrete random generator; optional additional event feedback; and M3.5 architecture and test-value reviews.
+Remaining planned work includes TASK-034 implementation; Help mechanics; authored environmental schedules and System-director hooks; activity execution and persistence semantics; trace integration; the deferred concrete random generator; optional additional event feedback; and M3.5 architecture and test-value reviews.
 
 ## Exact next action
 
-Commit the accepted TASK-033 implementation. Then specify TASK-034 deterministic Use resolution and dispatch from the accepted contracts; do not delegate until its Ready brief is accepted and committed.
+Commit the Ready TASK-034 planning artifacts. Do not delegate until that planning commit exists and the user explicitly requests delegation.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_workflow.md` delegation and review sections
 3. `doc/roadmap.md` M3 and M3.5
-4. Accepted Use requirements and “Begin Use mechanics with bound boolean-world-fact effects” in `doc/decisions.md`
-5. TASK-033 production contracts, resolver patterns, dispatch, and relevant tests
+4. `doc/tasks/TASK-034-bound-use-resolver.md`
+5. Accepted `USE-001` through `USE-012` and “Resolve bound Use as a deterministic authored effect”
+6. TASK-033 production contracts, resolver patterns, dispatch, and relevant tests

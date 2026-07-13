@@ -12,7 +12,7 @@ The scenario must remain playable without episodic memory, mutable beliefs, prio
 
 The first authored package version is a validated content foundation, not the complete playable vertical slice. `greybridge-rules` version `0.1.0` and `storm-at-greybridge` version `0.1.0` express only the concepts supported by content schema version 1: archetype and policy catalogs, the location graph, entities, initial placement and possession, and NPC identity, goals, plans, and policy references.
 
-Package version `0.2.0` preserves that foundation and adds the first narrowly executable authored mechanic: reinforcement materials can be used at the Greybridge span over 300 simulation seconds to change the canonical boolean world fact `bridge-reinforced` from false to true. It does not yet add the resolver, flood reaction, checks, progression, consumption, or richer bridge-condition modeling.
+Package version `0.2.0` preserves that foundation and adds the first narrowly executable authored mechanic: reinforcement materials can be used at the Greybridge span over 300 simulation seconds to change the canonical boolean world fact `bridge-reinforced` from false to true. TASK-034 resolves that exact bound capability for an actor carrying the materials at the span. Flood reaction, checks, progression, consumption, and richer bridge-condition modeling remain later work.
 
 Fieldcraft, supported actions, bridge condition and perceptible facts, the scheduled flood surge, System director hooks, optional objectives, checks, progression, and mutable runtime state remain requirements for later schema and kernel tasks. They must not be approximated through unknown YAML fields, overloaded names, or narrative text treated as mechanics.
 

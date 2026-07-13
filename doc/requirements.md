@@ -616,17 +616,41 @@ This helps ensure requirements are:
 
 **TAKE-012:** Repeated Take resolution with equal inputs and caller identities shall produce equal outcomes without mutating or replacing the authorized action, world, submission, proposal, object state, or placement.
 
+**USE-001:** The initial Use resolver shall interpret a proposal only through the validated rule-pack mechanic, scenario binding, and canonical runtime overlays; authored names, initial placement, perception, randomness, generated text, and Greybridge-specific kernel logic shall not authorize or define its effect.
+
+**USE-002:** The public resolver shall have the contract `resolve_use(action: AuthorizedActorAction, *, outcome_id: UUID, event_id: UUID) -> RejectedOutcome | SucceededOutcome` and shall not generate runtime identities internally.
+
+**USE-003:** A Use proposal shall be applicable only when its exact `(object_id, target location_id)` selects one validated scenario binding, the bound mechanic has the accepted location-target and boolean-fact effect kinds, the actor is currently at that target location, and canonical runtime state places the exact object in that actor's possession.
+
+**USE-004:** An unknown or unbound object, unsupported or wrong-namespace target, non-bound location, remote actor, object not possessed by the actor, missing applicable mechanic, or fact already equal to the binding's target value shall produce one rejected outcome with reason code `use-not-applicable`, without distinguishing which canonical or authored condition applied.
+
+**USE-005:** A rejected Use shall use current canonical simulation time, preserve the proposal and caller-supplied outcome identities, contain no effects or event, advance no time, and leave the caller-supplied event identity unused.
+
+**USE-006:** An applicable Use shall return a succeeded outcome with reason code `object-used` at current canonical time plus the bound mechanic's strictly positive duration.
+
+**USE-007:** A succeeded Use shall contain exactly two ordered state changes: first one `BooleanWorldFactChanged` from the fact's exact current value to the binding's target value, then one `SimulationTimeChanged` from current time to completion time.
+
+**USE-008:** A succeeded Use shall contain exactly one `ObjectUsedEvent` using the caller-supplied event and outcome identities, occurring at completion and identifying the authorized actor, proposal object, and proposal's exact typed target.
+
+**USE-009:** Use v0 shall never return a failed outcome and shall not consume, move, destroy, quantify, or otherwise change the used object; checks, interruption, costs, repeated-use success, progression, and additional effect or target kinds require later accepted contracts.
+
+**USE-010:** Passing an authorized non-Use proposal to the Use resolver shall raise `TypeError` as a dispatch or programmer defect and shall not produce an in-world outcome.
+
+**USE-011:** Use resolution shall not commit its outcome, process newly eligible scheduled activity, change bridge connections as an implicit consequence, produce witness feedback, invoke an actor policy or LLM, update memory or belief, persist data, or perform narration or presentation.
+
+**USE-012:** Repeated Use resolution with equal inputs and caller identities shall produce equal outcomes without mutating or replacing the authorized action, validated packages, world, submission, proposal, mechanic, binding, object state, fact state, or typed target.
+
 **DISPATCH-001:** Actor-action operation dispatch shall be a pure boundary after authorization and before operation-specific resolution; it shall accept only an `AuthorizedActorAction` and shall not authorize a submission itself.
 
 **DISPATCH-002:** The public dispatcher shall have the contract `dispatch_actor_action(action: AuthorizedActorAction, *, outcome_id: UUID, event_id: UUID) -> Outcome` and shall not generate runtime identities internally.
 
 **DISPATCH-003:** Dispatch shall select a resolver by the concrete operation-specific proposal type rather than by package content, a generic registry, or generated text.
 
-**DISPATCH-004:** `MoveActionProposal`, `WaitActionProposal`, `ObserveActionProposal`, `SpeakActionProposal`, and `TakeActionProposal` shall route to their corresponding concrete resolvers, preserving the exact authorized action and caller-supplied identities.
+**DISPATCH-004:** `MoveActionProposal`, `WaitActionProposal`, `ObserveActionProposal`, `SpeakActionProposal`, `TakeActionProposal`, and `UseActionProposal` shall route to their corresponding concrete resolvers, preserving the exact authorized action and caller-supplied identities.
 
 **DISPATCH-005:** Dispatch shall return the selected resolver's outcome directly without intentional reconstruction, commitment, repair, presentation, or exception translation.
 
-**DISPATCH-006:** Use and Help proposals shall raise `OperationResolverUnavailableError` until their deterministic resolver mechanics are accepted and implemented; missing capability shall not produce a canonical rejected or failed outcome.
+**DISPATCH-006:** Help proposals shall raise `OperationResolverUnavailableError` until deterministic Help mechanics are accepted and implemented; missing capability shall not produce a canonical rejected or failed outcome.
 
 **DISPATCH-007:** `OperationResolverUnavailableError` shall be a public `RuntimeError` subclass with a typed `operation: ActorActionOperation` attribute and a stable non-blank message identifying the unavailable operation.
 
