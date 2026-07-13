@@ -188,6 +188,10 @@ An immutable scenario-package entity record that references a rule-pack object a
 
 The single authored initial placement of an object: either directly at one location or possessed by one character. A possessed object does not also store a duplicate effective location.
 
+### Operation dispatch
+
+The deterministic post-authorization boundary that routes an authorized action to the operation-specific resolver implemented for its concrete proposal type. Dispatch does not authorize, resolve mechanics itself, commit outcomes, or turn unavailable software capability into an in-world outcome.
+
 ### Observation
 
 A structured item of information made available to one character by perceptual filtering. It records what that character could perceive, with relevant time, provenance, confidence, and salience.

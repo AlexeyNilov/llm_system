@@ -526,6 +526,26 @@ This helps ensure requirements are:
 
 **MOVE-010:** The Move resolver shall not commit its outcome, dispatch another operation, process scheduled activity, invoke NPCs, perform perception or presentation, or introduce movement modifiers and requirement mechanics.
 
+**DISPATCH-001:** Actor-action operation dispatch shall be a pure boundary after authorization and before operation-specific resolution; it shall accept only an `AuthorizedActorAction` and shall not authorize a submission itself.
+
+**DISPATCH-002:** The public dispatcher shall have the contract `dispatch_actor_action(action: AuthorizedActorAction, *, outcome_id: UUID, event_id: UUID) -> Outcome` and shall not generate runtime identities internally.
+
+**DISPATCH-003:** Dispatch shall select a resolver by the concrete operation-specific proposal type rather than by package content, a generic registry, or generated text.
+
+**DISPATCH-004:** A `MoveActionProposal` shall route to `resolve_move`, and a `WaitActionProposal` shall route to `resolve_wait`, preserving the exact authorized action and caller-supplied identities.
+
+**DISPATCH-005:** Dispatch shall return the selected resolver's outcome directly without intentional reconstruction, commitment, repair, presentation, or exception translation.
+
+**DISPATCH-006:** Observe, Speak, Take, Use, and Help proposals shall raise `OperationResolverUnavailableError` until their deterministic resolver mechanics are accepted and implemented; missing capability shall not produce a canonical rejected or failed outcome.
+
+**DISPATCH-007:** `OperationResolverUnavailableError` shall be a public `RuntimeError` subclass with a typed `operation: ActorActionOperation` attribute and a stable non-blank message identifying the unavailable operation.
+
+**DISPATCH-008:** The unavailable-resolver error shall represent one application capability defect directly and shall not use validation issue tuples or a repair attempt.
+
+**DISPATCH-009:** Initial dispatch shall use the same required caller-supplied `outcome_id` and `event_id` convention as Move and Wait; it shall not introduce an ID provider, event-ID collection, or speculative multi-event abstraction.
+
+**DISPATCH-010:** Dispatch shall not commit outcomes, process scheduled activity, invoke NPC policies or an LLM, perform perception or presentation, access persistence, or introduce a generic resolver protocol, service class, or configurable resolver registry.
+
 **ACTION-011:** The system shall keep an untrusted operation-specific proposal payload separate from its trusted application-created proposal-submission envelope.
 
 **ACTION-012:** A proposal submission shall contain proposal identity, source role and identity, intended actor when applicable, simulation-step context, and trace provenance, and generated output shall not supply or override that metadata.
