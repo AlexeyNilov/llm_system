@@ -78,6 +78,14 @@ from llm_system.simulation.perception_engine import (
     project_current_perception,
     project_self_event_feedback,
 )
+from llm_system.simulation.randomness import (
+    IntegerDrawRecord,
+    IntegerDrawRequest,
+    IntegerRandomSource,
+    RandomDrawPurpose,
+    RandomSourceContractError,
+    draw_recorded_integer,
+)
 from llm_system.simulation.resolvers import resolve_move, resolve_observe, resolve_wait
 from llm_system.simulation.scheduling import (
     EnvironmentalScheduledActivity,
@@ -134,6 +142,9 @@ __all__ = [
     "FailedOutcome",
     "FutureEventFeedbackError",
     "HelpActionProposal",
+    "IntegerDrawRecord",
+    "IntegerDrawRequest",
+    "IntegerRandomSource",
     "LocationTarget",
     "LocationObserved",
     "MoveActionProposal",
@@ -162,6 +173,8 @@ __all__ = [
     "PerceptionSnapshot",
     "PerceptionObserverNotFoundError",
     "RejectedOutcome",
+    "RandomDrawPurpose",
+    "RandomSourceContractError",
     "ScheduledActivity",
     "ScheduledActivityQueue",
     "ScheduledActivitySelection",
@@ -184,6 +197,7 @@ __all__ = [
     "authorize_actor_action",
     "commit_outcome",
     "dispatch_actor_action",
+    "draw_recorded_integer",
     "project_current_perception",
     "project_self_event_feedback",
     "resolve_move",

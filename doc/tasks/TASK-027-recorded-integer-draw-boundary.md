@@ -1,6 +1,6 @@
 # TASK-027: Add the recorded integer-draw boundary
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -108,12 +108,12 @@ Stop and report a design gap if implementation requires a concrete generator, se
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the strict recorded integer-draw contracts, structural source protocol, typed invalid-result boundary, one-call pure draw operation, public exports, behavioral coverage, API documentation, and the `0.26.0` version milestone.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/randomness.py`, `src/llm_system/simulation/__init__.py`, `tests/test_recorded_random_draws.py`, `tests/test_package.py`, `README.md`, `pyproject.toml`, `uv.lock`, and `doc/tasks/TASK-027-recorded-integer-draw-boundary.md`.
 
-**Verification:** Pending
+**Verification:** Initial red: `uv run pytest tests/test_recorded_random_draws.py -q` failed during collection with `ImportError: cannot import name 'IntegerDrawRecord' from 'llm_system.simulation'`. Final green: `uv run pytest tests/test_recorded_random_draws.py tests/test_outcomes.py tests/test_package.py -q` (`19 passed`); `uv sync --locked`; `make format`; `make lint`; `make mypy`; `make test` (`247 passed`); `make check` (`247 passed` plus formatting, lint, and mypy); `uv lock --check`; and `git diff --check`. Confirmed the only `uv.lock` change is editable root package version `0.25.0` to `0.26.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None within TASK-027 scope. Concrete seeded generation, generator-state persistence, history or trace attachment, and rule-specific mechanics remain intentionally deferred.

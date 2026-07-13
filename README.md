@@ -182,6 +182,26 @@ boundary does not claim, persist, execute, retry, recur, or cancel work; mutate
 or advance the world; resolve package references; submit proposals; invoke an
 LLM; or process activities created by later execution.
 
+## Recorded integer draws
+
+Use `llm_system.simulation.draw_recorded_integer()` with an application-created
+`IntegerDrawRequest` and an injected structural `IntegerRandomSource`. The
+request supplies a UUID draw identity, an extensible lowercase kebab-case
+purpose, and a strict signed inclusive integer range containing at least two
+possible results. The source receives only those bounds through one keyword-only
+call.
+
+A valid source result produces an immutable `IntegerDrawRecord` preserving the
+request metadata exactly. A boolean, non-integer, or out-of-range result raises
+`RandomSourceContractError` without coercion, clamping, or retry. Exceptions
+raised by the source propagate unchanged, and the boundary generates no
+identity.
+
+This is the arbiter-facing randomness primitive and audit value only. It does
+not provide a concrete generator, seed or generator-state persistence, rule
+checks, outcomes, events, history or trace attachment, logging, or LLM
+integration.
+
 ## Actor-action authorization
 
 Use `llm_system.simulation.authorize_actor_action()` to bind a trusted

@@ -55,7 +55,7 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | [`TASK-020`](tasks/TASK-020-actor-action-dispatch.md): Actor-action operation dispatch | Done | TASK-017, TASK-018, TASK-019 |
 | [`TASK-023`](tasks/TASK-023-observe-resolver.md): Deterministic Observe v0 resolver | Done | TASK-017, TASK-020, TASK-022 |
 | Remaining Speak, Take, Use, and Help resolvers | Planned | Authorization plus accepted per-operation mechanics |
-| [`TASK-027`](tasks/TASK-027-recorded-integer-draw-boundary.md): Recorded integer-draw contracts and injected source boundary | Ready | Simulation arbiter |
+| [`TASK-027`](tasks/TASK-027-recorded-integer-draw-boundary.md): Recorded integer-draw contracts and injected source boundary | Done | Simulation arbiter |
 | Seeded integer source and restorable generator-state contracts | Planned | TASK-027 |
 | [`TASK-025`](tasks/TASK-025-scheduled-activity-contracts.md): Scheduled-activity and queue contracts | Done | M3 domain models |
 | [`TASK-026`](tasks/TASK-026-scheduled-activity-selection.md): Deterministic eligibility selection and ordering | Done | TASK-025, TASK-013 |
