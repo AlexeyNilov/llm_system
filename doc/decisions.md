@@ -357,13 +357,13 @@ Use a lightweight Architecture Decision Record (ADR) style:
 
 **Consequences:** Fresh and lower-cost agents can execute narrow work without reconstructing the project. The architect and integrator own ambiguity resolution and task readiness. Custom agents and repo skills are introduced only after real repeated work shows stable role or workflow requirements.
 
-### 2026-07-11: Configure a Terra experimenter for evidence tasks
+### 2026-07-11: Configure an experimenter for evidence tasks
 
 **Status:** Accepted
 
 **Context:** Ready preflight tasks need reproducible environment evidence but do not require the planning agent's broader context. The user wants these bounded tasks to use GPT-5.6 Terra with high reasoning while retaining permission to write an authorized report and task handoff.
 
-**Decision:** Add the project custom agent `terra_experimenter` under `.codex/agents/`. Configure it with `gpt-5.6-terra`, high reasoning, and workspace-write sandboxing. Restrict its instructions to Ready evidence or experiment task briefs and their explicitly authorized files. Task briefs remain the source of task-specific context.
+**Decision:** Add the project custom agent `experimenter` under `.codex/agents/`. Configure it with `gpt-5.6-terra`, high reasoning, and workspace-write sandboxing. Restrict its instructions to Ready evidence or experiment task briefs and their explicitly authorized files. Task briefs remain the source of task-specific context.
 
 **Alternatives considered:** Use the planning agent, rely on inherited model selection, or embed the entire task inside the custom-agent instructions. The planning agent is unnecessarily broad; inheritance does not guarantee the requested model; embedding tasks would mix stable role configuration with changing work.
 
@@ -377,7 +377,7 @@ Use a lightweight Architecture Decision Record (ADR) style:
 
 **Decision:** Add the project custom agent `implementer` under `.codex/agents/`. Configure it with `gpt-5.6`, high reasoning, and workspace-write sandboxing. Restrict it to one Ready implementation or scenario-authoring task brief at a time. The task brief remains the source of task-specific context, accepted contracts, scope, verification, and artifact permissions; the role guide remains the detailed execution procedure.
 
-**Alternatives considered:** Continue using `Default`, use the faster Terra experimenter profile, or duplicate implementation procedure and task context in the custom-agent instructions. Default does not provide stable execution settings; the experimenter profile optimizes evidence gathering rather than code delivery; duplicated procedure and context would drift from the role guide and task brief.
+**Alternatives considered:** Continue using `Default`, use the faster experimenter profile, or duplicate implementation procedure and task context in the custom-agent instructions. Default does not provide stable execution settings; the experimenter profile optimizes evidence gathering rather than code delivery; duplicated procedure and context would drift from the role guide and task brief.
 
 **Consequences:** New Ready implementation and scenario-authoring briefs select `implementer` unless they name a justified alternative. Historical task briefs remain unchanged. The parent session's live permission settings can still override the profile sandbox, so the delegated agent must report approval or sandbox limitations rather than treating the configured setting as guaranteed.
 

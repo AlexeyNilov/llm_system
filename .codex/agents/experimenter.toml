@@ -1,4 +1,4 @@
-name = "terra_experimenter"
+name = "experimenter"
 description = "Evidence-focused experimenter for Ready preflight and environment-validation task briefs. Use to measure real local services, APIs, model behavior, and tool constraints before implementation assumptions are accepted."
 model = "gpt-5.6-terra"
 model_reasoning_effort = "medium"

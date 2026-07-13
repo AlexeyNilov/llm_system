@@ -59,7 +59,7 @@ Current project custom agents:
 
 | Agent | Use |
 | --- | --- |
-| `terra_experimenter` | Ready evidence and preflight tasks that authorize a report file |
+| `experimenter` | Ready evidence and preflight tasks that authorize a report file |
 | `implementer` | Ready implementation, coding, and testing tasks with task-authorized writes |
 | `reviewer` | Ready independent review, audit, and bounded evidence tasks with task-authorized report writes |
 
