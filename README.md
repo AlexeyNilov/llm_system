@@ -347,7 +347,9 @@ to update canonical state.
 
 Take v0 does not implement transfer, giving, dropping, theft, consent,
 permission, carrying capacity, weight, checks, duration, object-specific rules,
-witness feedback, reactions, persistence, narration, or presentation.
+reactions, persistence, narration, or presentation. The resolver itself does
+not produce witness feedback; immediate Take witnessing is a separate
+perception projection.
 
 ## Actor-action dispatch
 
@@ -519,6 +521,31 @@ compose self feedback or current-state perception, infer overhearing or general
 witness audibility, record memory or belief, generate a response, persist data,
 narrate, or invoke a policy or LLM. Those remain caller, coordinator, perception,
 cognition, persistence, and presentation responsibilities.
+
+## Take-witness event feedback projection
+
+Use `llm_system.simulation.project_take_witness_feedback()` with a
+`ValidatedWorldState`, an authored character ID, and a caller-selected tuple of
+canonical events to produce immediate Take-witness feedback. The projection
+validates the observer first, then requires every event in the batch to occur at
+the world's exact current simulation time. The first past or future event raises
+`WitnessEventTimeMismatchError`, including a non-Take event or an event that
+would not otherwise match.
+
+Only an `ObjectTakenEvent` performed by another actor matches when its exact
+committed `previous_placement` is `ObjectAtLocation` at the observer's current
+canonical location. The previous placement supplies the event location; the
+object's current placement and authored initial placement are not inspected.
+The taking actor, remote observers, non-Take events, and events whose previous
+placement is character possession are excluded. Matches retain exact event
+objects, input order, and duplicates and use current canonical observation time.
+
+This pure projection does not accept historical events, reconstruct historical
+observer locations, apply richer visibility, select event windows, compose or
+deduplicate feedback sources, track delivery, trigger reactions, record memory
+or belief, persist data, narrate, or invoke a policy or LLM. Those remain later
+caller, coordinator, perception, cognition, persistence, and presentation
+responsibilities.
 
 ## Relational world-state validation
 

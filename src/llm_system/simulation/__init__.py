@@ -75,9 +75,11 @@ from llm_system.simulation.perception import (
 from llm_system.simulation.perception_engine import (
     FutureEventFeedbackError,
     PerceptionObserverNotFoundError,
+    WitnessEventTimeMismatchError,
     project_addressed_speech_feedback,
     project_current_perception,
     project_self_event_feedback,
+    project_take_witness_feedback,
 )
 from llm_system.simulation.randomness import (
     IntegerDrawRecord,
@@ -200,6 +202,7 @@ __all__ = [
     "WorldStateValidationError",
     "WorldStateValidationIssue",
     "WorldStateValidationIssueCode",
+    "WitnessEventTimeMismatchError",
     "validate_world_state",
     "authorize_actor_action",
     "commit_outcome",
@@ -208,6 +211,7 @@ __all__ = [
     "project_addressed_speech_feedback",
     "project_current_perception",
     "project_self_event_feedback",
+    "project_take_witness_feedback",
     "resolve_move",
     "resolve_observe",
     "resolve_speak",

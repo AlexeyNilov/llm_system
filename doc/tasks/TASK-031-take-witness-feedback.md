@@ -1,6 +1,6 @@
 # TASK-031: Project immediate Take witness feedback
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -110,12 +110,12 @@ Stop and report a design gap if implementation requires past-event witness recon
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented immediate Take-witness feedback with observer-first validation, exact-current-time batch validation, committed previous-location matching, public exports, documentation, and the `0.30.0` version milestone.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/perception_engine.py`, `src/llm_system/simulation/__init__.py`, `tests/test_take_witness_feedback.py`, `tests/test_package.py`, `README.md`, `pyproject.toml`, `uv.lock`, and this task brief.
 
-**Verification:** Pending
+**Verification:** Genuine red: `uv run pytest tests/test_take_witness_feedback.py -q` failed during collection because `WitnessEventTimeMismatchError` was not yet exported. Final green: focused required suite `26 passed`; `uv sync --locked`; `make format`; `make lint`; `make mypy`; `make test` (`277 passed`); `make check` (`277 passed` plus format, lint, and mypy); `uv lock --check`; and `git diff --check`. Independent integration review repeated the focused 26-test suite, all individual quality gates, full 277-test suite, aggregate `make check`, lock validation, installed-version check, and diff check successfully. The only `uv.lock` change is editable root version `0.29.0` to `0.30.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.

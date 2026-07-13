@@ -56,6 +56,23 @@ class FutureEventFeedbackError(ValueError):
         self.perceived_at_seconds: int = perceived_at_seconds
 
 
+class WitnessEventTimeMismatchError(ValueError):
+    def __init__(
+        self,
+        event_id: UUID,
+        occurred_at_seconds: int,
+        perceived_at_seconds: int,
+    ) -> None:
+        super().__init__(
+            f"canonical event {event_id} occurred at {occurred_at_seconds}, "
+            "which does not match witness perception time "
+            f"{perceived_at_seconds}"
+        )
+        self.event_id: UUID = event_id
+        self.occurred_at_seconds: int = occurred_at_seconds
+        self.perceived_at_seconds: int = perceived_at_seconds
+
+
 def _find_observer(
     world: ValidatedWorldState, observer_id: AuthoredId
 ) -> CharacterState:
@@ -89,6 +106,18 @@ def _validate_event_times(
     for event in events:
         if event.occurred_at_seconds > perceived_at_seconds:
             raise FutureEventFeedbackError(
+                event.event_id,
+                event.occurred_at_seconds,
+                perceived_at_seconds,
+            )
+
+
+def _validate_witness_event_times(
+    events: tuple[CanonicalEvent, ...], perceived_at_seconds: int
+) -> None:
+    for event in events:
+        if event.occurred_at_seconds != perceived_at_seconds:
+            raise WitnessEventTimeMismatchError(
                 event.event_id,
                 event.occurred_at_seconds,
                 perceived_at_seconds,
@@ -236,4 +265,28 @@ def project_addressed_speech_feedback(
         )
         for event in events
         if isinstance(event, ActorSpokeEvent) and event.recipient_id == observer_id
+    )
+
+
+def project_take_witness_feedback(
+    world: ValidatedWorldState,
+    observer_id: AuthoredId,
+    events: tuple[CanonicalEvent, ...],
+) -> tuple[EventObserved, ...]:
+    observer = _find_observer(world, observer_id)
+    time = world.state.simulation_time_seconds
+    _validate_witness_event_times(events, time)
+    return tuple(
+        EventObserved(
+            observation_type="event",
+            source_type="canonical_event",
+            observer_id=observer_id,
+            observed_at_seconds=time,
+            event=event,
+        )
+        for event in events
+        if isinstance(event, ObjectTakenEvent)
+        and event.actor_id != observer_id
+        and isinstance(event.previous_placement, ObjectAtLocation)
+        and event.previous_placement.location_id == observer.location_id
     )
