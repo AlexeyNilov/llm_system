@@ -402,7 +402,19 @@ If a functional LLM output fails schema validation, the model receives at most o
 
 ## Persistence and consistency
 
-SQLite is the authoritative store for the initial local, single-world deployment. A completed simulation step commits its canonical transitions, events, character information, and trace atomically so partially committed outcomes cannot be presented as complete. The world records the package versions under which it runs.
+SQLite is the authoritative store for the initial local, single-world deployment. The singleton world record holds the current immutable state as schema-versioned JSON plus explicit world identity, revision, and rule- and scenario-package ownership. Strict runtime models decode the snapshot, which is validated against those recorded packages before use. Canonical events and simulation-step traces remain separate append-only history records.
+
+A completed simulation step replaces the snapshot and commits its canonical transitions, events, character information, and trace atomically so partially committed outcomes cannot be presented as complete.
+
+The application performs persistence through an explicitly committed unit of work. Its repositories share one active SQLite connection and cannot commit independently. Exceptions and context exits without an explicit application commit roll the transaction back; the later turn coordinator owns that lifecycle.
+
+Schema version 1 is created transactionally for an empty database and recorded with SQLite `PRAGMA user_version`. The store rejects unsupported versions without modification. A migration mechanism is introduced only when a second schema version creates a real migration path.
+
+The world repository strictly decodes stored identity, revision, package references, `WorldState`, and `ScheduledActivityQueue`, but does not resolve package files. A resume application service later loads the exact recorded packages and validates the decoded state against them before constructing a `ValidatedWorldState` for the kernel.
+
+The singleton world begins at revision 0. Each replacement uses the loaded revision as a compare-and-swap condition and increments it by one; a stale revision aborts the unit of work rather than overwriting newer state.
+
+Canonical events are stored as strict JSON plus explicit identity, type, occurrence time, world identity, resulting revision, and a durable insertion sequence. Batch order is preserved and history is read by insertion sequence because several events may share one simulation timestamp.
 
 Qdrant stores only rebuildable retrieval projections. Losing the vector collection may reduce memory retrieval quality temporarily but must not erase character history.
 

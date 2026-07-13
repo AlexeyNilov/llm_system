@@ -1136,3 +1136,75 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Let each repository commit independently, make the database interpret state changes, or treat in-memory commitment as durable completion. Independent commits permit partial steps; database rule interpretation creates a second simulation authority; in-memory success does not survive process failure.
 
 **Consequences:** SQLite remains authoritative storage without owning simulation rules. Transaction failure leaves the previous committed world recoverable and cannot report or present the attempted step as complete. M4 persistence and coordinator tests must cover rollback, restart recovery, and post-commit visibility.
+
+### 2026-07-13: Persist the current world as a typed snapshot with separate history
+
+**Status:** Accepted
+
+**Context:** The kernel already treats canonical runtime state as one immutable validated snapshot, while the initial world is small and its model is still evolving. Fully normalizing each state field would duplicate the domain model in a second schema before the project has demonstrated query or scale requirements. A single opaque payload without explicit identity or validation would make compatibility and inspection fragile.
+
+**Decision:** Store the current `WorldState` as one schema-versioned JSON snapshot in the singleton world record. Keep world identity, revision, and exact rule-pack and scenario-pack identities and versions as explicit columns. On load, decode the payload through the strict Pydantic runtime contract and validate it against the recorded packages before admitting it to the simulation. Store canonical events and later simulation-step traces as separate append-only history records rather than embedding them in the current snapshot.
+
+**Alternatives considered:** Fully normalize the complete world state, store all persistence as one JSON document, or use unrelated JSON files. Full normalization creates schema duplication and migration work without a current query consumer; one document obscures history and package ownership; separate files cannot provide the required atomic transaction.
+
+**Consequences:** Restart recovery matches the kernel's immutable aggregate boundary, while event and trace history remain independently inspectable. Snapshot schema changes require explicit version handling, and persistence tests must prove strict decoding, package ownership, revision replacement, and atomic history writes.
+
+### 2026-07-13: Expose persistence through an explicitly committed unit of work
+
+**Status:** Accepted
+
+**Context:** A completed simulation step will eventually involve the current world, canonical events, scheduled activity effects, character information, and a trace. Repository-owned commits would permit partial durability, while an automatically successful context-manager exit could commit after an early return that never explicitly declared the application step complete.
+
+**Decision:** Provide an application-facing SQLite unit of work. All participating repositories are bound to its one active `sqlite3.Connection` and expose no independent commit operation. The application must explicitly call `commit()` after the complete step is ready. An exception or leaving the context without that call rolls the transaction back. The later turn coordinator owns this lifecycle.
+
+**Alternatives considered:** Let repositories manage transactions, pass a raw connection through every application call, or commit automatically on a clean context-manager exit. Repository transactions break atomic step ownership; pervasive raw connections leak storage mechanics; implicit success can make an incomplete application path durable.
+
+**Consequences:** Transaction ownership is visible and testable without an ORM or new dependency. Forgetting to commit fails safely, repository tests can prove they do not make data independently durable, and coordinator tests can cover rollback and post-commit visibility.
+
+### 2026-07-13: Bootstrap one version-gated SQLite schema before building migrations
+
+**Status:** Accepted
+
+**Context:** Persistence needs an explicit compatibility boundary immediately, but only one database schema exists. A generic migration framework or third-party migration dependency would have no second version to migrate, while repeated `CREATE TABLE IF NOT EXISTS` calls could silently accept an incompatible database.
+
+**Decision:** Use SQLite `PRAGMA user_version` as the initial schema-version gate. Opening an empty version-0 database creates the complete version-1 schema and records version 1 in the same transaction. Opening version 1 preserves it unchanged. Any other version fails clearly without modifying the database. Add ordered migrations only when version 2 supplies a concrete migration case.
+
+**Alternatives considered:** Add Alembic immediately, build an internal generic migration registry, or rely indefinitely on idempotent creation statements. The first two anticipate absent migrations; the last cannot distinguish a current database from a structurally stale one.
+
+**Consequences:** V1 initialization and incompatibility behavior remain small and testable with the standard library. The first actual schema evolution must introduce and test an explicit V1-to-V2 path rather than weakening the version gate.
+
+### 2026-07-13: Keep package resolution outside the world repository
+
+**Status:** Accepted
+
+**Context:** A durable world records the exact packages that define it, and its JSON must be decoded strictly. Resolving package files and checking state completeness against authored definitions, however, are application and simulation concerns rather than SQLite mechanics. Combining them would couple repository tests and storage access to package paths and Greybridge content.
+
+**Decision:** The world repository decodes a strict stored-world record containing identity, revision, exact package references, `WorldState`, and `ScheduledActivityQueue`. It does not locate or load game packages and does not return `ValidatedWorldState`. A later resume or application service resolves the recorded versions, validates the decoded state against those packages, and admits only the resulting validated wrapper to the kernel.
+
+**Alternatives considered:** Make the repository load packages, store complete package definitions inside the world row, or return untyped JSON to the application. Repository loading mixes persistence with filesystem and semantic concerns; embedded definitions duplicate versioned authored content; untyped payloads weaken the runtime boundary.
+
+**Consequences:** Storage tests remain independent of package layout while malformed persisted records still fail strict decoding. Restart recovery has an explicit two-stage boundary: durable record decoding followed by package-aware world validation.
+
+### 2026-07-13: Protect world replacement with a monotonic revision
+
+**Status:** Accepted
+
+**Context:** The initial application serializes simulation work, but later HTTP requests, retries, or application mistakes can still retain a stale loaded snapshot. Unconditionally replacing the singleton row would silently discard a newer committed world even without supporting general multi-user concurrency.
+
+**Decision:** Creating the singleton world assigns revision 0. Replacement supplies the revision that was loaded and updates only if it still matches the durable row. The repository calculates and returns the next revision, exactly one greater than the prior value. A mismatch raises a specific persistence conflict; the surrounding unit of work cannot commit any associated records.
+
+**Alternatives considered:** Replace unconditionally, let callers choose the next revision, or add a general lock manager. Unconditional writes permit lost updates; caller-chosen revisions weaken monotonicity; a lock manager exceeds the local single-world requirement.
+
+**Consequences:** A small compare-and-swap condition detects stale application state and duplicate processing without changing deterministic scheduling. Tests must prove initial revision, monotonic replacement, conflict signaling, and rollback of other writes in the same unit of work.
+
+### 2026-07-13: Order canonical event history by durable insertion sequence
+
+**Status:** Accepted
+
+**Context:** Canonical events already have identity, outcome provenance, type, and simulation occurrence time, but multiple ordered events can share one timestamp. Persistence also needs to associate the history produced by a transition with the replacement world revision before a complete simulation-step trace contract exists.
+
+**Decision:** Store each canonical event as strict discriminated-union JSON with explicit event ID, outcome ID, event type, occurrence time, world identity, resulting world revision, and a database-assigned durable insertion sequence. Batch insertion preserves resolver order, reads use insertion order rather than occurrence time, and event IDs are unique. Duplicate identity or invalid payload failure aborts the surrounding unit of work.
+
+**Alternatives considered:** Sort history by occurrence time, embed events in the current world snapshot, or store opaque JSON without indexed provenance. Time does not break ties; embedding loses independent append-only history; opaque payloads weaken validation and inspection.
+
+**Consequences:** Event history is deterministic and revision-linked before full step traces exist. Persistence can reconstruct ordered canonical consequences, and atomic tests can use world replacement plus event append as two meaningful participants in one unit of work.

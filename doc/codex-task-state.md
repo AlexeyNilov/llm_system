@@ -2,11 +2,11 @@
 
 ## Current objective
 
-Define the first M4 persistence task using the new bounded-context template: a minimal SQLite boundary for one authoritative world, without moving simulation rules into storage.
+Commit and delegate Ready TASK-036: V1 SQLite bootstrap, an explicitly committed unit of work, a strict stored-world record containing package ownership, `WorldState`, and `ScheduledActivityQueue`, a singleton revision-checked world repository, and ordered revision-linked canonical-event persistence.
 
 ## Verified baseline
 
-* TASK-035 and the initial M3.6 documentation/context restructuring are committed through `a031368 refactoring`.
+* TASK-035 and the complete M3.6 documentation/context restructuring are committed through `b8f1384 simplify rules`.
 * Project and installed package version: `0.33.0`.
 * `uv sync --locked`, collection of `323` tests, `make check` with `323` passing tests, `uv lock --check`, and `git diff --check` pass.
 
@@ -40,11 +40,13 @@ Define the first M4 persistence task using the new bounded-context template: a m
 
 No current blocker to SQLite boundary design.
 
+TASK-036 deliberately excludes simulation-step trace persistence because no stable trace contract exists yet. It also excludes package resolution, world initialization/reset orchestration, the turn coordinator, memories, beliefs, and API behavior.
+
 Greybridge cannot yet execute its flood, NPC activities, System director hooks, Help, or progression. Persistence work must not describe the scenario as fully playable until those capabilities exist.
 
 ## Exact next action
 
-Commit the final M3.6 role-routing changes. Then specify the bounded SQLite schema and repository choices for the first M4 task using the revised template.
+Verify and commit the accepted persistence decisions and Ready TASK-036 brief. Delegate only after the user explicitly requests delegation.
 
 ## Files to re-read before continuing
 

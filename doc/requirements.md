@@ -960,6 +960,18 @@ This helps ensure requirements are:
 
 **STORE-006:** One application-owned SQLite transaction shall define simulation-step completion across the replacement world state, canonical events, scheduled-queue effects, authoritative character data, and simulation-step trace; participating repositories shall not commit those records independently.
 
+**STORE-007:** The initial SQLite representation shall store the current immutable canonical world state as one schema-versioned JSON snapshot, keep world identity, revision, and exact rule and scenario package identities and versions in explicit columns, and retain canonical events and simulation-step traces as separate append-only records.
+
+**STORE-008:** SQLite persistence operations participating in one application step shall use an explicit unit of work whose repositories share one active connection, cannot commit independently, and become durable only when the application explicitly commits the unit; exceptions and uncommitted exits shall roll back the transaction.
+
+**STORE-009:** Opening an empty SQLite store shall create schema version 1 transactionally and record it with `PRAGMA user_version`; opening version 1 shall preserve its data, and opening any unsupported version shall fail without modifying the database.
+
+**STORE-010:** Loading persistence data shall strictly decode a stored-world record containing its package references, runtime state, and scheduled queue without resolving package files; before simulation use, an application service shall resolve the exact recorded package versions and validate the decoded state against them.
+
+**STORE-011:** Creating the singleton world shall assign revision 0, and replacing it shall atomically require the loaded revision, increment the stored revision by exactly one on success, and reject a mismatch without making any unit-of-work writes durable.
+
+**STORE-012:** Canonical event history shall preserve committed insertion order, associate each event with its world and resulting world revision, retain event and outcome identities, event type and occurrence time, reject duplicate event identities atomically, and strictly decode stored payloads as `CanonicalEvent`.
+
 ### Outcome randomness
 
 **RANDOM-001:** The simulation shall resolve outcomes deterministically unless a loaded rule explicitly requires a random check.
