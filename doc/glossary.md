@@ -300,6 +300,10 @@ The world clock advanced by consequential actions or explicit waiting. It is ind
 
 The immutable ordered collection of authored location and directed-connection definitions from which initial spatial world state can be created.
 
+### Speech audibility
+
+The arbiter's actionability determination that an addressed character can receive a spoken utterance. Speak v0 recognizes only another character at the speaker's exact canonical location; this is distinct from the speaker's visual perception and does not establish comprehension or response.
+
 ### Validated game packages
 
 One immutable loaded rule-and-scenario pair that has passed the defined dependency, namespace-uniqueness, reference, player-count, and directed-topology checks. It is not proof of policy implementation availability, supported mechanics, persistent-world compatibility, or general playability.

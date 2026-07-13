@@ -546,17 +546,39 @@ This helps ensure requirements are:
 
 **OBSERVE-010:** Observe resolution shall reuse `project_current_perception` rather than duplicate spatial or visibility rules, and it shall not commit outcomes, filter event feedback, enrich or record observations, create memory or belief state, persist data, or perform presentation.
 
+**SPEAK-001:** The initial Speak resolver shall treat another character at the speaker's exact current location as audible; it shall not model hearing range, barriers, volume, language comprehension, sensory conditions, or generated interpretation.
+
+**SPEAK-002:** The public resolver shall have the contract `resolve_speak(action: AuthorizedActorAction, *, outcome_id: UUID, event_id: UUID) -> RejectedOutcome | SucceededOutcome` and shall not generate runtime identities internally.
+
+**SPEAK-003:** Speak v0 audibility shall use canonical runtime character locations directly and shall not treat the speaker's visual perception snapshot as a hearing model.
+
+**SPEAK-004:** An unknown, remote, self, or wrong-namespace recipient shall produce one rejected outcome with reason code `recipient-not-audible`, without distinguishing whether the supplied identifier exists elsewhere in canonical truth.
+
+**SPEAK-005:** A rejected Speak shall use current canonical simulation time, preserve the proposal and caller-supplied outcome identities, contain no effects or event, and leave the caller-supplied event identity unused.
+
+**SPEAK-006:** An audible Speak shall return a succeeded outcome with reason code `speech-completed` at current canonical simulation time, no state changes, and exactly one `ActorSpokeEvent` using the caller-supplied identities, authorized speaker identity, proposal recipient identity, and exact utterance.
+
+**SPEAK-007:** Speak v0 shall never produce a failed outcome or advance simulation time; speech duration requires a later explicit rule or proposal contract and shall not be inferred from utterance length.
+
+**SPEAK-008:** Successful speech shall establish only that the utterance was audibly addressed to the recipient; it shall not establish comprehension, belief, memory, agreement, obedience, response, or any recipient state change.
+
+**SPEAK-009:** Passing an authorized non-Speak proposal to the Speak resolver shall raise `TypeError` as a dispatch or programmer defect and shall not produce an in-world outcome.
+
+**SPEAK-010:** Speak resolution shall not deliver event feedback to the recipient, invoke an actor policy or LLM, create a response, commit an outcome, persist data, or perform presentation; addressed-speech perception is an immediate separate follow-up boundary.
+
+**SPEAK-011:** Repeated Speak resolution with equal inputs and caller identities shall produce equal outcomes without mutating or replacing the authorized action, world, submission, proposal, or utterance.
+
 **DISPATCH-001:** Actor-action operation dispatch shall be a pure boundary after authorization and before operation-specific resolution; it shall accept only an `AuthorizedActorAction` and shall not authorize a submission itself.
 
 **DISPATCH-002:** The public dispatcher shall have the contract `dispatch_actor_action(action: AuthorizedActorAction, *, outcome_id: UUID, event_id: UUID) -> Outcome` and shall not generate runtime identities internally.
 
 **DISPATCH-003:** Dispatch shall select a resolver by the concrete operation-specific proposal type rather than by package content, a generic registry, or generated text.
 
-**DISPATCH-004:** `MoveActionProposal`, `WaitActionProposal`, and `ObserveActionProposal` shall route to their corresponding concrete resolvers, preserving the exact authorized action and caller-supplied identities.
+**DISPATCH-004:** `MoveActionProposal`, `WaitActionProposal`, `ObserveActionProposal`, and `SpeakActionProposal` shall route to their corresponding concrete resolvers, preserving the exact authorized action and caller-supplied identities.
 
 **DISPATCH-005:** Dispatch shall return the selected resolver's outcome directly without intentional reconstruction, commitment, repair, presentation, or exception translation.
 
-**DISPATCH-006:** Speak, Take, Use, and Help proposals shall raise `OperationResolverUnavailableError` until their deterministic resolver mechanics are accepted and implemented; missing capability shall not produce a canonical rejected or failed outcome.
+**DISPATCH-006:** Take, Use, and Help proposals shall raise `OperationResolverUnavailableError` until their deterministic resolver mechanics are accepted and implemented; missing capability shall not produce a canonical rejected or failed outcome.
 
 **DISPATCH-007:** `OperationResolverUnavailableError` shall be a public `RuntimeError` subclass with a typed `operation: ActorActionOperation` attribute and a stable non-blank message identifying the unavailable operation.
 

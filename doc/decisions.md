@@ -1004,3 +1004,27 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Expose generic parameter dictionaries, define one random operation per game mechanic, use a closed purpose enum, pass identity and purpose into the entropy source, permit equal bounds, clamp invalid values, retry failures, wrap every source exception, generate draw identities internally, or immediately couple draws to outcomes, events, persistence, and traces. These choices respectively weaken schemas, couple the kernel to rule packs, block extensible mechanics, let metadata influence entropy, record deterministic non-choices as random, conceal source defects, alter canonical sequences, conflate operational and contract failures, hide nondeterminism, or force unresolved consumer contracts.
 
 **Consequences:** Rule mechanics can derive dice, checks, and selections deterministically from one testable primitive, while every successful draw has a self-contained audit value. TASK-027 establishes only the contract and injected boundary; a concrete seeded generator, generator-state persistence, canonical history attachment, and rule-specific checks remain separate later work.
+
+### 2026-07-13: Defer a concrete random generator until its first consumer
+
+**Status:** Accepted
+
+**Context:** TASK-027 provides the injected and recorded randomness boundary, but M3 has no rule-governed random check and M4 persistence has not been designed. Choosing, implementing, versioning, and serializing a project-owned generator now would add compatibility machinery without exercising it in the initial deterministic kernel.
+
+**Decision:** Do not implement a concrete seeded random source during M3. Kernel and resolver tests use injected scripted sources. Reconsider the smallest production implementation when the first accepted random-check mechanic and persistence repository both exist; begin with Python's standard `random.Random` and its documented state facilities unless concrete replay or compatibility evidence justifies a project-owned algorithm.
+
+**Alternatives considered:** Implement SplitMix64 or another owned algorithm immediately, persist Python generator state before repositories exist, or remove seeded reproducibility requirements. These choices respectively add speculative algorithm ownership, force a storage contract without its transaction boundary, or abandon required restart reproducibility.
+
+**Consequences:** The vertical slice avoids unused infrastructure while retaining the authority, testing, audit, and future persistence requirements. `RANDOM-003` remains accepted but is fulfilled later with the first real consumer rather than by an isolated M3 component.
+
+### 2026-07-13: Resolve Speak v0 as co-located zero-time speech
+
+**Status:** Accepted
+
+**Context:** The initial scenario requires characters to address one another, and the action and canonical-event contracts already represent a recipient and exact utterance. The kernel has character locations but no hearing range, barriers, speech duration, language comprehension, conversation memory, or response mechanics. Reusing visual perception as audibility would collapse distinct information channels.
+
+**Decision:** Add pure `resolve_speak(action, *, outcome_id, event_id)`. Treat only another character at the speaker's exact canonical location as audible. Unknown, remote, self, and wrong-namespace recipients reject uniformly as `recipient-not-audible`. Audible speech succeeds as `speech-completed` at current canonical time, changes no state, advances no time, and records one `ActorSpokeEvent` preserving the exact speaker, recipient, utterance, and caller identities. There is no failed branch or automatic response.
+
+**Alternatives considered:** Reuse current visual perception, permit remote or self speech, expose different rejection reasons, infer duration from text length, invent a fixed duration, treat recipient refusal as speech failure, update beliefs or memory directly, generate a response during resolution, or bundle recipient perception into the resolver. These choices respectively confuse senses, exceed current spatial mechanics, leak canonical existence, make wording an implicit scheduling rule, add an ungrounded constant, confuse delivery with reaction, bypass the actor loop, mix resolution with policy, or collapse truth into perception.
+
+**Consequences:** The kernel can record honest addressed speech without claiming comprehension or conversation behavior. Conversation alone does not advance scheduled time in v0. Addressed-speech feedback for the recipient is the immediate follow-up task and remains separate from the canonical resolver and from broader witness audibility.
