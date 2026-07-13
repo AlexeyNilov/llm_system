@@ -668,6 +668,26 @@ This helps ensure requirements are:
 
 **PERCEPTION-025:** Initial current-state projection shall not accept or emit canonical-event feedback, apply sensory, environmental, capability, condition, attention, concealment, or within-location geometry rules, perform definition enrichment, record observations, create memory or belief state, persist data, or produce narrative.
 
+**PERCEPTION-026:** The public initial self-action feedback projection shall have the contract `project_self_event_feedback(world: ValidatedWorldState, observer_id: AuthoredId, events: tuple[CanonicalEvent, ...]) -> tuple[EventObserved, ...]` and shall be independent of wall-clock time.
+
+**PERCEPTION-027:** Self-action feedback projection shall validate `observer_id` in the same character-state namespace as current-state projection and shall raise the existing `PerceptionObserverNotFoundError` before inspecting event time when the observer is absent.
+
+**PERCEPTION-028:** Self-action event ownership shall use `speaker_id` for `ActorSpokeEvent` and `actor_id` for each of the other seven initial canonical-event variants; recipient, assisted character, target, object possessor, and spatial proximity shall not imply ownership.
+
+**PERCEPTION-029:** Self-action feedback projection shall support the initial canonical-event union exhaustively and shall emit feedback only for events owned by the requested observer.
+
+**PERCEPTION-030:** Before ownership filtering, self-action feedback projection shall validate the entire supplied candidate batch in input order against canonical `world.state.simulation_time_seconds`; the first event occurring later shall raise public `FutureEventFeedbackError`, a `ValueError` carrying `event_id`, `occurred_at_seconds`, and `perceived_at_seconds`, even when that event is not owned by the observer.
+
+**PERCEPTION-031:** Each emitted self-action feedback item shall be an `EventObserved` whose observer is the requested character, whose observation time is current canonical simulation time, whose source is `canonical_event`, and whose event is the exact supplied canonical event object.
+
+**PERCEPTION-032:** Self-action feedback projection shall preserve supplied order and duplicate matching inputs, accept past and current-time events, and return an immutable empty tuple when the candidate batch is empty or has no owned event.
+
+**PERCEPTION-033:** Candidate-event window selection and already-delivered tracking shall belong to the caller or later coordinator and persistence boundaries; self-action feedback projection shall not query canonical history, maintain a cursor, deduplicate, or record delivery.
+
+**PERCEPTION-034:** Repeated self-action feedback projection with equal inputs shall produce equal outputs without mutating or replacing the validated world or supplied event tuple, generating identities, consulting randomness, or invoking an LLM.
+
+**PERCEPTION-035:** Initial self-action feedback shall not determine witness visibility, speech audibility, pre- or post-action co-location, target awareness, current-state composition, enrichment, observation recording, persistence, memory, belief, narration, or presentation.
+
 **LOOP-001:** When canonical state or events may be observable by a character, the system shall apply that character's perceptual constraints before producing observations.
 
 **LOOP-002:** When an NPC performs sensemaking, the system shall limit its inputs to current observations and character-available identity, goals, plans, beliefs, and memories.
