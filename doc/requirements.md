@@ -626,6 +626,28 @@ This helps ensure requirements are:
 
 **PERCEPTION-014:** Restricted context enrichment shall resolve only identifiers already present in a perception snapshot into approved authored display fields and shall not expose unrestricted canonical world or package content to a narrator or actor policy.
 
+**PERCEPTION-015:** The public current-state projection shall have the contract `project_current_perception(world: ValidatedWorldState, observer_id: AuthoredId) -> PerceptionSnapshot` and shall be independent of wall-clock time.
+
+**PERCEPTION-016:** If `observer_id` does not identify a character in the validated world's character-state namespace, current-state projection shall raise public `PerceptionObserverNotFoundError`, a `ValueError` carrying the supplied `observer_id` and exact message `perception observer not found: {observer_id}`; an object identifier shall follow the same path.
+
+**PERCEPTION-017:** A successful current-state projection shall use canonical `world.state.simulation_time_seconds` for the snapshot and every contained observation and shall contain only `source_type="current_state"` observation variants.
+
+**PERCEPTION-018:** Current-state projection shall begin with exactly one `LocationObserved` for the observer's current canonical location.
+
+**PERCEPTION-019:** After location, projection shall include every authored connection whose source is the observer's current location, in authored connection order, regardless of availability, using its current canonical `is_available` value; incoming-only connections shall be excluded.
+
+**PERCEPTION-020:** After connections, projection shall include every other character currently at the observer's location, excluding the observer, in authored entity order; characters elsewhere shall be excluded.
+
+**PERCEPTION-021:** After characters, projection shall include objects directly at the observer's current location and objects possessed by the observer, in authored entity order; objects elsewhere or possessed by another character shall be excluded even when that possessor is co-located.
+
+**PERCEPTION-022:** Current-state observation ordering shall be location, outgoing connections, co-located other characters, then perceptible objects, with authored order inside each multi-item group rather than runtime tuple order.
+
+**PERCEPTION-023:** Current-state projection shall consume relational guarantees already established by `ValidatedWorldState` and shall not revalidate complete overlays, package references, or authored uniqueness.
+
+**PERCEPTION-024:** Repeated projection with the same validated world and observer shall produce equal snapshots without mutating or replacing the input world, generating identities, or consulting randomness or an LLM.
+
+**PERCEPTION-025:** Initial current-state projection shall not accept or emit canonical-event feedback, apply sensory, environmental, capability, condition, attention, concealment, or within-location geometry rules, perform definition enrichment, record observations, create memory or belief state, persist data, or produce narrative.
+
 **LOOP-001:** When canonical state or events may be observable by a character, the system shall apply that character's perceptual constraints before producing observations.
 
 **LOOP-002:** When an NPC performs sensemaking, the system shall limit its inputs to current observations and character-available identity, goals, plans, beliefs, and memories.

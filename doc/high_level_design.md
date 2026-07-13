@@ -140,6 +140,7 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 * Applies location, connection, visibility, capability, condition, and attention constraints.
 * Produces structured perception snapshots for cognition and narration.
 * Ensures feedback re-enters an actor through perception rather than direct outcome access.
+* Begins with a separate pure current-state projection ordered as current location, authored outgoing connections, authored co-located other characters, and authored directly located or observer-possessed objects; canonical-event feedback is filtered by a later boundary.
 
 ### Actor runtime
 
@@ -238,6 +239,7 @@ The design requires stable identifiers and explicit schemas for these concepts:
 * Initial event variants: actor observed, moved, spoke, helped, waited, or failed an action; and an object was taken or used. Their payloads reuse typed targets and placements where applicable.
 * `Observation`: a closed union of observer-specific location, connection, character, object, or canonical-event facts with observation time and fixed current-state or event provenance. Initial transient observations are ID-linked and have no generated observation UUID, confidence score, or salience score.
 * `PerceptionSnapshot`: one observer's immutable ordered observations at one simulation time, with envelope identity and time required to match every contained item. It may be empty and does not itself prove world-aware perceptual filtering.
+* Current-state perception projection: a pure `ValidatedWorldState` view that uses canonical time and authored ordering, raises a typed caller error for a missing character observer, exposes unavailable outgoing connections as unavailable, excludes incoming-only connections and other actors' possessions, and emits no event observations.
 * `EpisodicMemory`: durable character history derived from observations.
 * `Belief`: character-held claim with confidence, provenance, and revision state.
 * `ScheduledActivity`: eligibility time, owner, operation, and ordering metadata.

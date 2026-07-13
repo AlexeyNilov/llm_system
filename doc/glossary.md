@@ -202,7 +202,7 @@ The structured result of arbiter validation and resolution, represented by separ
 
 ### Perception engine
 
-The deterministic component that applies spatial, sensory, environmental, capability, condition, and visibility constraints to canonical state and events.
+The deterministic component that projects canonical state and events into actor-specific observations. Its first current-state boundary uses location, outgoing connections, co-location, and conservative object placement; event feedback and richer sensory, environmental, capability, condition, and visibility rules remain separate extensions.
 
 ### Perceptual filtering
 

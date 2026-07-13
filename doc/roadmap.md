@@ -57,7 +57,8 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | Recorded random source | Planned | Simulation arbiter |
 | Simulation clock and deterministic scheduler | Planned | Event contracts |
 | [`TASK-021`](tasks/TASK-021-perception-contracts.md): Observation and perception-snapshot contracts | Done | TASK-012, TASK-014 |
-| Deterministic perception engine | Planned | TASK-021, location graph, and events |
+| [`TASK-022`](tasks/TASK-022-current-state-perception.md): Deterministic current-state perception projection | Ready | TASK-013, TASK-021 |
+| Canonical-event feedback filtering | Planned | TASK-022 and accepted event-visibility semantics |
 
 ### M3.5: Architecture review before persistence
 
