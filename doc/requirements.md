@@ -822,6 +822,22 @@ This helps ensure requirements are:
 
 **SCHEDULE-015:** Scheduled-activity contracts shall not select eligible work, remove activities from a queue, execute mechanics or policies, submit proposals, resolve outcomes, mutate canonical state, advance time, persist data, or invoke an LLM.
 
+**SCHEDULE-016:** The public deterministic selection operation shall have the contract `select_eligible_activities(world: ValidatedWorldState, queue: ScheduledActivityQueue) -> ScheduledActivitySelection` and shall use only canonical world time and the supplied validated queue.
+
+**SCHEDULE-017:** `ScheduledActivitySelection` shall be a strict immutable record containing exactly non-negative `selected_at_seconds`, an immutable ordered `eligible_activities` tuple, and `remaining_queue: ScheduledActivityQueue`; serialized eligible lists shall normalize to tuples.
+
+**SCHEDULE-018:** Selection shall treat every activity with `eligible_at_seconds <= world.state.simulation_time_seconds` as eligible, including overdue and exactly due activities, and shall leave only strictly future activities in the remaining queue.
+
+**SCHEDULE-019:** Eligible execution order shall use the exact key `(eligible_at_seconds, derived_phase_rank, insertion_sequence)`, where environmental rank is zero, NPC rank is one, and System-director rank is two; phase mapping shall be exhaustive and selection shall not use UUID or queue storage order as a tie-breaker.
+
+**SCHEDULE-020:** Selection shall preserve the original supplied storage order of pending activities and shall retain the exact scheduled-activity objects in both result groups.
+
+**SCHEDULE-021:** A structurally valid selection result shall require every eligible activity to be due, every remaining activity to be strictly future, eligible activities to be in exact scheduler order, and activity identities and insertion sequences to be unique across both groups.
+
+**SCHEDULE-022:** When no activity is eligible, selection shall reuse the exact input queue as `remaining_queue`; otherwise it shall return a new remaining queue, including an empty queue when every activity is eligible.
+
+**SCHEDULE-023:** Repeated selection with equal world and queue inputs shall produce equal results without mutating or replacing those inputs, generating identities, resolving package references, executing activities, consulting randomness, persisting data, or invoking an LLM.
+
 ### System director eligibility
 
 **DIRECTOR-001:** The system shall invoke the System director only when an explicit configured hook becomes eligible.

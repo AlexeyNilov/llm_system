@@ -252,6 +252,10 @@ A strict one-shot runtime eligibility record for a future environmental mechanic
 
 An immutable ordered collection of one-shot scheduled activities with unique activity identities and insertion sequences. Storage order is preserved but does not define execution order; the scheduler derives that separately.
 
+### Scheduled activity selection
+
+An immutable scheduler result that records canonical selection time, due activities in deterministic execution order, and the remaining future queue. It is a validated partition, not a claim, transaction, or execution result.
+
 ### Scheduler
 
 The deterministic component that selects and serializes eligible scheduled activities. It does not itself resolve their effects.
