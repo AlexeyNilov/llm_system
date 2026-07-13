@@ -710,6 +710,24 @@ This helps ensure requirements are:
 
 **PERCEPTION-035:** Initial self-action feedback shall not determine witness visibility, speech audibility, pre- or post-action co-location, target awareness, current-state composition, enrichment, observation recording, persistence, memory, belief, narration, or presentation.
 
+**PERCEPTION-036:** The public addressed-speech feedback projection shall have the contract `project_addressed_speech_feedback(world: ValidatedWorldState, observer_id: AuthoredId, events: tuple[CanonicalEvent, ...]) -> tuple[EventObserved, ...]` and shall be independent of wall-clock time.
+
+**PERCEPTION-037:** Addressed-speech feedback shall validate `observer_id` in the character-state namespace before inspecting event time and shall reuse `PerceptionObserverNotFoundError` for an absent observer.
+
+**PERCEPTION-038:** Before event-type or recipient filtering, addressed-speech feedback shall validate the entire candidate batch in input order against current canonical simulation time and shall reuse `FutureEventFeedbackError` for the first future event.
+
+**PERCEPTION-039:** Addressed-speech feedback shall emit an observation only for `ActorSpokeEvent` values whose `recipient_id` equals the observer; the committed event's explicit recipient identity shall establish delivery eligibility without rechecking current or visual-perception state.
+
+**PERCEPTION-040:** Current speaker and recipient locations, later movement, the speaker's current perception, and the recipient's current-state perception shall not change whether a past or current addressed-speech event produces recipient feedback.
+
+**PERCEPTION-041:** Each emitted addressed-speech feedback item shall be an `EventObserved` whose observer is the requested recipient, whose observation time is current canonical simulation time, whose source is `canonical_event`, and whose event is the exact supplied `ActorSpokeEvent` object.
+
+**PERCEPTION-042:** Addressed-speech feedback shall preserve matching input order and duplicates, accept past and current-time events, and return an immutable empty tuple for an empty batch or when no event is addressed to the observer.
+
+**PERCEPTION-043:** Candidate-event window selection, already-delivered tracking, self-feedback composition, current-state composition, and deduplication across feedback sources shall belong to a later caller or coordinator rather than addressed-speech projection.
+
+**PERCEPTION-044:** Repeated addressed-speech projection with equal inputs shall produce equal outputs without mutating or replacing the world or event tuple, generating identities, invoking policies or an LLM, recording observations, creating memory or belief, persisting data, narrating, or determining general witness audibility.
+
 **LOOP-001:** When canonical state or events may be observable by a character, the system shall apply that character's perceptual constraints before producing observations.
 
 **LOOP-002:** When an NPC performs sensemaking, the system shall limit its inputs to current observations and character-available identity, goals, plans, beliefs, and memories.

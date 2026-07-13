@@ -158,6 +158,10 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 * Ensures feedback re-enters an actor through perception rather than direct outcome access.
 * Begins with a pure current-state projection ordered as current location, authored outgoing connections, authored co-located other characters, and authored directly located or observer-possessed objects.
 * Separately projects a caller-selected canonical-event batch into stateless self-action feedback after observer-first and whole-batch temporal validation; the actor or speaker owns an event, while witness rules, delivery tracking, and current-state composition remain outside this boundary.
+* Separately projects addressed-speech recipient feedback after the same observer
+  and whole-batch temporal validation. A committed actor-spoke event's recipient
+  identity proves delivery at occurrence time; present location and visual
+  perception are not reapplied to historical speech.
 
 ### Actor runtime
 
@@ -269,6 +273,12 @@ The design requires stable identifiers and explicit schemas for these concepts:
 * `PerceptionSnapshot`: one observer's immutable ordered observations at one simulation time, with envelope identity and time required to match every contained item. It may be empty and does not itself prove world-aware perceptual filtering.
 * Current-state perception projection: a pure `ValidatedWorldState` view that uses canonical time and authored ordering, raises a typed caller error for a missing character observer, exposes unavailable outgoing connections as unavailable, excludes incoming-only connections and other actors' possessions, and emits no event observations.
 * Self-action event feedback projection: a pure event-observation fragment that resolves the observer in the character-state namespace, rejects the first future event before ownership filtering, and preserves exact matching event objects, order, and duplicates. The caller owns candidate-window and delivery tracking; recipients, targets, assisted characters, objects, possession, proximity, general witness rules, and current-state composition do not affect self ownership.
+* Addressed-speech feedback projection: a pure event-observation fragment that
+  reuses observer-first and whole-batch temporal validation, then preserves exact
+  actor-spoke events addressed to the observer in input order with duplicates.
+  It does not recheck current locations or visual perception, compose self or
+  current-state feedback, track delivery, infer comprehension, or invoke a
+  response.
 * Focused Observe resolver: a pure zero-time boundary that projects the authorized actor's current perception, treats surroundings as perceptible, and otherwise accepts only matching typed current-state observation membership. Success records one actor-observed event without state changes; every absent specific target rejects uniformly without canonical-existence disclosure. Rich inspection, checks, enrichment, event feedback, and observation recording remain outside Observe v0.
 * Speak v0 resolver: a pure zero-time boundary that treats only another character
   at the authorized speaker's exact canonical location as audible. Every unknown,

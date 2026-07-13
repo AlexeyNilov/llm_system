@@ -62,7 +62,7 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | [`TASK-021`](tasks/TASK-021-perception-contracts.md): Observation and perception-snapshot contracts | Done | TASK-012, TASK-014 |
 | [`TASK-022`](tasks/TASK-022-current-state-perception.md): Deterministic current-state perception projection | Done | TASK-013, TASK-021 |
 | [`TASK-024`](tasks/TASK-024-self-event-feedback.md): Stateless self-action event feedback | Done | TASK-014, TASK-021, TASK-022 |
-| Addressed-speech recipient feedback | Planned | TASK-024, TASK-028 |
+| [`TASK-029`](tasks/TASK-029-addressed-speech-feedback.md): Addressed-speech recipient feedback | Ready | TASK-024, TASK-028 |
 | Remaining witness event-feedback filtering | Planned | Addressed-speech feedback and accepted event-specific visibility semantics |
 
 ### M3.5: Architecture review before persistence

@@ -1028,3 +1028,15 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Reuse current visual perception, permit remote or self speech, expose different rejection reasons, infer duration from text length, invent a fixed duration, treat recipient refusal as speech failure, update beliefs or memory directly, generate a response during resolution, or bundle recipient perception into the resolver. These choices respectively confuse senses, exceed current spatial mechanics, leak canonical existence, make wording an implicit scheduling rule, add an ungrounded constant, confuse delivery with reaction, bypass the actor loop, mix resolution with policy, or collapse truth into perception.
 
 **Consequences:** The kernel can record honest addressed speech without claiming comprehension or conversation behavior. Conversation alone does not advance scheduled time in v0. Addressed-speech feedback for the recipient is the immediate follow-up task and remains separate from the canonical resolver and from broader witness audibility.
+
+### 2026-07-13: Project addressed speech from committed recipient identity
+
+**Status:** Accepted
+
+**Context:** Speak v0 validates co-located audibility before creating an `ActorSpokeEvent`, but self-action feedback intentionally treats only the speaker as owner. A recipient needs the exact utterance as an observation for later sensemaking. Rechecking present locations would incorrectly decide historical delivery using state after either character may have moved, while general overhearing still lacks event-time spatial semantics.
+
+**Decision:** Add pure `project_addressed_speech_feedback(world, observer_id, events) -> tuple[EventObserved, ...]`. Validate the observer first and the whole candidate batch for future events before filtering, reusing existing errors and current canonical observation time. Emit only exact `ActorSpokeEvent` objects whose `recipient_id` equals the observer, preserving input order and duplicates. Treat committed recipient identity as sufficient delivery evidence; do not recheck current co-location or visual perception.
+
+**Alternatives considered:** Add recipients to self-action ownership, recheck current location, reconstruct unavailable event-time locations, reuse current visual perception, include general co-located witnesses, deduplicate against self feedback, query event history internally, or update memory and trigger a response directly. These choices respectively blur actor roles, apply present state to past events, invent missing history, confuse senses, broaden audibility without rules, hide composition policy, couple projection to persistence, or bypass later cognition and policy stages.
+
+**Consequences:** Addressed utterances can enter recipient perception without collapsing action resolution, perception, cognition, or response generation. The projection remains a stateless event fragment; the caller still owns candidate windows, delivery tracking, composition, and any deduplication. General witness and overhearing rules remain separate.

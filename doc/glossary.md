@@ -32,6 +32,10 @@ An entity capable of forming or receiving an intent and submitting an action pro
 
 The application component that assembles NPC decision context, invokes the configured decision policy, and manages character-internal cognition outputs. It cannot change canonical world state.
 
+### Addressed-speech feedback
+
+A stateless event-observation fragment that gives a character exact committed speech events explicitly addressed to that character. Recipient identity proves delivery established by resolution; the projection does not recheck current location, infer comprehension, record memory, or generate a response.
+
 ### Appraisal
 
 A character's situation-specific interpretation, such as perceived danger, urgency, or opportunity. An appraisal is internal to that character and may be wrong.
