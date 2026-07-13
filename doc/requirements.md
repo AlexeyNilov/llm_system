@@ -752,6 +752,26 @@ This helps ensure requirements are:
 
 **PERCEPTION-044:** Repeated addressed-speech projection with equal inputs shall produce equal outputs without mutating or replacing the world or event tuple, generating identities, invoking policies or an LLM, recording observations, creating memory or belief, persisting data, narrating, or determining general witness audibility.
 
+**PERCEPTION-045:** The public initial Take-witness projection shall have the contract `project_take_witness_feedback(world: ValidatedWorldState, observer_id: AuthoredId, events: tuple[CanonicalEvent, ...]) -> tuple[EventObserved, ...]` and shall be independent of wall-clock time.
+
+**PERCEPTION-046:** Take-witness feedback shall validate `observer_id` in the character-state namespace before inspecting event time and shall reuse `PerceptionObserverNotFoundError` for an absent observer.
+
+**PERCEPTION-047:** Before event-type or witness filtering, Take-witness feedback shall validate the entire candidate batch in input order and require every event occurrence time to equal current canonical simulation time; the first past or future mismatch shall raise public `WitnessEventTimeMismatchError`, a `ValueError` carrying `event_id`, `occurred_at_seconds`, and `perceived_at_seconds`.
+
+**PERCEPTION-048:** Take-witness feedback shall emit an observation only for an `ObjectTakenEvent` whose `actor_id` differs from the observer and whose `previous_placement` is `ObjectAtLocation` at the observer's exact current canonical location.
+
+**PERCEPTION-049:** Each emitted Take-witness item shall be an `EventObserved` whose observer is the requested witness, whose observation time is current canonical simulation time, whose source is `canonical_event`, and whose event is the exact supplied `ObjectTakenEvent` object.
+
+**PERCEPTION-050:** Take-witness feedback shall preserve matching input order and duplicates and shall return an immutable empty tuple for an empty batch or when no event qualifies.
+
+**PERCEPTION-051:** The committed event's exact previous location placement shall establish the Take event location; projection shall not recheck the object's current placement, authored initial placement, ownership, or current-state perception.
+
+**PERCEPTION-052:** Candidate-event window selection, already-delivered tracking, self-feedback composition, addressed-speech composition, current-state composition, cross-source ordering, and deduplication shall belong to a later caller or coordinator.
+
+**PERCEPTION-053:** Repeated Take-witness projection with equal inputs shall produce equal outputs without mutating or replacing the world or event tuple, generating identities, invoking policies or an LLM, triggering reactions, recording observations, creating memory or belief, persisting data, narrating, or adding line-of-sight, concealment, attention, or other witness mechanics.
+
+**PERCEPTION-054:** Take-witness projection shall not change current-state, self-action, or addressed-speech feedback behavior, validation, ownership, recipient, order, duplicate, or event-identity semantics.
+
 **LOOP-001:** When canonical state or events may be observable by a character, the system shall apply that character's perceptual constraints before producing observations.
 
 **LOOP-002:** When an NPC performs sensemaking, the system shall limit its inputs to current observations and character-available identity, goals, plans, beliefs, and memories.

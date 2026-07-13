@@ -165,6 +165,13 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
   location and visual perception are not reapplied to historical speech, while
   candidate windows, delivery tracking, composition, ordering, and deduplication
   remain caller responsibilities.
+* Separately projects immediate Take-witness feedback through pure
+  `project_take_witness_feedback(world, observer_id, events)`. It requires an
+  exact-current-time candidate batch and matches only non-actors co-located with
+  an object-taken event's previous location, preserving the exact event without
+  rechecking current object state. Historical reconstruction, richer visibility,
+  composition, delivery tracking, reactions, memory, and presentation remain
+  outside this boundary.
 
 ### Actor runtime
 
@@ -282,6 +289,13 @@ The design requires stable identifiers and explicit schemas for these concepts:
   It does not recheck current locations or visual perception, compose self or
   current-state feedback, track delivery, infer comprehension, or invoke a
   response.
+* Take-witness feedback projection: a pure immediate event-observation fragment
+  that validates the observer before requiring every candidate event time to
+  equal current canonical time. It preserves exact object-taken events for
+  non-acting observers whose current location equals the event's exact previous
+  object location. It does not recheck current object placement, reconstruct
+  historical locations, add richer visibility, compose fragments, track
+  delivery, or trigger reactions.
 * Focused Observe resolver: a pure zero-time boundary that projects the authorized actor's current perception, treats surroundings as perceptible, and otherwise accepts only matching typed current-state observation membership. Success records one actor-observed event without state changes; every absent specific target rejects uniformly without canonical-existence disclosure. Rich inspection, checks, enrichment, event feedback, and observation recording remain outside Observe v0.
 * Speak v0 resolver: a pure zero-time boundary that treats only another character
   at the authorized speaker's exact canonical location as audible. Every unknown,

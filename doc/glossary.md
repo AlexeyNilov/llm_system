@@ -312,6 +312,10 @@ The immutable ordered collection of authored location and directed-connection de
 
 The arbiter's actionability determination that an addressed character can receive a spoken utterance. Speak v0 recognizes only another character at the speaker's exact canonical location; this is distinct from the speaker's visual perception and does not establish comprehension or response.
 
+### Take-witness feedback
+
+An immediate event-perception fragment that gives a non-acting character an exact committed object-taken event when the event's previous location equals that character's canonical location. It accepts only events at the supplied world's exact current simulation time and does not reconstruct historical witness locations.
+
 ### Validated game packages
 
 One immutable loaded rule-and-scenario pair that has passed the defined dependency, namespace-uniqueness, reference, player-count, and directed-topology checks. It is not proof of policy implementation availability, supported mechanics, persistent-world compatibility, or general playability.
