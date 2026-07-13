@@ -804,6 +804,24 @@ This helps ensure requirements are:
 
 **SCHEDULE-006:** Given the same committed state and scheduled activities, the scheduler shall produce the same activity order.
 
+**SCHEDULE-007:** Runtime scheduled activities shall form a closed discriminated union of `EnvironmentalScheduledActivity`, `NpcScheduledActivity`, and `SystemDirectorScheduledActivity` eligibility records rather than one generic activity with an arbitrary payload.
+
+**SCHEDULE-008:** Every scheduled-activity variant shall require an application-assigned UUID `activity_id`, non-negative integer `eligible_at_seconds`, and caller-assigned non-negative integer `insertion_sequence` without generating runtime identity or ordering metadata internally.
+
+**SCHEDULE-009:** Environmental activity shall identify an authored `schedule_id`, NPC activity shall identify an authored `npc_id`, and System-director activity shall identify an authored `hook_id`; NPC activity shall not duplicate policy identity, and no variant shall embed executable callbacks, proposals, outcomes, or arbitrary mechanic arguments.
+
+**SCHEDULE-010:** Scheduler phase priority shall derive from the activity variant as environmental before NPC before System director and shall not be a caller-editable record field; deterministic execution order shall use `(eligible_at_seconds, phase_priority, insertion_sequence)` and shall not use runtime UUID ordering.
+
+**SCHEDULE-011:** `ScheduledActivityQueue` shall be a strict immutable record containing an immutable ordered tuple of scheduled activities, shall normalize JSON/YAML-style lists to tuples, shall allow an empty queue, and shall preserve supplied storage order without requiring it to equal execution order.
+
+**SCHEDULE-012:** A scheduled-activity queue shall reject duplicate activity identities and duplicate insertion sequences while allowing equal eligibility times and deliberately unsorted storage order.
+
+**SCHEDULE-013:** Each scheduled activity shall represent one runtime occurrence; recurring schedule definitions shall create separate one-shot activity occurrences rather than placing recurrence rules in the runtime eligibility record.
+
+**SCHEDULE-014:** Initial scheduled-activity construction shall validate structural contracts only and shall not resolve authored NPC, schedule, or hook references before their owning package-definition and relational-validation boundaries exist.
+
+**SCHEDULE-015:** Scheduled-activity contracts shall not select eligible work, remove activities from a queue, execute mechanics or policies, submit proposals, resolve outcomes, mutate canonical state, advance time, persist data, or invoke an LLM.
+
 ### System director eligibility
 
 **DIRECTOR-001:** The system shall invoke the System director only when an explicit configured hook becomes eligible.

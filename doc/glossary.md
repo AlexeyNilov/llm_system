@@ -246,7 +246,11 @@ The strict immutable typed root loaded from a scenario pack's entrypoint. Conten
 
 ### Scheduled activity
 
-A future environmental event, NPC eligibility point, or System director hook registered for a simulation time with phase and insertion-order metadata.
+A strict one-shot runtime eligibility record for a future environmental mechanic, NPC decision opportunity, or System director hook. It carries application-assigned identity, simulation-time eligibility, and stable insertion sequence; its variant determines phase priority. It is not itself an action proposal, outcome, callback, or recurring schedule definition.
+
+### Scheduled activity queue
+
+An immutable ordered collection of one-shot scheduled activities with unique activity identities and insertion sequences. Storage order is preserved but does not define execution order; the scheduler derives that separately.
 
 ### Scheduler
 
