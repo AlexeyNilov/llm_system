@@ -83,9 +83,10 @@ validated = validate_game_packages(rules, scenario)
 
 The rule pack authors the reusable `reinforce-structure` mechanic; the scenario
 binds it to concrete reinforcement materials, Greybridge Span, and the
-`bridge-reinforced` fact. This makes the mechanic representable but does not
-resolve or dispatch a Use proposal, initialize runtime state, consume an object,
-or trigger flood, progression, scheduling, perception, or presentation behavior.
+`bridge-reinforced` fact. The bound Use resolver executes that validated
+package definition against a caller-supplied validated runtime world; package
+loading itself does not initialize runtime state, consume an object, or trigger
+flood, progression, scheduling, perception, or presentation behavior.
 
 ## Game-package semantic validation
 
@@ -354,20 +355,48 @@ reactions, persistence, narration, or presentation. The resolver itself does
 not produce witness feedback; immediate Take witnessing is a separate
 perception projection.
 
+## Use resolution
+
+Use `llm_system.simulation.resolve_use()` with an `AuthorizedActorAction` whose
+proposal is `UseActionProposal`. The caller injects keyword-only UUID values for
+`outcome_id` and `event_id`; passing an authorized non-Use action raises
+`TypeError` as a programmer error.
+
+Use v0 selects one validated scenario binding by the proposal's exact object
+and `LocationTarget`, then resolves that binding's exact rule-pack mechanic. It
+succeeds only when the actor is currently at the bound location, possesses the
+exact object, and the bound boolean world fact differs from its authored target
+value. Unknown, unbound, unsupported-target, remote, world-placed,
+other-character-possessed, wrong-namespace, and already-applied proposals all
+produce the same effect-free `RejectedOutcome` with reason
+`use-not-applicable`, consume no time, and do not use the supplied event ID.
+
+Success uses reason `object-used` and completes at current simulation time plus
+the matched mechanic's authored duration. It contains exactly one
+`BooleanWorldFactChanged`, followed by one `SimulationTimeChanged`, and exactly
+one `ObjectUsedEvent` preserving the proposal's typed target and caller-supplied
+identities. Pass the outcome separately to `commit_outcome()` to update the fact
+and time; the object remains in the actor's exact possession.
+
+Use v0 does not consume, move, destroy, quantify, or damage the object. It has no
+check, failure branch, progression, implicit connection or flood consequence,
+scheduled-activity execution, witness feedback, persistence, narration, or
+presentation behavior.
+
 ## Actor-action dispatch
 
 Use `llm_system.simulation.dispatch_actor_action()` after authorization to route
 one `AuthorizedActorAction` by its concrete proposal type. The caller supplies
 required keyword-only UUID values for `outcome_id` and `event_id`; dispatch
-generates no identities. Move, Wait, Observe, Speak, and Take proposals route to
+generates no identities. Move, Wait, Observe, Speak, Take, and Use proposals route to
 their corresponding concrete resolvers, and the selected resolver's outcome is
 returned without reconstruction or exception translation. Caller identities
 and the authorized action pass through unchanged.
 
-Use and Help are structurally valid proposals whose mechanics are not yet
-implemented. Dispatch raises `OperationResolverUnavailableError` for each, with
-its public typed `operation` attribute identifying the unavailable capability.
-This is a software-capability error, not a rejected or failed canonical outcome.
+Help remains a structurally valid proposal whose mechanics are not yet
+implemented. Dispatch raises `OperationResolverUnavailableError` with its public
+typed `operation` attribute identifying that unavailable capability. This is a
+software-capability error, not a rejected or failed canonical outcome.
 
 Dispatch does not authorize submissions, commit outcomes, process scheduler
 eligibility, invoke NPC policies or an LLM, perform perception or presentation,

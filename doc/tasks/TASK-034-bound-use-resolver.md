@@ -1,6 +1,6 @@
 # TASK-034: Resolve bound object use
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -121,12 +121,12 @@ Stop and report a design gap if implementation requires a new target or effect k
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented bound Use v0 as a public pure deterministic resolver, routed Use through actor-action dispatch while retaining Help's unavailable-capability error, documented the public behavior, and advanced project metadata to `0.33.0`.
 
-**Changed files:** Pending
+**Changed files:** `README.md`; `pyproject.toml`; `uv.lock`; `src/llm_system/simulation/resolvers/use.py`; `src/llm_system/simulation/resolvers/__init__.py`; `src/llm_system/simulation/dispatch.py`; `src/llm_system/simulation/__init__.py`; `tests/test_use_resolver.py`; `tests/test_actor_action_dispatch.py`; `tests/test_package.py`; `doc/tasks/TASK-034-bound-use-resolver.md`.
 
-**Verification:** Pending
+**Verification:** Red: `uv run pytest tests/test_use_resolver.py tests/test_actor_action_dispatch.py -q` failed during collection with two `ImportError` reports because public `resolve_use` did not exist. Green: the same focused command passed `25`; the required focused command passed `36`; `uv sync --locked` passed; `make format` passed and reformatted two files; `make lint` passed; `make mypy` passed over 66 source files; `make test` passed all `323`; `make check` passed formatting, lint, mypy, and all `323` tests; `uv lock --check` passed; installed metadata reported `0.33.0`; `git diff -- uv.lock` showed only editable root `0.32.0` to `0.33.0`; Greybridge `0.2.0` package diff was empty; `git diff --check` passed. Independent integration review repeated `uv sync --locked`; the required focused suite (`36 passed`); `make format`; `make lint`; `make mypy`; `make test` (`323 passed`); aggregate `make check` (`323 passed` plus every quality gate); `uv lock --check`; installed-version inspection (`0.33.0`); Greybridge `0.2.0` no-diff inspection; root-only lockfile version inspection; and `git diff --check`. All passed, and scope and contract review found no issue.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.

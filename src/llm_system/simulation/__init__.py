@@ -97,6 +97,7 @@ from llm_system.simulation.resolvers import (
     resolve_observe,
     resolve_speak,
     resolve_take,
+    resolve_use,
     resolve_wait,
 )
 from llm_system.simulation.scheduling import (
@@ -224,6 +225,7 @@ __all__ = [
     "resolve_observe",
     "resolve_speak",
     "resolve_take",
+    "resolve_use",
     "resolve_wait",
     "select_eligible_activities",
 ]

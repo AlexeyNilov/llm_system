@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Complete the remaining M3 deterministic-kernel boundaries with larger vertical-slice increments where the package and authority boundaries are accepted. TASK-034 is now Ready to make the TASK-033 authored Use capability executable through deterministic resolution and dispatch.
+Complete the remaining M3 deterministic-kernel boundaries with larger vertical-slice increments where the package and authority boundaries are accepted. TASK-034 deterministic bound Use resolution and dispatch is implemented, independently reviewed, and accepted.
 
 Verified repository baseline before TASK-034 planning: implementation commit `d14d6e4 t33`, package version `0.32.0`, clean `main` worktree, and no divergence from `origin/main` reported by Git.
 
@@ -17,7 +17,7 @@ Verified repository baseline before TASK-034 planning: implementation commit `d1
 * TASK-031, immediate Take-witness feedback, is Done and committed at `d5fe97a`. `src/llm_system/simulation/perception_engine.py::project_take_witness_feedback` validates exact-current-time batches and projects exact object-taken events to eligible co-located non-actors. `WitnessEventTimeMismatchError` exposes stale or future candidate-window defects. The package version is `0.30.0`.
 * TASK-032, immediate third-party speech-overhearing feedback, is Done and committed at `5cdcba6`. `src/llm_system/simulation/perception_engine.py::project_speech_overhearing_feedback` validates observer, exact-current-time batch, and speech-event speakers before projecting exact speech events to eligible co-located third parties. `SpeechSpeakerNotFoundError` exposes malformed missing-speaker evidence. The package version is `0.31.0`.
 * TASK-033, authored Use and boolean-world-fact foundation, is Done and committed at `d14d6e4`. Rule and scenario packages now express a narrow bound Use mechanic; runtime state validates complete fact overlays; outcomes prevent duplicate fact changes; commitment atomically applies them; Greybridge `0.2.0` adds reinforcement while retained `0.1.0` remains unchanged. The package version is `0.32.0`.
-* TASK-034 planning is complete. `USE-001` through `USE-012`, the accepted deterministic-bound-Use decision, design and scenario updates, roadmap linkage, and `doc/tasks/TASK-034-bound-use-resolver.md` fix the resolver and dispatch behavior without adding implementation.
+* TASK-034 is Done and awaiting commit. `src/llm_system/simulation/resolvers/use.py::resolve_use` selects exact validated object-location bindings, enforces actor co-location and possession, uniformly rejects inapplicable proposals, and succeeds with ordered fact and time changes plus one exact object-used event. Dispatch routes Use while Help remains unavailable. The package version is `0.33.0`.
 
 ## Decisions and rationale
 
@@ -52,20 +52,21 @@ Verified repository baseline before TASK-034 planning: implementation commit `d1
 * TASK-033 commit verification: `git status --short --branch` -> clean `main`; `git log -3 --oneline` -> HEAD `d14d6e4 t33`.
 * TASK-034 planning inspected accepted package, state, change, event, outcome, authorization, resolver, dispatch, commitment, export, Greybridge, test, requirement, decision, glossary, design, scenario, roadmap, README, and version contracts.
 * TASK-034 planning verification: `make format` -> 64 files unchanged; `git diff --check` -> passed; requirement IDs, decision linkage, Ready brief, and roadmap routing were verified with `rg`.
+* TASK-034 independent implementation review: `uv sync --locked`; required focused suite -> `36 passed`; `make format`; `make lint`; `make mypy`; `make test` -> `323 passed`; `make check` -> all gates and `323 passed`; `uv lock --check`; installed version `0.33.0`; unchanged Greybridge `0.2.0` audit; root-only lockfile version diff; and `git diff --check` -> all passed.
 
 ## Tests
 
-All `306` tests passed at the accepted TASK-033 baseline. TASK-034 planning changes are documentation-only; formatting and diff checks pass.
+All `323` tests pass. No known lint, formatting, typing, lock, metadata, package-content, or diff failure exists.
 
 ## Blockers and unresolved questions
 
 No current blocker.
 
-Remaining planned work includes TASK-034 implementation; Help mechanics; authored environmental schedules and System-director hooks; activity execution and persistence semantics; trace integration; the deferred concrete random generator; optional additional event feedback; and M3.5 architecture and test-value reviews.
+Remaining planned work includes Help mechanics; authored environmental schedules and System-director hooks; activity execution and persistence semantics; trace integration; the deferred concrete random generator; optional additional event feedback; and M3.5 architecture and test-value reviews.
 
 ## Exact next action
 
-Commit the Ready TASK-034 planning artifacts. Do not delegate until that planning commit exists and the user explicitly requests delegation.
+Commit the accepted TASK-034 implementation. Then select the next larger vertical-slice increment from the roadmap before writing another Ready brief.
 
 ## Files to re-read before continuing
 

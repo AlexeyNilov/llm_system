@@ -47,6 +47,7 @@ from llm_system.simulation import (
     resolve_observe,
     resolve_speak,
     resolve_take,
+    resolve_use,
     resolve_wait,
     validate_world_state,
 )
@@ -251,20 +252,31 @@ def test_take_dispatch_matches_direct_resolution_and_preserves_inputs() -> None:
     assert action.model_dump(mode="json") == original
 
 
+def test_use_dispatch_matches_direct_resolution_and_preserves_inputs() -> None:
+    action = _authorized(
+        UseActionProposal(
+            operation="use",
+            object_id="rope",
+            target=LocationTarget(target_type="location", location_id="end"),
+        )
+    )
+    original = action.model_dump(mode="json")
+
+    dispatched = dispatch_actor_action(action, outcome_id=OUTCOME_ID, event_id=EVENT_ID)
+    direct = resolve_use(action, outcome_id=OUTCOME_ID, event_id=EVENT_ID)
+
+    assert dispatched == direct
+    assert dispatched.outcome_id == OUTCOME_ID
+    assert dispatched.status == "rejected"
+    assert action.model_dump(mode="json") == original
+
+
 UnavailableProposalFactory = Callable[[], ActorActionProposal]
 
 
 @pytest.mark.parametrize(
     ("proposal_factory", "operation"),
     [
-        (
-            lambda: UseActionProposal(
-                operation="use",
-                object_id="rope",
-                target=LocationTarget(target_type="location", location_id="end"),
-            ),
-            "use",
-        ),
         (lambda: HelpActionProposal(operation="help", character_id="marin"), "help"),
     ],
 )
