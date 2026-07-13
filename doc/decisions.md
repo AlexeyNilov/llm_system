@@ -1279,6 +1279,18 @@ Independent review is selective rather than mandatory after every implementation
 
 **Decision:** World creation requires structurally loaded and semantically validated packages, then deterministically materializes their authored initial placements and facts. Application-owned policy implementation compatibility is checked before the corresponding NPC policy is executed, not before its immutable reference can participate in initial world state. Package validation continues to prove policy reference identity and type agreement.
 
+### 2026-07-13: Keep trusted turn metadata on the server side of the first HTTP boundary
+
+**Status:** Accepted
+
+**Context:** The atomic coordinator correctly accepts a trusted `ActorActionSubmission`, but an HTTP request is untrusted. Exposing that submission directly would let a client claim actor identity, source provenance, and causal identities. Waiting for the later free-text interpreter would block the M4 API and deterministic Streamlit work even though typed action proposals already provide a useful bounded input.
+
+**Decision:** The first FastAPI turn accepts only one strict actor-action proposal. The application binds it to the validated scenario's sole player, records a fixed application-owned player-interpreter source, and assigns proposal, step, decision-context, outcome, and event UUIDs through an injected identity factory before calling the existing coordinator. Responses expose only completion metadata, outcome status and reason, current player perception, and self-event feedback. They do not expose canonical state, scheduled work, state changes, the full trace, or client-selectable provenance. World creation and development reset likewise use server-assigned world identities. Reset is guarded by an explicit application setting.
+
+**Alternatives considered:** Accept the complete trusted submission over HTTP, let clients select runtime UUIDs, wait for the LLM interpreter, expose the coordinator trace directly, or build a general command/authentication framework. These choices respectively cross the trust boundary, weaken identity ownership, stall the deterministic M4 seam, leak canonical and provenance data, or introduce infrastructure without a first-slice consumer.
+
+**Consequences:** M4 gains a deterministic player-action API that composes accepted services without pretending text interpretation exists. Tests can inject a deterministic UUID factory, while production defaults may use UUID4. The later player interpreter can replace proposal construction upstream without changing the coordinator. Production authentication, retry/idempotency semantics, text input, narration, and inspection remain separate decisions.
+
 **Alternatives considered:** Reorder M5 before persistence lifecycle, register non-executable placeholder policies, or prohibit creating Greybridge until all actor policies exist. Reordering couples persistence to LLM work; placeholders weaken truthful readiness; prohibition blocks restart and API work that does not execute NPC cognition.
 
 **Consequences:** M4 can establish an honest persistent lifecycle while the Greybridge NPCs remain inert. No caller may infer executable policy availability from world creation or `ValidatedGamePackages`; M5 must introduce and enforce the implementation registry at the policy-execution boundary.

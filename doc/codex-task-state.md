@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Plan the next actionable M4 increment: a minimal FastAPI boundary over the accepted world lifecycle and atomic actor-action coordinator.
+Integrate TASK-039: a minimal FastAPI lifecycle and trusted structured player-turn boundary over the accepted M4 application services.
 
 ## Verified baseline
 
@@ -14,11 +14,11 @@ Plan the next actionable M4 increment: a minimal FastAPI boundary over the accep
 
 ## Blockers and unresolved questions
 
-No blocker to a minimal API boundary. Scheduled-activity execution remains deferred until its variants have accepted execution semantics. Player text interpretation, narration, and Streamlit remain later consumers and must not be invented inside the API task.
+No blocker. Scheduled-activity execution, player text interpretation, narration, inspection, production authentication, deployment configuration, and Streamlit remain explicitly deferred.
 
 ## Exact next action
 
-Inspect the accepted lifecycle and coordinator contracts plus current dependency policy, settle the smallest FastAPI request/response and failure boundary, prepare TASK-039, then automatically commit and delegate it when Ready.
+Commit the Ready TASK-039 planning artifacts, delegate the task to a fresh configured implementer, independently inspect the implementation and verification, resolve findings, mark Done, update the M4 roadmap and continuation state, and commit accepted work.
 
 ## Files to re-read before continuing
 

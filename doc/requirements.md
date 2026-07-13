@@ -1016,6 +1016,26 @@ This helps ensure requirements are:
 
 **STEP-010:** The public coordinator result shall identify the committed world and resulting revision and retain the exact completed actor-action trace returned only after durable success.
 
+### FastAPI application boundary
+
+**API-001:** The initial FastAPI application shall be constructed from an explicit SQLite store, game-package root, validated initial package pair, identity factory, and development-reset setting rather than module-global mutable state.
+
+**API-002:** A create-world request shall contain no caller-selected canonical identity. The API shall assign the world UUID, create the singleton from the configured validated packages, and return only lifecycle metadata after durable commit.
+
+**API-003:** A resume-world request shall resolve and validate only the singleton's exact recorded package versions and return lifecycle metadata without changing authoritative state.
+
+**API-004:** The development-reset HTTP operation shall be unavailable unless explicitly enabled in application configuration. When enabled, the API shall assign the replacement world UUID and invoke the existing atomic destructive reset without accepting direct state, package, history, or identity edits from the client.
+
+**API-005:** The initial turn request shall accept exactly one strict `ActorActionProposal` payload. The API shall bind it to the validated scenario's sole player and create the trusted player-interpreter source, proposal, simulation-step, decision-context, outcome, and event identities; HTTP clients shall not supply or override trusted provenance or runtime identities.
+
+**API-006:** A successful turn response shall be returned only after the actor-action coordinator commits. It shall expose the world identity, resulting revision, simulation-step identity, structured outcome status and reason, current player perception, and player self-event feedback, but not canonical state, scheduled work, state changes, the full trace, or other actors' private information.
+
+**API-007:** A resolved rejected or failed action is a completed domain result and shall use a successful HTTP response. Missing-world failures shall map to `404`, an existing-world creation conflict shall map to `409`, disabled development reset shall map to `403`, and malformed request bodies shall use FastAPI's `422` validation response.
+
+**API-008:** Unexpected package, stored-state, persistence, or programming failures shall not be flattened into a successful result or expose exception details through an application-defined error response. Failed operations shall preserve the atomicity guarantees of the invoked application service.
+
+**API-009:** The initial API shall not interpret free-form text, invoke an LLM or actor policy, narrate, execute scheduled activities, expose inspection history, authorize arbitrary actor identities, accept canonical state mutations, or implement production authentication.
+
 ### Outcome randomness
 
 **RANDOM-001:** The simulation shall resolve outcomes deterministically unless a loaded rule explicitly requires a random check.
