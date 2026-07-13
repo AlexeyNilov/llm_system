@@ -1306,3 +1306,15 @@ Independent review is selective rather than mandatory after every implementation
 **Alternatives considered:** Hide lifecycle behavior in SQLite repositories, preserve old histories across reset, make reset an alias for create, discover the newest package version, generate a world identity, or add save-slot abstractions. These respectively mix application and storage concerns, join unrelated timelines, blur authority, make restarts non-reproducible, hide identity provenance, or exceed the initial product scope.
 
 **Consequences:** Creation and reset are explicit mutations that return only after commit; reset failure preserves the complete prior timeline. Resume is reproducible from recorded package ownership and remains read-only. Reset is intentionally destructive development tooling, produces no event or trace, and does not represent an in-world action.
+
+### 2026-07-13: Begin Streamlit as a thin deterministic HTTP client
+
+**Status:** Accepted
+
+**Context:** The accepted FastAPI boundary can create, resume, reset, and advance the singleton world from strict action proposals, while text interpretation and narration remain M5 work. Letting Streamlit import lifecycle or simulation services would create a second application path and weaken the server-owned trust boundary. Blocking all UI work until the LLM presentation pipeline exists would leave the implemented M4 seam difficult to exercise as a player.
+
+**Decision:** Implement the first player page as a thin HTTP client configured with an API base URL. It validates the existing API response models, exposes deterministic forms for the seven typed proposal variants, and renders only lifecycle metadata, committed outcome status and reason, current player perception, and self-event feedback. Presentation history lives only in Streamlit session state and is never authoritative. Creation and explicitly confirmed development reset use their existing endpoints. The page reports transport and application failures without claiming completion. It does not start an ASGI server, access SQLite or packages, interpret prose, narrate, or expose inspection data.
+
+**Alternatives considered:** Call application services directly from Streamlit, embed the FastAPI app through a test transport, wait for M5, accept arbitrary JSON proposals, or build a general UI state architecture. These respectively bypass the HTTP authority boundary, misuse test infrastructure at runtime, delay an executable player seam, expose low-level contracts unsafely, or add abstractions without a second page consumer.
+
+**Consequences:** M4 ends with one honest structured player interface that exercises the real durable boundary without pretending the LLM experience is complete. A separately running API process remains an explicit prerequisite; deployment bootstrap and production configuration stay deferred. M5 can replace structured forms with interpreted player text and generated narration while preserving the API client and committed-result discipline.

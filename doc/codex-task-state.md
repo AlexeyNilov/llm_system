@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Plan the final M4 increment: a deterministic Streamlit player page consuming the accepted FastAPI boundary.
+Integrate TASK-040: a deterministic structured-action Streamlit player page consuming the accepted FastAPI boundary.
 
 ## Verified baseline
 
@@ -19,7 +19,7 @@ No blocker to a deterministic structured-action Streamlit page. Free-form player
 
 ## Exact next action
 
-Inspect the accepted Streamlit responsibility and API schemas, settle the smallest deterministic player interaction and lifecycle flow, prepare TASK-040, commit automatically when Ready, delegate it to a fresh implementer, independently review, and integrate accepted work.
+Commit the Ready TASK-040 planning artifacts, delegate the task to a fresh configured implementer, independently inspect the implementation and verification, resolve findings, mark Done, update M4 and continuation state, and commit accepted work.
 
 ## Files to re-read before continuing
 

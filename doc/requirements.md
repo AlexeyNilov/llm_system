@@ -1036,6 +1036,24 @@ This helps ensure requirements are:
 
 **API-009:** The initial API shall not interpret free-form text, invoke an LLM or actor policy, narrate, execute scheduled activities, expose inspection history, authorize arbitrary actor identities, accept canonical state mutations, or implement production authentication.
 
+### Deterministic player page
+
+**PLAYERPAGE-001:** The initial Streamlit player page shall communicate only through the FastAPI HTTP boundary and shall not load packages, open SQLite, call simulation or persistence services, or construct trusted submission metadata.
+
+**PLAYERPAGE-002:** The page shall accept an API base URL through explicit local configuration, use a bounded request timeout, validate successful and mapped-error bodies against the API contracts, and distinguish unavailable transport, malformed response, mapped application failure, and durable domain outcome.
+
+**PLAYERPAGE-003:** When no world exists, the page shall offer world creation. When a world exists, it shall show only returned lifecycle metadata and offer the seven supported typed action-proposal forms. Development reset shall be a separate explicitly confirmed control.
+
+**PLAYERPAGE-004:** The page shall map form input deterministically to exactly one `ActorActionProposal` and shall reject incomplete local input without sending a request. It shall not accept free-form thoughts, infer an operation, actor, target, motive, or trusted identity, or claim unsupported mechanics.
+
+**PLAYERPAGE-005:** The page shall present a completed turn only from the validated committed API response, showing outcome status and reason, current player perception, and self-event feedback as deterministic structured text. It shall not invent narration, System notifications, canonical state, hidden actors, or unreturned consequences.
+
+**PLAYERPAGE-006:** Player-page history shall be presentation-only Streamlit session state in committed response order. It shall clear after successful world creation or reset and shall never be treated as canonical history or sent back as action context.
+
+**PLAYERPAGE-007:** Transport, validation, and application failures shall remain visibly distinct from completed rejected or failed domain outcomes. A failed request shall not append turn history, advance displayed lifecycle metadata, or claim an action completed.
+
+**PLAYERPAGE-008:** The first page shall not start or configure an ASGI server, implement production deployment or authentication, expose inspection data, invoke an LLM, execute NPC or System activity, or add an alternate direct application path.
+
 ### Outcome randomness
 
 **RANDOM-001:** The simulation shall resolve outcomes deterministically unless a loaded rule explicitly requires a random check.

@@ -47,7 +47,7 @@ The application must keep unavailable behavior explicit. Greybridge is not yet a
 | Scheduled-activity execution through the atomic coordinator | TASK-037 plus accepted execution semantics for environmental, NPC, and System-director activity variants |
 | [TASK-038](tasks/TASK-038-world-lifecycle.md): deterministic world creation, exact-package resume, and destructive development reset | Done; derives and validates revision-0 state, resumes only recorded package versions, and atomically replaces the complete development timeline |
 | [TASK-039](tasks/TASK-039-fastapi-application-boundary.md): minimal FastAPI lifecycle and structured player-turn boundary | Done; server-owns trusted identities and provenance, exposes only player-safe results, and preserves lifecycle/turn atomicity |
-| Deterministic Streamlit player page | FastAPI turn boundary |
+| [TASK-040](tasks/TASK-040-deterministic-streamlit-player-page.md): deterministic structured-action Streamlit player page | Ready; depends on TASK-039 |
 
 The first M4 task brief is the pilot for the M3.6 context rules. It must record its pre-code documentation budget, exclude human-orientation and historical artifacts by default, and provide context-used evidence in its handoff. Review should adjust the soft budget only from measured task evidence.
 
