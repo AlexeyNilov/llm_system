@@ -41,6 +41,10 @@ from llm_system.simulation.commitment import (
     OutcomeCommitResult,
     commit_outcome,
 )
+from llm_system.simulation.dispatch import (
+    OperationResolverUnavailableError,
+    dispatch_actor_action,
+)
 from llm_system.simulation.events import (
     ActorActionFailedEvent,
     ActorHelpedEvent,
@@ -112,6 +116,7 @@ __all__ = [
     "ObjectTakenEvent",
     "ObjectTarget",
     "ObjectUsedEvent",
+    "OperationResolverUnavailableError",
     "Outcome",
     "OutcomeCommitError",
     "OutcomeCommitIssue",
@@ -139,6 +144,7 @@ __all__ = [
     "validate_world_state",
     "authorize_actor_action",
     "commit_outcome",
+    "dispatch_actor_action",
     "resolve_move",
     "resolve_wait",
 ]

@@ -218,6 +218,27 @@ commit state, dispatch operations, process scheduler eligibility or NPC
 activity, interpret traversal requirements, generate IDs, or perform
 perception, persistence, or presentation.
 
+## Actor-action dispatch
+
+Use `llm_system.simulation.dispatch_actor_action()` after authorization to route
+one `AuthorizedActorAction` by its concrete proposal type. The caller supplies
+required keyword-only UUID values for `outcome_id` and `event_id`; dispatch
+generates no identities. Move proposals route to `resolve_move()`, Wait proposals
+route to `resolve_wait()`, and the selected resolver's outcome is returned
+without reconstruction or exception translation. Caller identities and the
+authorized action pass through unchanged.
+
+Observe, Speak, Take, Use, and Help are structurally valid proposals whose
+mechanics are not yet implemented. Dispatch raises
+`OperationResolverUnavailableError` for each, with its public typed `operation`
+attribute identifying the unavailable capability. This is a software-capability
+error, not a rejected or failed canonical outcome.
+
+Dispatch does not authorize submissions, commit outcomes, process scheduler
+eligibility, invoke NPC policies or an LLM, perform perception or presentation,
+access persistence, or provide configurable resolver registration. Authorization,
+operation-specific resolution, and commitment remain separate boundaries.
+
 ## Runtime-state contracts
 
 `llm_system.simulation` also exposes strict, immutable runtime-state contracts

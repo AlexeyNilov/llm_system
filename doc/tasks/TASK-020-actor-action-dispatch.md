@@ -1,6 +1,6 @@
 # TASK-020: Dispatch authorized actor actions
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -107,12 +107,12 @@ Stop and report a design gap if implementation requires a new resolver, canonica
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented partial type-based actor-action dispatch for Move and Wait, with the public typed unavailable-resolver capability error for Observe, Speak, Take, Use, and Help.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/dispatch.py`, `src/llm_system/simulation/__init__.py`, `tests/test_actor_action_dispatch.py`, `tests/test_package.py`, `README.md`, `pyproject.toml`, `uv.lock`, and this task brief.
 
-**Verification:** Pending
+**Verification:** Initial red: `uv run pytest tests/test_actor_action_dispatch.py -q` failed during collection because `OperationResolverUnavailableError` was not exported. Incremental focused checks passed for Wait (`1 passed`), Move success and rejection (`2 passed`), and all five unavailable operations (`5 passed`). Final checks passed: `uv sync --locked`; `make format`; `make lint`; `make mypy`; `make test` (`169 passed`); `make check` (`169 passed` plus format, lint, and mypy); `uv lock --check`; and `git diff --check`. The only `uv.lock` change is the editable root version from `0.18.0` to `0.19.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.
