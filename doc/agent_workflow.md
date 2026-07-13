@@ -60,10 +60,12 @@ Current project custom agents:
 | Agent | Use |
 | --- | --- |
 | `terra_experimenter` | Ready evidence and preflight tasks that authorize a report file |
-| `implementer` | Ready implementation,coding, testing tasks with task-authorized writes |
+| `implementer` | Ready implementation, coding, and testing tasks with task-authorized writes |
+| `reviewer` | Ready independent review, audit, and bounded evidence tasks with task-authorized report writes |
 
 The custom agent supplies role and runtime configuration, not task context. It must still receive a Ready task brief.
 Use `implementer` for Ready implementation or scenario-authoring tasks unless a task brief has a reason to specify `Default` or another named custom agent.
+Use `reviewer` for Ready independent review or audit tasks unless a task brief has a reason to specify `Default` or another named custom agent.
 
 ### Skill
 
@@ -228,6 +230,10 @@ Avoid parallel agents editing the same files or adjacent contracts. Parallel wri
 The integrator controls merge order according to `doc/roadmap.md` dependencies.
 
 ## Review and integration
+
+Independent review is selective rather than automatic for every implementation task. Use it for milestone gates, authority or persistence boundaries, security or privacy changes, public compatibility, cross-cutting refactors, disputed results, and reviews explicitly requested by the user or roadmap. The integrator may review smaller bounded changes directly when that is proportionate to risk.
+
+When independent review is required, create a separate Ready review task that names `agent_roles/reviewer.md` and the `reviewer` agent. Do not reassign the implementation task brief to the reviewer: its one named role guide remains authoritative for the implementation responsibility. The review task references the implementation task and routes the exact diff, contracts, verification evidence, and context-used record needed for independent reconstruction.
 
 Give the reviewer:
 

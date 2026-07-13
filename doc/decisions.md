@@ -381,6 +381,20 @@ Use a lightweight Architecture Decision Record (ADR) style:
 
 **Consequences:** New Ready implementation and scenario-authoring briefs select `implementer` unless they name a justified alternative. Historical task briefs remain unchanged. The parent session's live permission settings can still override the profile sandbox, so the delegated agent must report approval or sandbox limitations rather than treating the configured setting as guaranteed.
 
+### 2026-07-13: Configure a reviewer for independent evidence tasks
+
+**Status:** Accepted
+
+**Context:** The M3.5 kernel review demonstrated a repeatable independent-review responsibility: reconstruct behavior from repository evidence, compare it with accepted contracts, classify findings by impact, assess missing and low-value tests, and return recommendations without implementing or accepting them. Reusing implementation context or inherited agent defaults weakens independence and makes the reviewer boundary less predictable.
+
+**Decision:** Add the project custom agent `reviewer` under `.codex/agents/`. Configure it with `gpt-5.6-luna`, high reasoning, and workspace-write sandboxing. Restrict it to one Ready independent review, audit, or bounded evidence task at a time, using `doc/agent_roles/reviewer.md` as its one role guide. Workspace write is permitted only because review tasks may authorize a durable report and task handoff; the reviewer remains behaviorally read-only and may not implement fixes or change application behavior.
+
+Independent review is selective rather than mandatory after every implementation. When required by risk, a milestone, the roadmap, or the user, prepare a separate Ready review task that references the implementation task, diff, accepted contracts, verification evidence, and execution context-used record. Do not reuse the implementation task as the review brief because its one role guide belongs to the implementation responsibility. The integrator remains responsible for finding disposition, verification, acceptance, and Done status.
+
+**Alternatives considered:** Continue using `Default`, make every implementation task undergo a custom-agent review, use a literal read-only sandbox, or let the reviewer share the implementation task and context. Default does not provide stable independent-review behavior; mandatory review adds disproportionate process to small bounded changes; a read-only sandbox prevents task-authorized report artifacts; shared role context violates the one-guide boundary and increases anchoring.
+
+**Consequences:** New Ready independent-review briefs select `reviewer` unless they name a justified alternative. Historical review tasks remain unchanged. Parent verification must confirm that reviewer changes are limited to the authorized report and task fields. Live parent permission settings can still override the profile sandbox, so filesystem scope remains an integration check rather than an assumed guarantee.
+
 ### 2026-07-11: Disable Gemma thinking for functional LLM roles
 
 **Status:** Accepted
