@@ -1163,7 +1163,7 @@ Use a lightweight Architecture Decision Record (ADR) style:
 
 ### 2026-07-13: Bootstrap one version-gated SQLite schema before building migrations
 
-**Status:** Accepted
+**Status:** Superseded by `Migrate SQLite V1 to V2 for trace history`
 
 **Context:** Persistence needs an explicit compatibility boundary immediately, but only one database schema exists. A generic migration framework or third-party migration dependency would have no second version to migrate, while repeated `CREATE TABLE IF NOT EXISTS` calls could silently accept an incompatible database.
 
@@ -1208,3 +1208,39 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Sort history by occurrence time, embed events in the current world snapshot, or store opaque JSON without indexed provenance. Time does not break ties; embedding loses independent append-only history; opaque payloads weaken validation and inspection.
 
 **Consequences:** Event history is deterministic and revision-linked before full step traces exist. Persistence can reconstruct ordered canonical consequences, and atomic tests can use world replacement plus event append as two meaningful participants in one unit of work.
+
+### 2026-07-13: Persist the minimal completed actor-action trace
+
+**Status:** Accepted
+
+**Context:** The first atomic coordinator needs durable causal evidence, but LLM calls, actor cognition, scheduled execution, memory, beliefs, narration, and System direction do not yet participate in its executable path. Designing fields for those future stages now would freeze guesses and inflate every delegated context. Persisting only an outcome would also omit the trusted submission and actor-limited evidence needed to inspect the first real authority chain.
+
+**Decision:** Define trace schema version 1 as one strict `CompletedActorActionStepTrace` containing the trusted submission, its simulation-step and decision-context identities, the exact resolved outcome, the resulting actor current-state perception snapshot, and self-event feedback. The model validates identity, actor, and simulation-time agreement. Store it as separate append-only strict JSON with explicit world, resulting revision, simulation-step, outcome, and status metadata. This initial contract represents only coordinated submissions that reach a resolved and durably committed outcome; pre-resolution operational failures remain exceptions until a real input boundary supplies a concrete consumer for attempted-step failure traces.
+
+**Alternatives considered:** Add placeholders for every future trace stage, store an arbitrary stage dictionary, persist only the outcome, or postpone trace persistence until after LLM integration. Placeholders and generic dictionaries weaken strict context engineering; outcome-only history loses trusted provenance and perception evidence; postponement prevents the coordinator from proving the accepted atomic completion boundary.
+
+**Consequences:** The first trace is small, inspectable, and sufficient for the authorization-to-perception regression. Later stages require an explicit backward-compatible trace variant or payload-schema evolution rather than optional speculative fields. Operational failures before outcome resolution are not yet durable attempted-step records.
+
+### 2026-07-13: Compose the first coordinator before scheduled execution
+
+**Status:** Accepted
+
+**Context:** Authorization, dispatch, deterministic resolution, outcome commitment, perception projection, SQLite repositories, and an explicit unit of work are implemented. Scheduled activities can only be selected: environmental schedules have no accepted mechanic resolver, NPC activities have no policy execution boundary, and System director hooks have no proposal implementation. Removing due records without executing them would lose work, while repeatedly selecting and retaining them would not define progress.
+
+**Decision:** The first application coordinator composes one trusted actor-action submission through package compatibility and world validation, authorization, dispatch, commitment, actor perception, world replacement, event append, trace append, and explicit SQLite commit. It preserves the scheduled queue exactly and returns completion only after durable commit. Every coordinated outcome, including rejection or an unchanged state object, advances the durable world revision by one so the completed trace and any events have one unambiguous resulting revision. Scheduled selection and execution remain a separate follow-up after variant-specific execution semantics exist.
+
+**Alternatives considered:** Implement placeholder scheduled handlers, silently consume eligible activities, retain due activities after claiming to process them, combine the task with NPC and director policy work, or postpone all coordination. These options respectively invent mechanics, lose work, cause repeated eligibility, cross milestone boundaries, or delay the first end-to-end application seam despite sufficient implemented foundations.
+
+**Consequences:** M4 gains a real atomic player-action path without pretending Greybridge scheduling is executable. The coordinator can support deterministic application and API work with an empty or future-only queue. Time-advancing actions do not yet resolve newly due activities, so the full `TIME-005` and `SCHEDULE-003` through `SCHEDULE-005` behavior remains explicitly incomplete.
+
+### 2026-07-13: Migrate SQLite V1 to V2 for trace history
+
+**Status:** Accepted
+
+**Context:** TASK-036 intentionally stopped at schema V1 because no trace contract existed. The completed actor-action trace is now a concrete second-schema consumer, and existing V1 databases may already contain the authoritative world and canonical event history.
+
+**Decision:** Make schema V2 the current SQLite schema. New empty databases create the complete V2 schema transactionally. Opening V1 transactionally adds the simulation-step trace table and advances `PRAGMA user_version` to 2 without rewriting existing world or event rows. Opening V2 preserves it; any other version fails unchanged. Implement only this concrete V1-to-V2 path, not a generic migration framework.
+
+**Alternatives considered:** Reject V1 databases, recreate them destructively, keep traces outside SQLite, or introduce Alembic or a generic migration registry. Rejection and recreation violate persistence continuity; external trace files break atomicity; migration infrastructure remains unjustified for one direct transition.
+
+**Consequences:** Existing V1 state survives the first real schema evolution, and trace history joins the authoritative transaction. Migration tests must prove retained world and event data, atomic failure behavior, current-version reopen, and rejection of unsupported versions.

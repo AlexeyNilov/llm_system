@@ -964,13 +964,39 @@ This helps ensure requirements are:
 
 **STORE-008:** SQLite persistence operations participating in one application step shall use an explicit unit of work whose repositories share one active connection, cannot commit independently, and become durable only when the application explicitly commits the unit; exceptions and uncommitted exits shall roll back the transaction.
 
-**STORE-009:** Opening an empty SQLite store shall create schema version 1 transactionally and record it with `PRAGMA user_version`; opening version 1 shall preserve its data, and opening any unsupported version shall fail without modifying the database.
+**STORE-009:** Opening an empty SQLite store shall create the current schema version 2 transactionally and record it with `PRAGMA user_version`; opening schema version 1 shall migrate it transactionally to version 2 without losing world or event data, opening version 2 shall preserve its data, and opening any other version shall fail without modifying the database.
 
 **STORE-010:** Loading persistence data shall strictly decode a stored-world record containing its package references, runtime state, and scheduled queue without resolving package files; before simulation use, an application service shall resolve the exact recorded package versions and validate the decoded state against them.
 
 **STORE-011:** Creating the singleton world shall assign revision 0, and replacing it shall atomically require the loaded revision, increment the stored revision by exactly one on success, and reject a mismatch without making any unit-of-work writes durable.
 
 **STORE-012:** Canonical event history shall preserve committed insertion order, associate each event with its world and resulting world revision, retain event and outcome identities, event type and occurrence time, reject duplicate event identities atomically, and strictly decode stored payloads as `CanonicalEvent`.
+
+**STORE-013:** Simulation-step trace history shall be a separate append-only SQLite record ordered by database-assigned insertion sequence and associated with its world, resulting world revision, unique simulation-step identity, outcome identity, outcome status, and strict trace payload.
+
+**STORE-014:** A trace insert shall require the current world identity and revision, reject a duplicate simulation-step identity, and strictly cross-check explicit trace metadata against its payload; any failure shall poison and roll back the surrounding unit of work.
+
+### Simulation-step coordination
+
+**STEP-001:** The initial actor-action coordinator shall accept a trusted `ActorActionSubmission`, caller-assigned outcome and event identities, validated game packages, and the authoritative SQLite store; it shall not generate runtime identities or accept an unvalidated proposal payload directly.
+
+**STEP-002:** The coordinator shall load the singleton stored world inside one unit of work, require its exact recorded package identities and versions to match the supplied validated packages, and validate the decoded runtime state against those packages before authorization or resolution.
+
+**STEP-003:** The coordinator shall compose the existing public authorization, type-directed dispatch, outcome commitment, current-state perception, and self-event-feedback boundaries without duplicating their rules.
+
+**STEP-004:** A completed actor-action step trace shall contain exactly trace schema version 1, the simulation-step and decision-context identities, the exact trusted submission, the exact resolved outcome including its state changes, the resulting actor current-state perception snapshot, and the resulting actor self-event feedback.
+
+**STEP-005:** A completed trace shall require its simulation-step and decision-context identities to match the submission, its outcome proposal identity to match the submission proposal, and all perception evidence to identify the submitted actor at the committed outcome time.
+
+**STEP-006:** Every successfully coordinated actor-action submission, including one with a rejected outcome or otherwise unchanged canonical state, shall replace the durable singleton world at the next revision, preserve the scheduled-activity queue unchanged, append any canonical outcome events, append exactly one completed-step trace, and explicitly commit them in one unit of work.
+
+**STEP-007:** The coordinator shall report a completed result only after the unit of work commits. Authorization, dispatch, commitment, package compatibility, validation, trace construction, or persistence failure shall return no completed result and shall leave world, event, and trace history unchanged.
+
+**STEP-008:** The first coordinator shall not select, consume, execute, reschedule, or trace scheduled activities; scheduled-activity execution remains a later coordinator extension after each activity variant has accepted execution semantics.
+
+**STEP-009:** The first coordinator shall not interpret player text, invoke an LLM or actor policy, compose witness or addressed-speech observations, track perception delivery, narrate, present results, create or reset a world, or expose an HTTP interface.
+
+**STEP-010:** The public coordinator result shall identify the committed world and resulting revision and retain the exact completed actor-action trace returned only after durable success.
 
 ### Outcome randomness
 

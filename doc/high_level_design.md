@@ -109,6 +109,13 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 * Coordinates interpretation, scheduling, proposals, resolution, perception, presentation, and persistence.
 * Prevents partially completed steps from being presented as complete.
 * Assigns a trace identifier to every attempted simulation step.
+* Begins with a bounded actor-action operation that accepts an already trusted
+  submission and caller-assigned outcome and event identities, validates the
+  stored world against exact supplied packages, and composes authorization,
+  dispatch, commitment, actor perception, and persistence.
+* Preserves the scheduled queue unchanged in that first operation. Selection and
+  execution join the coordinator only after each scheduled-activity variant has
+  accepted execution semantics.
 
 ### Player input interpreter
 
@@ -408,13 +415,21 @@ A completed simulation step replaces the snapshot and commits its canonical tran
 
 The application performs persistence through an explicitly committed unit of work. Its repositories share one active SQLite connection and cannot commit independently. Exceptions and context exits without an explicit application commit roll the transaction back; the later turn coordinator owns that lifecycle.
 
-Schema version 1 is created transactionally for an empty database and recorded with SQLite `PRAGMA user_version`. The store rejects unsupported versions without modification. A migration mechanism is introduced only when a second schema version creates a real migration path.
+Schema version 2 is created transactionally for an empty database and recorded with SQLite `PRAGMA user_version`. Opening version 1 transactionally adds append-only simulation-step trace history and advances the version without rewriting world or event rows. Version 2 reopens unchanged, and unsupported versions are rejected without modification. This direct V1-to-V2 transition is the only migration path until another concrete schema change exists.
 
 The world repository strictly decodes stored identity, revision, package references, `WorldState`, and `ScheduledActivityQueue`, but does not resolve package files. A resume application service later loads the exact recorded packages and validates the decoded state against them before constructing a `ValidatedWorldState` for the kernel.
 
 The singleton world begins at revision 0. Each replacement uses the loaded revision as a compare-and-swap condition and increments it by one; a stale revision aborts the unit of work rather than overwriting newer state.
 
 Canonical events are stored as strict JSON plus explicit identity, type, occurrence time, world identity, resulting revision, and a durable insertion sequence. Batch order is preserved and history is read by insertion sequence because several events may share one simulation timestamp.
+
+Completed actor-action traces are stored separately as strict JSON plus explicit
+world identity, resulting revision, unique simulation-step identity, outcome
+identity, outcome status, and durable insertion sequence. Trace schema version 1
+contains only the trusted submission, resolved outcome, resulting actor
+current-state perception, and self-event feedback. Future LLM, cognition,
+scheduling, memory, director, narration, and presentation evidence requires an
+explicit trace-schema extension rather than optional placeholders.
 
 Qdrant stores only rebuildable retrieval projections. Losing the vector collection may reduce memory retrieval quality temporarily but must not erase character history.
 
@@ -453,6 +468,12 @@ Development tooling should prioritize answering:
 * Which facts reached the final narration?
 
 This trace supports debugging, context-engineering experiments, deterministic replay of the non-LLM stages, and later decision-making debriefs.
+
+The first durable trace covers only actor-action submissions that reach a resolved
+outcome and commit successfully. Failures before resolution remain application
+errors until the player-input or HTTP boundary defines a concrete attempted-step
+failure record. This is a temporary bounded capability, not evidence that those
+failures are unimportant.
 
 The initial inspection interface is a separate read-only Streamlit page. It presents an ordered simulation-step timeline with expandable stage records and supports side-by-side comparison of canonical world state with a selected character's perception snapshot. It exposes stable identifiers and provenance but cannot edit state; reset remains an explicit development operation.
 
