@@ -53,7 +53,8 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | [`TASK-018`](tasks/TASK-018-wait-resolver.md): Deterministic Wait resolver | Done | TASK-014 through TASK-017 |
 | [`TASK-019`](tasks/TASK-019-move-resolver.md): Deterministic Move resolver | Done | TASK-013 through TASK-018 |
 | [`TASK-020`](tasks/TASK-020-actor-action-dispatch.md): Actor-action operation dispatch | Done | TASK-017, TASK-018, TASK-019 |
-| Remaining operation resolvers | Planned | Authorization plus accepted per-operation mechanics |
+| [`TASK-023`](tasks/TASK-023-observe-resolver.md): Deterministic Observe v0 resolver | Ready | TASK-017, TASK-020, TASK-022 |
+| Remaining Speak, Take, Use, and Help resolvers | Planned | Authorization plus accepted per-operation mechanics |
 | Recorded random source | Planned | Simulation arbiter |
 | Simulation clock and deterministic scheduler | Planned | Event contracts |
 | [`TASK-021`](tasks/TASK-021-perception-contracts.md): Observation and perception-snapshot contracts | Done | TASK-012, TASK-014 |
