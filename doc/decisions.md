@@ -1100,3 +1100,27 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Dispatch by mechanic registry, match only object archetype, accept any co-located object without possession, expose separate missing-binding, possession, location, and already-applied reasons, treat repeated Use as a successful no-op, consume materials, change bridge connections directly, or process flood and witness consequences inside the resolver. These choices respectively add unnecessary infrastructure, discard scenario specificity, weaken physical authority, leak canonical truth, violate state-change meaning, invent unsupported object state, bypass the authored fact boundary, or collapse resolution into scheduling and perception.
 
 **Consequences:** Greybridge reinforcement becomes executable through package-authored data without embedding scenario identities in Python. A successful action advances time and changes only the bound canonical fact; commitment, newly eligible scheduled activities, event feedback, progression, and presentation remain explicit later boundaries. The narrow resolver can be replaced or extended when accepted mechanics add target or effect variants.
+
+### 2026-07-13: Separate documentation audiences and budget delegated context
+
+**Status:** Accepted
+
+**Context:** README, architecture, requirements, decisions, task briefs, and handoffs increasingly repeated the same contracts. The duplication made human navigation ambiguous and allowed a fresh agent to consume large amounts of irrelevant context even when it received no planning-chat history.
+
+**Decision:** Give each documentation artifact one primary audience and ownership role. README is a concise landing page; the domain guide is non-normative orientation; glossary, requirements, decisions, and high-level design retain their existing canonical responsibilities; completed tasks and reviews remain historical evidence. A delegated task brief references stable truth instead of copying it, routes exact sections or IDs, records a soft pre-code documentation budget, excludes discovery and historical artifacts by default, and reports the context actually used.
+
+**Alternatives considered:** Delete completed history, split every large canonical document, or rely on agents to decide what to read. Deletion loses evidence; broad file splitting creates link churn without guaranteeing smaller prompts; unbounded exploration makes context cost and information authority invisible.
+
+**Consequences:** Human onboarding and agent execution use different paths over the same repository knowledge. Task authors must justify broad context, reviewers can detect irrelevant routing, and stable contracts remain inspectable without being repeated in every task. The initial budget is a soft diagnostic threshold and may be revised from measured delegation evidence.
+
+### 2026-07-13: Give one application transaction ownership of step completion
+
+**Status:** Accepted
+
+**Context:** The M3.5 review found a coherent pure kernel boundary but identified durable transaction ownership as the critical M4 seam. Independent repository commits could expose a replacement world without its events or trace, lose scheduled-queue consumption, or present a step that later fails to persist completely.
+
+**Decision:** The turn coordinator owns one application-level SQLite transaction for a completed simulation step. Replacement world state, canonical events, scheduled-queue effects, authoritative character data, and the simulation-step trace participate in that transaction. Repositories serialize already validated domain results under the shared transaction and do not independently define completion. Presentation may observe the new step only after the transaction commits.
+
+**Alternatives considered:** Let each repository commit independently, make the database interpret state changes, or treat in-memory commitment as durable completion. Independent commits permit partial steps; database rule interpretation creates a second simulation authority; in-memory success does not survive process failure.
+
+**Consequences:** SQLite remains authoritative storage without owning simulation rules. Transaction failure leaves the previous committed world recoverable and cannot report or present the attempted step as complete. M4 persistence and coordinator tests must cover rollback, restart recovery, and post-commit visibility.

@@ -27,11 +27,27 @@ Read only the following project context before tracing task-local code:
 * `doc/high_level_design.md`: exact sections
 * other task-specific artifacts
 
-Do not read unrelated planning or idea documents.
+Name exact requirement IDs, decision titles, document sections, and initial source or test entrypoints. Do not name an entire canonical document when a bounded extract is sufficient.
+
+Do not read README, the domain guide, roadmap, ideas, reviews, completed task briefs, architect continuation state, or planning-chat history unless this task explicitly depends on that artifact's responsibility.
+
+## Context budget
+
+Use the soft 8,000-word pre-code documentation limit from `doc/agent_workflow.md`.
+
+| Context | Why required | Exact selection | Approximate words |
+| --- | --- | --- | ---: |
+| Repository rules | Durable execution constraints | `AGENTS.md` | Pending |
+| Task brief | Execution contract | This file | Pending |
+| Canonical documentation | Behavior or authority | Named extracts above | Pending |
+| Other pre-code context | Task-specific evidence | Named extracts above | Pending |
+| **Total before source exploration** |  |  | **Pending** |
+
+If the expected total exceeds the soft limit, explain why the task should not be narrowed. Do not count source and tests discovered while tracing the named path.
 
 ## Fixed assumptions
 
-List accepted facts the agent must not redesign.
+List only task-specific accepted facts the agent must not redesign. Reference stable project truth rather than copying full requirements or decisions.
 
 ## In scope
 
@@ -76,6 +92,8 @@ Fill this section without rewriting the task contract.
 **Changed files:** Pending
 
 **Verification:** Pending
+
+**Context used:** Pending; list the documentation extracts and initially named source or test files actually consulted. Do not list every transitive implementation file.
 
 **Deviations:** Pending
 

@@ -386,6 +386,8 @@ This helps ensure requirements are:
 
 ### Actor cognition and action loop
 
+#### Action proposals and outcomes
+
 **ACTION-001:** The simulation kernel shall represent action proposals as a closed discriminated union of strict operation-specific contracts rather than as an operation name paired with an arbitrary argument mapping.
 
 **ACTION-002:** Each supported operation shall define its own typed argument contract, and the simulation arbiter shall reject proposals that do not conform to one supported proposal variant.
@@ -444,6 +446,8 @@ This helps ensure requirements are:
 
 **ACTION-042:** A missing valid-attempt effect field shall be structurally invalid and shall not be interpreted as an implicit empty tuple.
 
+#### Arbiter commitment
+
 **ARBITER-001:** The deterministic arbiter work shall separate outcome commitment, submission authorization and dispatch, and operation-specific resolution into distinct implementation boundaries.
 
 **ARBITER-002:** The outcome commitment core shall validate and atomically apply already resolved typed outcomes without inventing operation semantics or invoking an LLM.
@@ -486,6 +490,8 @@ This helps ensure requirements are:
 
 **ARBITER-021:** When state changes exist, commitment shall replace affected runtime records at their existing tuple positions, preserve unaffected record identities and collection order, and return a new `WorldState` and `ValidatedWorldState` paired with the exact same validated packages.
 
+#### Actor-action authorization
+
 **AUTHZ-001:** Actor-action submission authorization shall be a separate boundary from operation dispatch and resolution.
 
 **AUTHZ-002:** The public authorization operation shall have the contract `authorize_actor_action(world: ValidatedWorldState, submission: ActorActionSubmission) -> AuthorizedActorAction`.
@@ -516,6 +522,8 @@ This helps ensure requirements are:
 
 **AUTHZ-015:** When an NPC-policy source matches an authored NPC but its policy identity differs from the NPC definition, authorization shall produce `policy-mismatch` at `submission.source.policy_id`.
 
+#### Wait resolution
+
 **WAIT-001:** The first operation resolver shall resolve an authorized Wait proposal without perception, package-rule lookup, randomness, or an LLM.
 
 **WAIT-002:** The public resolver shall have the contract `resolve_wait(action: AuthorizedActorAction, *, outcome_id: UUID, event_id: UUID) -> SucceededOutcome` and shall not generate runtime identities internally.
@@ -529,6 +537,8 @@ This helps ensure requirements are:
 **WAIT-006:** Passing an authorized non-Wait proposal to the Wait resolver shall raise `TypeError` as a dispatch/programmer defect and shall not produce an in-world rejected outcome.
 
 **WAIT-007:** The Wait resolver shall not commit its outcome, process scheduled activity, invoke NPCs, or perform presentation.
+
+#### Move resolution
 
 **MOVE-001:** The initial Move resolver shall resolve an authorized Move proposal using only immutable authored connection topology, authored base traversal duration, canonical character location, and canonical connection availability; it shall not interpret traversal requirements, skills, terrain, encumbrance, interruption, randomness, or an LLM.
 
@@ -550,6 +560,8 @@ This helps ensure requirements are:
 
 **MOVE-010:** The Move resolver shall not commit its outcome, dispatch another operation, process scheduled activity, invoke NPCs, perform perception or presentation, or introduce movement modifiers and requirement mechanics.
 
+#### Observe resolution
+
 **OBSERVE-001:** The initial Observe resolver shall implement a deliberately narrow focused-perception action using only the accepted deterministic current-state perception snapshot; it shall not reveal richer facts, perform checks, consult package rules, use randomness, or invoke an LLM.
 
 **OBSERVE-002:** The public resolver shall have the contract `resolve_observe(action: AuthorizedActorAction, *, outcome_id: UUID, event_id: UUID) -> RejectedOutcome | SucceededOutcome` and shall not generate runtime identities internally.
@@ -569,6 +581,8 @@ This helps ensure requirements are:
 **OBSERVE-009:** Passing an authorized non-Observe proposal to the Observe resolver shall raise `TypeError` as a dispatch or programmer defect and shall not produce an in-world outcome.
 
 **OBSERVE-010:** Observe resolution shall reuse `project_current_perception` rather than duplicate spatial or visibility rules, and it shall not commit outcomes, filter event feedback, enrich or record observations, create memory or belief state, persist data, or perform presentation.
+
+#### Speak resolution
 
 **SPEAK-001:** The initial Speak resolver shall treat another character at the speaker's exact current location as audible; it shall not model hearing range, barriers, volume, language comprehension, sensory conditions, or generated interpretation.
 
@@ -591,6 +605,8 @@ This helps ensure requirements are:
 **SPEAK-010:** Speak resolution shall not deliver event feedback to the recipient, invoke an actor policy or LLM, create a response, commit an outcome, persist data, or perform presentation; addressed-speech perception is an immediate separate follow-up boundary.
 
 **SPEAK-011:** Repeated Speak resolution with equal inputs and caller identities shall produce equal outcomes without mutating or replacing the authorized action, world, submission, proposal, or utterance.
+
+#### Take resolution
 
 **TAKE-001:** The initial Take resolver shall determine object accessibility from canonical runtime state directly; perception, authored initial placement, package rules, randomness, and an LLM shall not authorize the state transition.
 
@@ -616,6 +632,8 @@ This helps ensure requirements are:
 
 **TAKE-012:** Repeated Take resolution with equal inputs and caller identities shall produce equal outcomes without mutating or replacing the authorized action, world, submission, proposal, object state, or placement.
 
+#### Use resolution
+
 **USE-001:** The initial Use resolver shall interpret a proposal only through the validated rule-pack mechanic, scenario binding, and canonical runtime overlays; authored names, initial placement, perception, randomness, generated text, and Greybridge-specific kernel logic shall not authorize or define its effect.
 
 **USE-002:** The public resolver shall have the contract `resolve_use(action: AuthorizedActorAction, *, outcome_id: UUID, event_id: UUID) -> RejectedOutcome | SucceededOutcome` and shall not generate runtime identities internally.
@@ -640,6 +658,8 @@ This helps ensure requirements are:
 
 **USE-012:** Repeated Use resolution with equal inputs and caller identities shall produce equal outcomes without mutating or replacing the authorized action, validated packages, world, submission, proposal, mechanic, binding, object state, fact state, or typed target.
 
+#### Operation dispatch
+
 **DISPATCH-001:** Actor-action operation dispatch shall be a pure boundary after authorization and before operation-specific resolution; it shall accept only an `AuthorizedActorAction` and shall not authorize a submission itself.
 
 **DISPATCH-002:** The public dispatcher shall have the contract `dispatch_actor_action(action: AuthorizedActorAction, *, outcome_id: UUID, event_id: UUID) -> Outcome` and shall not generate runtime identities internally.
@@ -659,6 +679,8 @@ This helps ensure requirements are:
 **DISPATCH-009:** Initial dispatch shall use the same required caller-supplied `outcome_id` and `event_id` convention as Move and Wait; it shall not introduce an ID provider, event-ID collection, or speculative multi-event abstraction.
 
 **DISPATCH-010:** Dispatch shall not commit outcomes, process scheduled activity, invoke NPC policies or an LLM, perform perception or presentation, access persistence, or introduce a generic resolver protocol, service class, or configurable resolver registry.
+
+#### Trusted submissions and operation references
 
 **ACTION-011:** The system shall keep an untrusted operation-specific proposal payload separate from its trusted application-created proposal-submission envelope.
 
@@ -686,6 +708,8 @@ This helps ensure requirements are:
 
 **ACTION-023:** NPC-policy submission provenance shall identify the NPC and configured policy, and System-director provenance shall identify the eligible hook responsible for invocation.
 
+#### Canonical events
+
 **EVENT-001:** The simulation kernel shall represent canonical events as a closed discriminated union of strict event-specific contracts rather than as an event name paired with an arbitrary payload mapping.
 
 **EVENT-002:** Every canonical event shall contain stable event identity, simulation time, an event-type discriminator, a causation link to its originating outcome, and a typed factual payload.
@@ -711,6 +735,8 @@ This helps ensure requirements are:
 **EVENT-012:** Actor-helped events shall identify actor and assisted character; actor-waited events shall identify actor and a strictly positive integer duration; actor-action-failed events shall identify actor and attempted supported actor operation.
 
 **EVENT-013:** Failed and succeeded outcomes may contain no canonical event, and the contract layer shall not require one event merely because an operation was validly attempted.
+
+#### Perception
 
 **PERCEPTION-001:** Initial perceived information shall use a closed discriminated union of strict typed observation variants rather than an arbitrary payload mapping or generated prose.
 
@@ -840,6 +866,8 @@ This helps ensure requirements are:
 
 **PERCEPTION-064:** Repeated speech-overhearing projection with equal inputs shall produce equal outputs without mutating or replacing the world or event tuple, generating identities, invoking policies or an LLM, triggering comprehension or reactions, recording observations, creating memory or belief, persisting data, narrating, or adding hearing range, barriers, volume, language, attention, or other richer audibility mechanics.
 
+#### Actor loop
+
 **LOOP-001:** When canonical state or events may be observable by a character, the system shall apply that character's perceptual constraints before producing observations.
 
 **LOOP-002:** When an NPC performs sensemaking, the system shall limit its inputs to current observations and character-available identity, goals, plans, beliefs, and memories.
@@ -929,6 +957,8 @@ This helps ensure requirements are:
 **STORE-004:** When an authoritative SQLite transaction fails, the system shall not report the associated simulation step as completed.
 
 **STORE-005:** Qdrant shall remain a derived retrieval index and shall not be required to recover authoritative world or character history.
+
+**STORE-006:** One application-owned SQLite transaction shall define simulation-step completion across the replacement world state, canonical events, scheduled-queue effects, authoritative character data, and simulation-step trace; participating repositories shall not commit those records independently.
 
 ### Outcome randomness
 
@@ -1055,6 +1085,18 @@ This helps ensure requirements are:
 **INSPECT-005:** The inspection page shall expose stable identifiers and provenance needed to trace information between stages.
 
 **INSPECT-006:** World reset shall remain a separate explicit development operation and shall not be performed through direct state editing on the inspection page.
+
+### Documentation and delegated context
+
+**DOC-001:** Each durable documentation artifact shall have one primary information-ownership role so orientation, normative contracts, architecture, planning, execution, and historical evidence remain distinguishable.
+
+**DOC-002:** README shall be a concise human landing page for project purpose, current status, setup, repository orientation, and documentation routing rather than a duplicate reference for detailed domain contracts.
+
+**DOC-003:** The domain guide shall provide non-normative conceptual orientation and shall link to canonical vocabulary, requirements, decisions, and design instead of replacing or restating their detailed contracts.
+
+**DOC-004:** Every Ready delegated task shall route exact pre-code documentation extracts, record their approximate word budget, and justify exceeding the initial soft limit of 8,000 words rather than silently loading whole canonical documents.
+
+**DOC-005:** Delegated implementation shall exclude human-orientation, planning, continuation, review, and completed-task artifacts by default, and its handoff shall identify the bounded documentation and initial source or test context actually used.
 
 ### Development foundation
 

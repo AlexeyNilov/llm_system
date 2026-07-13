@@ -23,7 +23,7 @@ This file is a parking lot for promising possibilities that are not part of the 
 **Revisit when:** What evidence or project milestone should bring it back for discussion?
 ```
 
-## Backlog
+## Entries
 
 ### IDEA-001: Generate game packages from source material
 
@@ -117,20 +117,16 @@ This file is a parking lot for promising possibilities that are not part of the 
 
 ### IDEA-010: Reshape the project README
 
-**Status:** Backlog
+**Status:** Promoted
 
 **Opportunity:** Make the README a concise, navigable entry point that explains the project, its current status, and how to find the authoritative documentation without overwhelming readers with detail better owned elsewhere.
 
-**Why postponed:** A useful restructure depends on stable onboarding needs and a clear documentation map. Rearranging content too early risks simply moving crowding between files or duplicating governance documents.
-
-**Revisit when:** The core development workflow and documentation ownership are stable enough to identify what belongs in the README, what should move to focused documents, and what new contributors need first.
+**Accepted treatment:** The M3.6 documentation and context-architecture milestone makes README a concise landing page for purpose, status, setup, repository orientation, and routing. Detailed contracts remain with their authoritative specifications, source, and tests.
 
 ### IDEA-011: Create a domain manual for new developers
 
-**Status:** Backlog
+**Status:** Promoted
 
 **Opportunity:** Provide a focused manual that introduces the simulation domain, canonical vocabulary, key concepts, and the reasoning behind important rules so new developers can work effectively without reconstructing the domain from scattered specifications.
 
-**Why postponed:** The domain model and its terminology are still evolving. A manual written before they stabilize could become a competing and quickly outdated source of truth.
-
-**Revisit when:** The glossary, requirements, and core scenario have stabilized through a vertical slice, and recurring onboarding questions identify the concepts that need a guided explanation.
+**Accepted treatment:** Begin with a deliberately small, non-normative `doc/domain_guide.md` that explains stable conceptual relationships and routes readers to canonical sources. Expand it only after the vertical slice exposes recurring onboarding questions; do not restate detailed requirements or glossary definitions.

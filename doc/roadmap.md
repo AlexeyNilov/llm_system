@@ -13,6 +13,7 @@ Show the current delivery sequence, deferred scope, and readiness for delegation
 | M2: Packages and domain contracts | Done | Strict versioned YAML packages load into validated typed definitions |
 | M3: Deterministic simulation kernel | Done | Pure Python validates worlds and deterministically resolves the supported minimal action set without an LLM or database |
 | M3.5: Review before persistence | Done | Accepted the kernel boundary and carried transaction ownership into M4 |
+| M3.6: Documentation and context architecture | Done | Separated human orientation from canonical contracts and bounded delegated pre-code context |
 | M4: Persistence and application boundary | Current | Persist one world and advance it through one atomic application-owned step |
 
 Completed task contracts and verification evidence remain under [`tasks/`](tasks/).
@@ -41,11 +42,13 @@ The application must keep unavailable behavior explicit. Greybridge is not yet a
 
 | Planned task | Depends on |
 | --- | --- |
-| SQLite schema and repositories | Completed M3.5 review |
+| SQLite schema and repositories | Completed M3.5 review and M3.6 context-routing rules |
 | Atomic simulation-step coordinator, transaction, scheduled-activity execution, and trace | SQLite repositories and deterministic scheduling contracts |
 | World creation, resume, and reset | Packages and repositories |
 | FastAPI turn boundary | Atomic simulation step |
 | Deterministic Streamlit player page | FastAPI turn boundary |
+
+The first M4 task brief is the pilot for the M3.6 context rules. It must record its pre-code documentation budget, exclude human-orientation and historical artifacts by default, and provide context-used evidence in its handoff. Review should adjust the soft budget only from measured task evidence.
 
 ## M5: Actor policies and local LLM integration
 

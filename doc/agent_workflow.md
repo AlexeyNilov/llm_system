@@ -13,6 +13,8 @@ Use each artifact for one kind of information:
 | Artifact | Purpose |
 | --- | --- |
 | `AGENTS.md` | Small set of durable rules that apply across the repository |
+| `README.md` | Human landing page for purpose, status, setup, and navigation |
+| `doc/domain_guide.md` | Non-normative human orientation to stable domain relationships |
 | `doc/glossary.md` | Canonical domain vocabulary |
 | `doc/requirements.md` | Accepted observable behavior and constraints |
 | `doc/decisions.md` | Accepted architectural choices and rationale |
@@ -21,6 +23,8 @@ Use each artifact for one kind of information:
 | `doc/ideas.md` | Postponed possibilities, not approved scope |
 | `doc/roadmap.md` | Dependency order, milestones, and task readiness |
 | `doc/tasks/TASK-*.md` | Bounded work contracts and handoff records |
+| `doc/reviews/` | Independent evidence and recommendations, subject to integrator disposition |
+| `doc/codex-task-state.md` | Compact continuation state for the architect or integrator chat |
 | Chat history | Temporary discussion only; never the sole source of a requirement |
 
 If conversation and repository artifacts disagree, stop and resolve the discrepancy before delegation.
@@ -124,6 +128,7 @@ Start from [`tasks/TASK_TEMPLATE.md`](tasks/TASK_TEMPLATE.md). A ready task must
 * one outcome stated in behavioral terms;
 * stable requirement IDs and decision references;
 * a context manifest listing exact files and sections;
+* a context budget showing why each documentation source is required;
 * fixed assumptions that the agent must not revisit;
 * explicit in-scope and out-of-scope boundaries;
 * expected contracts and likely files;
@@ -132,11 +137,19 @@ Start from [`tasks/TASK_TEMPLATE.md`](tasks/TASK_TEMPLATE.md). A ready task must
 * permissions for governance-document changes; and
 * the required handoff report.
 
-Do not include brainstorm history, rejected alternatives already captured in decisions, unrelated future ideas, or the parent agent's hidden reasoning.
+Reference stable requirements and decisions instead of copying their full text into fixed assumptions or acceptance criteria. Restate only the task-specific consequence needed to remove ambiguity.
+
+Do not include brainstorm history, rejected alternatives already captured in decisions, unrelated future ideas, the parent agent's hidden reasoning, or general orientation material that does not affect execution.
 
 ## Context routing
 
 The task brief is the context router.
+
+### Context budget
+
+Use a soft limit of 8,000 words for the task brief plus documentation that must be read before task-local source exploration. This is a diagnostic threshold, not a reason to omit necessary authority. If the expected context exceeds it, justify each broad source and consider narrowing the task.
+
+The budget excludes source and tests discovered while tracing the named implementation path. It includes the task brief, glossary extracts, requirement ranges, decisions, design sections, scenario extracts, and other pre-code documents. Approximate word counts are sufficient; exact tokenizer-specific accounting is unnecessary.
 
 ### Always read
 
@@ -153,7 +166,11 @@ The task brief is the context router.
 * package schemas or code contracts; and
 * relevant source and test files discovered while tracing the real path.
 
-Do not load `doc/ideas.md` for implementation unless the task explicitly concerns promoting an idea. Do not read all project documents merely because they exist.
+Read named sections and requirement IDs, not the entire containing document. Use heading or identifier searches to locate those extracts before opening surrounding lines.
+
+Do not load README, the domain guide, roadmap, ideas, architect continuation state, reviews, completed task briefs, or planning-chat history for implementation unless the task explicitly depends on that artifact's responsibility. Do not read all project documents merely because they exist.
+
+README and the domain guide orient humans; they are not substitutes for requirements, decisions, or design. A task that changes public setup or onboarding may authorize README work without making the rest of README a behavioral contract.
 
 If no task brief exists for non-trivial delegated work, create or request one before implementation.
 
@@ -168,6 +185,7 @@ If no task brief exists for non-trivial delegated work, create or request one be
 7. Run task-local checks, then the required repository checks.
 8. Update only task-authorized artifacts.
 9. Fill in the handoff report without rewriting the original task contract.
+10. Record the documentation extracts and initially named source or test files actually used; do not enumerate every file reached by normal transitive code tracing.
 
 ### Design gaps
 
@@ -203,8 +221,9 @@ Give the reviewer:
 
 * the task brief;
 * the implementation diff;
-* linked requirements and decisions; and
-* verification results.
+* linked requirements and decisions;
+* verification results; and
+* the execution agent's concise context-used record.
 
 Do not preload the reviewer with the implementer's justification beyond the concise handoff report. Independent reconstruction reduces anchoring.
 
@@ -227,6 +246,11 @@ This is delegation only, not integration.
 Delegate <READY_TASK_PATH> to a fresh subagent using the Agent configuration
 specified by the task brief. `Default` means no custom-agent profile.
 Do not pass prior chat history.
+
+The task brief is the context router. Read only its exact pre-code selections,
+then trace task-local source and tests. Do not preload README, the domain guide,
+roadmap, ideas, reviews, completed tasks, or architect continuation state unless
+the task explicitly names them.
 
 The execution agent may set the task to In progress, then Review or Blocked.
 Neither the execution agent nor this parent task may mark it Done, review or
