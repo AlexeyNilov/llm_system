@@ -20,7 +20,7 @@ disable_on_external_context = true
 
 # Cost-effective models for background memory processing.
 extract_model = "gpt-5.6-luna"
-consolidation_model = "gpt-5.6-luna"
+consolidation_model = "gpt-5.6-terra"
 
 # Do not spend quota on memories when the remaining allowance is low.
 # Codex's default is 25%.
