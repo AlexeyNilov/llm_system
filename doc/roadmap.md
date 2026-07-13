@@ -42,7 +42,7 @@ The application must keep unavailable behavior explicit. Greybridge is not yet a
 
 | Planned task | Depends on |
 | --- | --- |
-| [TASK-036](tasks/TASK-036-sqlite-world-and-event-persistence.md): SQLite world and canonical-event persistence | Ready; depends on completed M3.5 review and M3.6 context-routing rules |
+| [TASK-036](tasks/TASK-036-sqlite-world-and-event-persistence.md): SQLite world and canonical-event persistence | Done; depended on completed M3.5 review and M3.6 context-routing rules |
 | Atomic simulation-step coordinator, transaction, scheduled-activity execution, and trace | SQLite repositories and deterministic scheduling contracts |
 | World creation, resume, and reset | Packages and repositories |
 | FastAPI turn boundary | Atomic simulation step |

@@ -2,13 +2,14 @@
 
 ## Current objective
 
-Commit and delegate Ready TASK-036: V1 SQLite bootstrap, an explicitly committed unit of work, a strict stored-world record containing package ownership, `WorldState`, and `ScheduledActivityQueue`, a singleton revision-checked world repository, and ordered revision-linked canonical-event persistence.
+Define the next M4 increment around the minimal simulation-step trace and atomic turn coordinator now that TASK-036 provides the SQLite unit of work and repositories.
 
 ## Verified baseline
 
-* TASK-035 and the complete M3.6 documentation/context restructuring are committed through `b8f1384 simplify rules`.
-* Project and installed package version: `0.33.0`.
-* `uv sync --locked`, collection of `323` tests, `make check` with `323` passing tests, `uv lock --check`, and `git diff --check` pass.
+* The automatic Ready-task handoff rule is committed through `10b5e25 automate ready task delegation`.
+* TASK-036 is independently reviewed and accepted in the working tree but is not yet committed.
+* Project and installed package version: `0.34.0`.
+* `uv sync --locked`, focused persistence tests with `6` passing tests, `make check` with `329` passing tests, `uv lock --check`, and `git diff --check` pass.
 
 ## Available foundation
 
@@ -17,6 +18,7 @@ Commit and delegate Ready TASK-036: V1 SQLite bootstrap, an explicitly committed
 * Observe, Move, Speak, Take, Use, and Wait resolve deterministically; Help remains an explicit unavailable capability.
 * Current-state and selected immediate event-feedback perception paths are implemented.
 * Scheduled activities can be represented and deterministically partitioned; recorded integer draws have an injected boundary but no concrete generator.
+* SQLite V1 strictly persists one revision-checked world snapshot, its scheduled queue, and ordered revision-linked canonical events through an explicitly committed unit of work.
 
 ## Accepted M3.5 findings
 
@@ -38,22 +40,22 @@ Commit and delegate Ready TASK-036: V1 SQLite bootstrap, an explicitly committed
 
 ## Blockers and limitations
 
-No current blocker to SQLite boundary design.
+No current blocker to the next M4 design increment.
 
-TASK-036 deliberately excludes simulation-step trace persistence because no stable trace contract exists yet. It also excludes package resolution, world initialization/reset orchestration, the turn coordinator, memories, beliefs, and API behavior.
+No stable simulation-step trace contract exists yet. The next coordinator task must define only the trace evidence required by the first atomic application step rather than anticipating later LLM, memory, belief, director, or presentation fields.
 
 Greybridge cannot yet execute its flood, NPC activities, System director hooks, Help, or progression. Persistence work must not describe the scenario as fully playable until those capabilities exist.
 
 ## Exact next action
 
-Apply the automatic Ready-task handoff: commit any remaining task-owned planning artifact, delegate TASK-036 immediately to a fresh coding subagent, wait for its handoff, and independently review the result.
+Commit the accepted TASK-036 implementation and integration updates. Then settle the minimal trace and coordinator boundaries; once the next brief is Ready, commit and delegate it automatically.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
-3. `doc/agent_workflow.md`: task briefs, context routing, and context budget
-4. `doc/tasks/TASK_TEMPLATE.md`
-5. `doc/reviews/m3-5-kernel-review.md`: KRV-002 and recommended M4 gate
-6. `doc/roadmap.md`: M4
-7. Persistence sections and decisions selected by the future task's context manifest
+3. `doc/tasks/TASK-036-sqlite-world-and-event-persistence.md`: accepted persistence boundary
+4. `src/llm_system/persistence/`: unit of work and repository APIs
+5. `doc/reviews/m3-5-kernel-review.md`: KRV-001 and KRV-002
+6. `doc/high_level_design.md`: turn coordinator, simulation-step sequence, and observability
+7. Trace, scheduling, submission, outcome, and persistence requirements selected for the next decision

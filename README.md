@@ -16,10 +16,12 @@ The deterministic Python kernel is implemented and reviewed. It can:
 * resolve Observe, Move, Speak, Take, Use, and Wait without an LLM;
 * commit typed state changes into replacement world snapshots;
 * produce typed canonical events and selected perception projections;
+* persist one revision-checked world, its scheduled queue, and ordered canonical
+  events atomically in SQLite;
 * partition scheduled activities deterministically; and
 * validate caller-injected recorded integer draws.
 
-Help resolution, SQLite persistence, the atomic turn coordinator, FastAPI, Streamlit, NPC execution, the System director, narration, and the complete Greybridge scenario remain later work. See the [roadmap](doc/roadmap.md) for current delivery order.
+Help resolution, the atomic turn coordinator, world lifecycle orchestration, FastAPI, Streamlit, NPC execution, the System director, narration, and the complete Greybridge scenario remain later work. See the [roadmap](doc/roadmap.md) for current delivery order.
 
 ## Development setup
 
@@ -106,6 +108,7 @@ Package validation establishes structural and semantic consistency. It does not 
 | --- | --- |
 | `src/llm_system/game_packages/` | Authored package models, loading, and semantic validation |
 | `src/llm_system/simulation/` | Runtime state, authorization, resolution, commitment, scheduling, randomness, and perception |
+| `src/llm_system/persistence/` | SQLite records, repositories, schema bootstrap, and unit of work |
 | `game_packages/` | Versioned Greybridge rule and scenario content |
 | `tests/` | Behavioral evidence for project-owned contracts |
 | `doc/` | Domain, architecture, requirements, decisions, workflow, and planning artifacts |

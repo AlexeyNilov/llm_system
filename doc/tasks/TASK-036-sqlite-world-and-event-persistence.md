@@ -1,6 +1,6 @@
 # TASK-036: Persist the current world and canonical event history in SQLite
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -150,14 +150,14 @@ Stop and report a design gap if implementation requires:
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the schema-version-gated SQLite store, strict stored-world and stored-event records, singleton world repository, append-only ordered event repository, and explicitly committed rollback-safe unit of work. Restart recovery behavior covers exact replacement of a non-empty typed scheduled activity queue.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/persistence/__init__.py`, `src/llm_system/persistence/errors.py`, `src/llm_system/persistence/records.py`, `src/llm_system/persistence/sqlite.py`, `tests/test_sqlite_persistence.py`, `tests/test_package.py`, `pyproject.toml`, `uv.lock`, and this task brief.
 
-**Verification:** Pending
+**Verification:** Recorded the initial focused-test failure (`ModuleNotFoundError: No module named 'llm_system.persistence'`). The focused restart test replaces, commits, reopens, and exactly asserts a non-empty typed `ScheduledActivityQueue`. Passed `uv sync --locked`; `uv run pytest tests/test_sqlite_persistence.py` (6 passed); `make format`; `make lint`; `make mypy`; `make test` (329 passed); `make check` (329 passed plus format, lint, and mypy); `uv lock --check`; and `git diff --check`.
 
-**Context used:** Pending; list the documentation extracts and initially named source or test files actually consulted. Do not list every transitive implementation file.
+**Context used:** `AGENTS.md`; this task brief; `doc/agent_roles/implementer.md`; the eight named `doc/glossary.md` entries; the named requirement ranges in `doc/requirements.md`; the ten named decisions in `doc/decisions.md`; `Persistence and consistency` in `doc/high_level_design.md`; the five named initial source entrypoints; the three named initial test entrypoints; `pyproject.toml`; and task-local traces through `src/llm_system/simulation/__init__.py`, `tests/test_package.py`, `uv.lock`, and `Makefile`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.
