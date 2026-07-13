@@ -20,6 +20,13 @@ from llm_system.simulation.actions import (
     UseTarget,
     WaitActionProposal,
 )
+from llm_system.simulation.authorization import (
+    ActorActionAuthorizationError,
+    ActorActionAuthorizationIssue,
+    ActorActionAuthorizationIssueCode,
+    AuthorizedActorAction,
+    authorize_actor_action,
+)
 from llm_system.simulation.changes import (
     CharacterLocationChanged,
     ConnectionAvailabilityChanged,
@@ -71,10 +78,14 @@ from llm_system.simulation.validation import (
 
 __all__ = [
     "ActorActionFailedEvent",
+    "ActorActionAuthorizationError",
+    "ActorActionAuthorizationIssue",
+    "ActorActionAuthorizationIssueCode",
     "ActorActionOperation",
     "ActorActionProposal",
     "ActorActionSource",
     "ActorActionSubmission",
+    "AuthorizedActorAction",
     "ActorHelpedEvent",
     "ActorMovedEvent",
     "ActorObservedEvent",
@@ -125,5 +136,6 @@ __all__ = [
     "WorldStateValidationIssue",
     "WorldStateValidationIssueCode",
     "validate_world_state",
+    "authorize_actor_action",
     "commit_outcome",
 ]

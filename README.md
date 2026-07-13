@@ -140,8 +140,32 @@ submission = ActorActionSubmission(
 ```
 
 These are contracts, not executable actions or proof of authority. They do not
-resolve references, validate source authorization, mutate state, produce
-outcomes or events, or define world-action and scheduled-activity submissions.
+resolve references, mutate state, produce outcomes or events, or define
+world-action and scheduled-activity submissions.
+
+## Actor-action authorization
+
+Use `llm_system.simulation.authorize_actor_action()` to bind a trusted
+`ActorActionSubmission` source to its intended authored character before later
+operation dispatch. Success returns a frozen `AuthorizedActorAction` preserving
+the exact validated world and submission objects. Failure raises
+`ActorActionAuthorizationError` with a non-empty immutable tuple of structured
+issues.
+
+A player-interpreter source may submit only for the one authored player
+character. Its interpreter identity is retained as trusted application-created
+provenance; this boundary does not check an interpreter registry or allowlist.
+An NPC-policy source must identify the intended actor, that actor must be an
+authored NPC, and the source policy identity must exactly match the NPC's
+configured decision policy. Unknown actors stop source-specific checks, and NPC
+source identity mismatches stop actor-type and policy checks.
+
+Authorization establishes source authority only. It does not inspect proposal
+targets, current location, connection availability, possession, current
+actionability, simulation-step or decision-context identities, or policy
+implementation type. It also does not dispatch or resolve operations, generate
+outcomes, commit state, interpret events, invoke an LLM, or authorize world
+actions and scheduled activities.
 
 ## Runtime-state contracts
 

@@ -1,6 +1,6 @@
 # TASK-017: Authorize actor-action submissions
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -115,12 +115,25 @@ Stop and report a design gap if implementation requires dispatch, operation sema
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the pure actor-action authorization boundary with strict immutable public contracts, gated player/NPC source checks, exact input identity preservation, public exports, and authority-boundary documentation.
 
-**Changed files:** Pending
+**Changed files:** `README.md`; `doc/tasks/TASK-017-actor-action-authorization.md`; `pyproject.toml`; `src/llm_system/simulation/__init__.py`; `src/llm_system/simulation/authorization.py`; `tests/test_actor_action_authorization.py`; `tests/test_package.py`; `uv.lock`.
 
-**Verification:** Pending
+**Verification:** Initial red: `uv run pytest -q tests/test_actor_action_authorization.py` failed during collection with `ImportError: cannot import name 'ActorActionAuthorizationError' from 'llm_system.simulation'`. Focused green: player/NPC success branches `2 passed`; authorization error branches and gating `5 passed`; complete authorization file `9 passed`. Final green: `uv sync --locked`; `make format`; `make lint`; `make mypy`; `make test` (`148 passed`); `make check` (`148 passed` plus formatting, Ruff, and mypy); `uv lock --check`; `git diff --check`. Confirmed `uv.lock` changes only the editable root `llm-system` version from `0.15.0` to `0.16.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.
+
+## Integrator review
+
+**Disposition:** Accepted.
+
+The integrator independently reviewed authored actor lookup, player and NPC
+source binding, policy identity validation, cascade suppression, immutable issue
+evidence, exact input identity preservation, proposal non-inspection, public
+exports, and documentation. No correctness defect was found. Twenty-four
+focused and adjacent tests passed, followed by `uv sync --locked`, `make
+format`, `make lint`, `make mypy`, `make test`, `make check`, `uv lock --check`,
+and `git diff --check`; the full suite contains 148 passing tests. The only
+`uv.lock` change is the editable root-package version from `0.15.0` to `0.16.0`.
