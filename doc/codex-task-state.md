@@ -2,67 +2,54 @@
 
 ## Current objective
 
-Complete the remaining M3 deterministic-kernel boundaries through small accepted contracts and delegated TDD tasks. TASK-029 is implemented and accepted; the next grounded boundary should be selected from Take, Use, Help, or remaining witness feedback.
+Complete the remaining M3 deterministic-kernel operations through small accepted contracts and delegated TDD tasks. TASK-030 now defines the Ready Take v0 resolver boundary; implementation has not been delegated.
 
-Repository baseline before TASK-029 implementation: commit `5335b74 t29`. The accepted uncommitted implementation advances the package to `0.28.0`.
+Verified repository baseline before TASK-030 planning: commit `0a3beb0 t29`, package version `0.28.0`, branch `main` ahead of `origin/main` by two commits, and a clean worktree.
 
 ## Completed work
 
-* TASK-023, Observe v0, is Done and committed. `src/llm_system/simulation/resolvers/observe.py::resolve_observe` reuses `project_current_perception`, rejects all absent targets uniformly, and emits zero-time `ActorObservedEvent` evidence. `dispatch_actor_action` now routes Observe.
-* TASK-024, self-action event feedback, is Done and committed. `src/llm_system/simulation/perception_engine.py::FutureEventFeedbackError` and `project_self_event_feedback` validate observer then whole-batch time, map all eight event owners exhaustively, and retain exact events.
-* TASK-025, scheduled-activity contracts, is Done and committed. `src/llm_system/simulation/scheduling.py` defines `EnvironmentalScheduledActivity`, `NpcScheduledActivity`, `SystemDirectorScheduledActivity`, `ScheduledActivity`, and `ScheduledActivityQueue`.
-* TASK-026, deterministic selection, is Done and committed. `src/llm_system/simulation/scheduling.py::ScheduledActivitySelection` and `select_eligible_activities` partition at canonical world time, order due work, preserve pending order, and retain exact activity objects. Review corrected validation precedence and added a regression test in `tests/test_scheduled_activity_selection.py`.
-* TASK-027, recorded integer draws, is Done and committed. `src/llm_system/simulation/randomness.py` defines `IntegerDrawRequest`, `IntegerDrawRecord`, `IntegerRandomSource`, `RandomSourceContractError`, and `draw_recorded_integer`; public exports and focused behavioral tests are included.
-* TASK-028, co-located Speak v0, is Done and committed. `src/llm_system/simulation/resolvers/speak.py::resolve_speak` resolves audible addressed speech at current time, rejects every non-audible category uniformly, and dispatch now routes Speak while Take, Use, and Help remain unavailable.
-* TASK-029, addressed-speech recipient feedback, is Done and awaiting commit. `src/llm_system/simulation/perception_engine.py::project_addressed_speech_feedback` validates observer and whole-batch time before preserving exact matching actor-spoke events for their recipient.
-* Public exports are maintained in `src/llm_system/simulation/__init__.py`; accepted architecture and usage are reflected in `README.md`, `doc/high_level_design.md`, `doc/requirements.md`, `doc/decisions.md`, `doc/glossary.md`, and `doc/roadmap.md`.
+* TASK-023, Observe v0, is Done and committed. `src/llm_system/simulation/resolvers/observe.py::resolve_observe` reuses current-state perception and emits zero-time observation evidence.
+* TASK-024, self-action event feedback, is Done and committed. `src/llm_system/simulation/perception_engine.py::project_self_event_feedback` projects exact actor-owned events.
+* TASK-025 and TASK-026, scheduled-activity contracts and deterministic eligibility selection, are Done and committed in `src/llm_system/simulation/scheduling.py`.
+* TASK-027, recorded integer draws, is Done and committed in `src/llm_system/simulation/randomness.py`; a concrete generator remains deferred.
+* TASK-028, Speak v0, is Done and committed. `src/llm_system/simulation/resolvers/speak.py::resolve_speak` records zero-time addressed co-located speech.
+* TASK-029, addressed-speech recipient feedback, is Done and committed at `0a3beb0`. `src/llm_system/simulation/perception_engine.py::project_addressed_speech_feedback` preserves exact committed speech events for their recipients.
+* TASK-030 planning adds accepted Take v0 requirements, decision, vocabulary, high-level design, a Ready roadmap entry, and `doc/tasks/TASK-030-take-resolver.md`. These planning changes are currently uncommitted and contain no production implementation.
 
 ## Decisions and rationale
 
-* Observe v0 is deliberately thin and zero-time because richer perceptible facts, checks, and durations do not yet exist. Unknown and hidden targets share one rejection to prevent truth leakage.
-* Event feedback begins with stateless self-action projection. Witness rules need unresolved pre/post-location, hearing, and event-specific semantics; the caller owns the candidate event window and delivery tracking.
-* Scheduled activities are closed, one-shot eligibility records rather than executable generic payloads. Environmental, NPC, and System-director work have different downstream authorities.
-* Phase priority is derived from the variant: environmental, NPC, then System director. Ordering uses `(eligible_at_seconds, phase_rank, insertion_sequence)`; UUID and storage order are not tie-breakers.
-* Selection is a pure validated partition, not a claim or execution transaction. It includes overdue and exactly due work, preserves future storage order, and reuses the input queue when nothing is selected.
-* A concrete seeded generator is deferred until the first accepted random-check consumer and persistence boundary exist. Scripted injected sources are sufficient for the current deterministic kernel.
-* Speak v0 uses canonical co-location for audibility without treating visual perception as hearing. Successful delivery records an event but does not claim comprehension or recipient reaction.
-* Addressed-speech feedback treats committed recipient identity as delivery evidence at event time. Present location cannot revoke historical delivery; general overhearing remains separate.
+* Take v0 accessibility is canonical-state actionability, not perception: the object must have an exact `ObjectAtLocation` placement matching the actor's current location.
+* Unknown, remote, possessed, and wrong-namespace targets reject uniformly as `object-not-accessible` to avoid truth disclosure.
+* Success is zero-time `object-taken`, with one exact `ObjectPlacementChanged` to actor possession and one exact `ObjectTakenEvent`; there is no failed branch.
+* Transfer, theft, consent, carrying limits, object-specific rules, witness feedback, NPC reaction, and presentation remain outside TASK-030.
+* TASK-030 should bump the public package version from `0.28.0` to `0.29.0`; planning alone does not change version metadata.
 
 ## Commands and verified results
 
-* TASK-026 focused and adjacent review: `uv run pytest tests/test_scheduled_activity_selection.py tests/test_scheduled_activity_contracts.py tests/test_world_state_validation.py tests/test_package.py -q` -> `41 passed`.
-* `make format` -> 55 files unchanged.
-* `make lint` -> passed.
-* `make mypy` -> no issues in 55 source files.
-* `make test` -> `235 passed`.
-* `make check` -> format, lint, mypy, and `235 passed`.
-* `uv sync --locked`, `uv lock --check`, and `git diff --check` -> passed.
-* Lockfile review -> only root package version `0.24.0` to `0.25.0` for TASK-026.
-* `git status --short` at commit `785d254` -> clean before this file was added.
-* TASK-027 review -> focused `19 passed`; `make format`, `make lint`, `make mypy`, `uv sync --locked`, and `uv lock --check` passed; `make check` passed all gates with `247 passed`; `git diff --check` passed.
-* TASK-028 planning review -> `git diff --check` passed; no production code or package metadata changed, so tests were not rerun.
-* TASK-028 implementation review -> focused `22 passed`; `make format`, `make lint`, `make mypy`, `uv sync --locked`, and `uv lock --check` passed; `make check` passed all gates with `256 passed`; `git diff --check` passed.
-* TASK-029 planning review -> `git diff --check` passed; no production code or package metadata changed, so tests were not rerun.
-* TASK-029 implementation review -> focused `18 passed`; `make format`, `make lint`, `make mypy`, `uv sync --locked`, and `uv lock --check` passed; `make check` passed all gates with `260 passed`; `git diff --check` passed.
+* Baseline inspection: `git status --short --branch` -> clean `main`, ahead of `origin/main` by two; `git log -4 --oneline --decorate` -> HEAD `0a3beb0 t29`.
+* TASK-029 implementation review previously passed its focused 18-test suite, `uv sync --locked`, `make format`, `make lint`, `make mypy`, `make check` with `260 passed`, `uv lock --check`, and `git diff --check`.
+* TASK-030 planning inspected current resolver, dispatch, state, state-change, event, outcome, commitment, workflow, task-template, requirements, decisions, glossary, design, roadmap, README, and version contracts.
+* TASK-030 planning verification: `make format` -> 60 files unchanged; `git diff --check` -> passed. Context-manifest decision titles were verified against the current decision headings.
 
 ## Tests
 
-All `260` tests pass. No known failing test, lint, formatting, typing, lock, or diff check exists.
+The last full verified implementation baseline has `260` passing tests and no known lint, formatting, typing, lock, or diff failure. Tests have not been rerun for the current documentation-only TASK-030 planning changes.
 
 ## Blockers and unresolved questions
 
-No current blocker.
+No current blocker. TASK-030 has no material implementation choice left open.
 
-Unresolved planned work includes Take, Use, and Help mechanics; remaining witness event feedback; authored environmental schedules and System-director hooks; activity execution/claiming/persistence/cascading semantics; later draw history and simulation-step trace integration; a concrete seeded generator plus persisted state when the first random mechanic exists; and M3.5 architecture and test-value reviews. Scheduled-activity execution should not be invented before its environmental mechanics, NPC policies, and director-hook consumers are grounded.
+Remaining planned work includes Use and Help mechanics; remaining witness event feedback; authored environmental schedules and System-director hooks; activity execution and persistence semantics; trace integration; the deferred concrete random generator; and M3.5 architecture and test-value reviews.
 
 ## Exact next action
 
-Commit the accepted TASK-029 implementation. Then choose and design the next grounded M3 boundary one consequential question at a time; do not delegate until a new Ready brief is accepted and committed.
+After the user commits the accepted TASK-030 Ready brief, delegate it only on explicit request to a fresh Default implementer with no prior chat history, then independently review the result.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
-2. `doc/codex-task-state.md`
-3. `doc/roadmap.md` M3 and M3.5
-4. Relevant operation and perception requirements for the selected boundary
-5. Relevant decisions, high-level-design sections, glossary entries, source contracts, and tests named by the next task brief
+2. `doc/agent_workflow.md` delegation and review sections
+3. `doc/tasks/TASK-030-take-resolver.md`
+4. `doc/requirements.md` `TAKE-001` through `TAKE-012` and `DISPATCH-001` through `DISPATCH-010`
+5. `doc/decisions.md` “Resolve Take v0 as direct co-located acquisition”
+6. `doc/high_level_design.md` “Principal records” and `doc/roadmap.md` M3

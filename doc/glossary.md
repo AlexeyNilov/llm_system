@@ -204,6 +204,10 @@ An immutable scenario-package entity record that references a rule-pack object a
 
 The single authored initial placement of an object: either directly at one location or possessed by one character. A possessed object does not also store a duplicate effective location.
 
+### Object accessibility
+
+The deterministic actionability rule for acquiring an object. In Take v0, an object is accessible only when its canonical runtime placement is directly at the authorized actor's current location. Perception may inform a proposal but does not authorize the canonical placement change.
+
 ### Operation dispatch
 
 The deterministic post-authorization boundary that routes an authorized action to the operation-specific resolver implemented for its concrete proposal type. Dispatch does not authorize, resolve mechanics itself, commit outcomes, or turn unavailable software capability into an in-world outcome.

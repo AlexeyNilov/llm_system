@@ -254,7 +254,7 @@ The design requires stable identifiers and explicit schemas for these concepts:
 * `ActionProposalSubmission`: a trusted application-created envelope containing proposal identity, source role and identity, intended actor when applicable, simulation-step context, and trace provenance. Actor-action and world-action submissions form separate typed families.
 * Runtime identity and proposal source: application-injected UUIDs identify proposals and simulation steps, while a discriminated source union carries role-specific provenance. Authored package identifiers remain readable domain strings.
 * Operation references: namespace-aware typed references constrained per operation. Movement selects an authored directed connection; observation distinguishes surroundings from location, connection, character, and object targets.
-* Actor-action operation dispatch: a pure post-authorization, pre-resolution routing boundary that selects implemented resolvers by concrete proposal type and forwards caller-injected outcome and event identities. The initial partial dispatcher supports Move, Wait, Observe, and Speak; Take, Use, and Help raise a typed unavailable-capability error rather than producing canonical outcomes.
+* Actor-action operation dispatch: a pure post-authorization, pre-resolution routing boundary that selects implemented resolvers by concrete proposal type and forwards caller-injected outcome and event identities. The initial partial dispatcher supports Move, Wait, Observe, Speak, and Take; Use and Help raise a typed unavailable-capability error rather than producing canonical outcomes.
 * `Outcome`: a closed union of immutable rejected, failed, and succeeded results with outcome and proposal identities plus a stable reason code. Rejected outcomes have no effect fields; failed and succeeded outcomes carry ordered typed state-change and canonical-event tuples that may be empty.
 * `OutcomeCommitResult`: the immutable result of atomically committing one structurally valid outcome against `ValidatedWorldState`, containing the exact outcome and resulting validated world without duplicating its event tuple.
 * Outcome time: each outcome has one atomic completion timestamp. Nested events share that time and causation identity; elapsed-time-triggered activities resolve separately after the triggering action.
@@ -289,6 +289,13 @@ The design requires stable identifiers and explicit schemas for these concepts:
   success records the exact addressed utterance in one actor-spoke event without
   claiming comprehension, response, memory, belief, recipient feedback, or
   visual perceptibility.
+* Take v0 resolver: a pure zero-time boundary that authorizes acquisition only
+  when canonical runtime state places the object directly at the authorized
+  actor's exact location. Every unknown, remote, possessed, or wrong-namespace
+  object rejects uniformly without effects; success transfers the exact previous
+  location placement to actor possession and records one object-taken event.
+  Perception, transfer, theft, consent, carrying limits, checks, witness feedback,
+  responses, commitment, and presentation remain separate.
 * `EpisodicMemory`: durable character history derived from observations.
 * `Belief`: character-held claim with confidence, provenance, and revision state.
 * `ScheduledActivity`: a closed union of strict immutable one-shot

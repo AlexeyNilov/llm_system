@@ -568,17 +568,41 @@ This helps ensure requirements are:
 
 **SPEAK-011:** Repeated Speak resolution with equal inputs and caller identities shall produce equal outcomes without mutating or replacing the authorized action, world, submission, proposal, or utterance.
 
+**TAKE-001:** The initial Take resolver shall determine object accessibility from canonical runtime state directly; perception, authored initial placement, package rules, randomness, and an LLM shall not authorize the state transition.
+
+**TAKE-002:** The public resolver shall have the contract `resolve_take(action: AuthorizedActorAction, *, outcome_id: UUID, event_id: UUID) -> RejectedOutcome | SucceededOutcome` and shall not generate runtime identities internally.
+
+**TAKE-003:** An object shall be accessible to Take v0 only when its runtime object state exists and its exact current placement is `ObjectAtLocation` at the authorized actor's exact current location.
+
+**TAKE-004:** An unknown, remote, actor-possessed, other-character-possessed, wrong-namespace, or otherwise inaccessible object identifier shall produce one rejected outcome with reason code `object-not-accessible`, without distinguishing which canonical condition applied.
+
+**TAKE-005:** A rejected Take shall use current canonical simulation time, preserve the proposal and caller-supplied outcome identities, contain no effects or event, and leave the caller-supplied event identity unused.
+
+**TAKE-006:** An accessible Take shall return a succeeded outcome with reason code `object-taken` at current canonical simulation time and shall not advance simulation time.
+
+**TAKE-007:** A succeeded Take shall contain exactly one `ObjectPlacementChanged` from the object's exact current `ObjectAtLocation` placement to `ObjectPossessedByCharacter` for the authorized actor.
+
+**TAKE-008:** A succeeded Take shall contain exactly one `ObjectTakenEvent` using the caller-supplied event and outcome identities, current canonical time, authorized actor identity, proposal object identity, and the exact previous placement.
+
+**TAKE-009:** Take v0 shall never produce a failed outcome; duration, carrying limits, permission, consent, theft, transfer, competition, checks, and other possession mechanics require later accepted contracts.
+
+**TAKE-010:** Passing an authorized non-Take proposal to the Take resolver shall raise `TypeError` as a dispatch or programmer defect and shall not produce an in-world outcome.
+
+**TAKE-011:** Take resolution shall not commit its outcome, use perception as mutation authority, produce witness feedback, invoke an actor policy or LLM, trigger an NPC response, update memory or belief, persist data, or perform narration or presentation.
+
+**TAKE-012:** Repeated Take resolution with equal inputs and caller identities shall produce equal outcomes without mutating or replacing the authorized action, world, submission, proposal, object state, or placement.
+
 **DISPATCH-001:** Actor-action operation dispatch shall be a pure boundary after authorization and before operation-specific resolution; it shall accept only an `AuthorizedActorAction` and shall not authorize a submission itself.
 
 **DISPATCH-002:** The public dispatcher shall have the contract `dispatch_actor_action(action: AuthorizedActorAction, *, outcome_id: UUID, event_id: UUID) -> Outcome` and shall not generate runtime identities internally.
 
 **DISPATCH-003:** Dispatch shall select a resolver by the concrete operation-specific proposal type rather than by package content, a generic registry, or generated text.
 
-**DISPATCH-004:** `MoveActionProposal`, `WaitActionProposal`, `ObserveActionProposal`, and `SpeakActionProposal` shall route to their corresponding concrete resolvers, preserving the exact authorized action and caller-supplied identities.
+**DISPATCH-004:** `MoveActionProposal`, `WaitActionProposal`, `ObserveActionProposal`, `SpeakActionProposal`, and `TakeActionProposal` shall route to their corresponding concrete resolvers, preserving the exact authorized action and caller-supplied identities.
 
 **DISPATCH-005:** Dispatch shall return the selected resolver's outcome directly without intentional reconstruction, commitment, repair, presentation, or exception translation.
 
-**DISPATCH-006:** Take, Use, and Help proposals shall raise `OperationResolverUnavailableError` until their deterministic resolver mechanics are accepted and implemented; missing capability shall not produce a canonical rejected or failed outcome.
+**DISPATCH-006:** Use and Help proposals shall raise `OperationResolverUnavailableError` until their deterministic resolver mechanics are accepted and implemented; missing capability shall not produce a canonical rejected or failed outcome.
 
 **DISPATCH-007:** `OperationResolverUnavailableError` shall be a public `RuntimeError` subclass with a typed `operation: ActorActionOperation` attribute and a stable non-blank message identifying the unavailable operation.
 
