@@ -6,3 +6,40 @@ model_reasoning_effort = "medium"
 [agents]
 max_threads = 6
 max_depth = 1
+
+[features]
+memories = true
+
+[memories]
+# Enable both sides of the memory system.
+generate_memories = true
+use_memories = true
+
+# Avoid learning temporary information from web searches and MCP tools.
+disable_on_external_context = true
+
+# Cost-effective models for background memory processing.
+extract_model = "gpt-5.6-luna"
+consolidation_model = "gpt-5.6-luna"
+
+# Do not spend quota on memories when the remaining allowance is low.
+# Codex's default is 25%.
+min_rate_limit_remaining_percent = 40
+
+# Wait longer before treating a thread as finished.
+# Codex's default is 6 hours.
+min_rollout_idle_hours = 12
+
+# Limit background processing bursts at startup.
+# Codex's default is 16.
+max_rollouts_per_startup = 8
+
+# Ignore old unfinished memory candidates.
+max_rollout_age_days = 30
+
+# Reduce the amount of raw material sent into consolidation.
+# Codex's default is 256.
+max_raw_memories_for_consolidation = 128
+
+# Remove memories that have not been useful recently.
+max_unused_days = 30
