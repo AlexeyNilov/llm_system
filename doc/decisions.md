@@ -860,3 +860,27 @@ Use a lightweight Architecture Decision Record (ADR) style:
 **Alternatives considered:** Always allocate a new snapshot, mutate existing tuples, sort records after application, or treat event-only outcomes as state changes. These choices respectively add meaningless churn, violate immutability, disturb canonical order, or conflate history with current state.
 
 **Consequences:** Object identity honestly signals whether snapshot data changed, event-only commitment remains possible, and tuple ordering stays stable. Tests must verify identity preservation as well as value equality.
+
+### 2026-07-13: Authorize actor submissions before operation dispatch
+
+**Status:** Accepted
+
+**Context:** Trusted submission envelopes identify their source and intended actor, but source-specific authority has not yet been checked. Operation dispatch cannot be useful until at least one resolver exists, while actor and policy binding is already fully defined by validated packages and submission provenance.
+
+**Decision:** Separate actor-action authorization from dispatch. Expose `authorize_actor_action(world, submission) -> AuthorizedActorAction`, preserving the exact inputs. The intended actor must be authored. Player-interpreter sources may act only for the one player character. NPC-policy sources require source NPC equal to intended actor, that actor to be an NPC, and source policy equal to the NPC's configured policy. Interpreter ID remains trusted application provenance without a new allowlist. Do not inspect proposal targets or actionability, dispatch operations, invoke resolvers, or generate outcomes.
+
+**Alternatives considered:** Combine authorization with dispatch, trust source metadata without actor binding, introduce an interpreter registry now, or validate proposal targets during authorization. These choices respectively depend on nonexistent resolvers, permit impersonation, add configuration without a requirement, or mix authority with operation semantics.
+
+**Consequences:** Later dispatch can require a type-proven authorized submission and operation resolvers can focus on world mechanics. Authorization gains its own structured failure boundary, while application orchestration remains responsible for constructing trusted envelopes.
+
+### 2026-07-13: Gate authorization errors from actor identity to policy
+
+**Status:** Accepted
+
+**Context:** Authorization failures form a dependency chain. Reporting policy mismatch when the source names a different actor, or actor type when the intended actor does not exist, would produce misleading cascades and obscure the primary impersonation or identity defect.
+
+**Decision:** Use separate strict immutable authorization issue code, issue, and error contracts with initial codes `unknown-actor`, `source-actor-mismatch`, `actor-type-mismatch`, and `policy-mismatch`. Resolve intended actor first. Unknown actor suppresses all source checks. Player source against a known non-player reports actor type. NPC source identity mismatch reports only source-actor mismatch; a matching source against a non-NPC reports only actor type; only a matching authored NPC reaches configured-policy comparison. Paths point into the supplied submission.
+
+**Alternatives considered:** Report every discoverable mismatch, use one unauthorized code, throw ad hoc exceptions, or compare policy before actor identity. These choices respectively create cascades, lose diagnostic meaning, weaken tooling, or validate against the wrong principal.
+
+**Consequences:** Every failure identifies the earliest authoritative broken link and current rules yield one root issue per submission. The error retains the project's immutable non-empty issue-tuple pattern for consistent inspection and future independent checks.

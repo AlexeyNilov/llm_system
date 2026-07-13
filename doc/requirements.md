@@ -462,6 +462,36 @@ This helps ensure requirements are:
 
 **ARBITER-021:** When state changes exist, commitment shall replace affected runtime records at their existing tuple positions, preserve unaffected record identities and collection order, and return a new `WorldState` and `ValidatedWorldState` paired with the exact same validated packages.
 
+**AUTHZ-001:** Actor-action submission authorization shall be a separate boundary from operation dispatch and resolution.
+
+**AUTHZ-002:** The public authorization operation shall have the contract `authorize_actor_action(world: ValidatedWorldState, submission: ActorActionSubmission) -> AuthorizedActorAction`.
+
+**AUTHZ-003:** `AuthorizedActorAction` shall be a strict immutable record preserving exactly the supplied validated world and actor-action submission objects.
+
+**AUTHZ-004:** The intended actor shall resolve to an authored character in the validated world.
+
+**AUTHZ-005:** A player-interpreter source shall be authorized only for the one authored player character.
+
+**AUTHZ-006:** An NPC-policy source shall require its NPC identity to equal the intended actor identity, the intended actor to be an NPC, and its policy identity to equal that NPC's configured decision-policy identity.
+
+**AUTHZ-007:** The interpreter identity shall remain trusted application-supplied provenance, and this boundary shall not introduce an interpreter registry or allowlist.
+
+**AUTHZ-008:** Submission authorization shall not resolve proposal targets, validate current actionability, dispatch operations, invoke resolvers, or generate outcomes.
+
+**AUTHZ-009:** Authorization failure shall use separate strict immutable `ActorActionAuthorizationIssueCode`, `ActorActionAuthorizationIssue`, and `ActorActionAuthorizationError` contracts with a non-empty immutable issue tuple.
+
+**AUTHZ-010:** Initial authorization issue codes shall be exactly `unknown-actor`, `source-actor-mismatch`, `actor-type-mismatch`, and `policy-mismatch`.
+
+**AUTHZ-011:** Authorization shall first resolve `submission.actor_id`; an unknown actor shall produce only `unknown-actor` at `submission.actor_id`.
+
+**AUTHZ-012:** For a player-interpreter source and known non-player actor, authorization shall produce only `actor-type-mismatch` at `submission.actor_id`.
+
+**AUTHZ-013:** For an NPC-policy source, unequal source NPC and intended actor identities shall produce only `source-actor-mismatch` at `submission.source.npc_id` and suppress actor-type and policy checks.
+
+**AUTHZ-014:** When an NPC-policy source identity matches a known intended actor that is not an NPC, authorization shall produce only `actor-type-mismatch` at `submission.actor_id` and suppress the policy check.
+
+**AUTHZ-015:** When an NPC-policy source matches an authored NPC but its policy identity differs from the NPC definition, authorization shall produce `policy-mismatch` at `submission.source.policy_id`.
+
 **ACTION-011:** The system shall keep an untrusted operation-specific proposal payload separate from its trusted application-created proposal-submission envelope.
 
 **ACTION-012:** A proposal submission shall contain proposal identity, source role and identity, intended actor when applicable, simulation-step context, and trace provenance, and generated output shall not supply or override that metadata.

@@ -49,8 +49,9 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | [`TASK-014`](tasks/TASK-014-state-change-event-contracts.md): State-change and canonical-event contracts | Done | TASK-011, TASK-013 |
 | [`TASK-015`](tasks/TASK-015-outcome-contracts.md): Outcome contracts and context-free consistency | Done | TASK-014 |
 | [`TASK-016`](tasks/TASK-016-outcome-commitment-core.md): Arbiter outcome-commitment core | Done | TASK-013, TASK-015 |
-| Submission authorization and operation dispatch | Planned | Commitment core, TASK-011 |
-| Operation resolvers | Planned | Dispatch plus accepted per-operation mechanics |
+| [`TASK-017`](tasks/TASK-017-actor-action-authorization.md): Actor-action submission authorization | Ready | TASK-011, TASK-013 |
+| Operation dispatch | Planned | Authorization plus at least one accepted resolver |
+| Operation resolvers | Planned | Authorization plus accepted per-operation mechanics |
 | Recorded random source | Planned | Simulation arbiter |
 | Simulation clock and deterministic scheduler | Planned | Event contracts |
 | Deterministic perception engine | Planned | Location graph and events |
