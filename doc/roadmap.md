@@ -32,7 +32,7 @@ The application must keep unavailable behavior explicit. Greybridge is not yet a
 
 | Planned task | Status | Depends on | Outcome |
 | --- | --- | --- | --- |
-| Integrated architecture, documentation-IA, and test-value review | Planned | Completed M3 kernel | Trace a representative player action; assess authority, ownership, data flow, persistence seams, requirement coverage, testability, documentation architecture from IDEA-010 and IDEA-011, missing high-risk tests, redundant tests, and low-value tests; produce evidence and recommendations without implementation changes. |
+| [TASK-035](tasks/TASK-035-review-kernel-before-persistence.md): integrated architecture, documentation-IA, and test-value review | Ready | Completed M3 kernel | Trace a representative player action; assess authority, ownership, data flow, persistence seams, requirement coverage, testability, documentation architecture from IDEA-010 and IDEA-011, missing high-risk tests, redundant tests, and low-value tests; produce evidence and recommendations without implementation changes. |
 
 ## M4: Persistence and application boundary
 

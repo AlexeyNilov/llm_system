@@ -2,11 +2,11 @@
 
 ## Current objective
 
-Prepare one integrated, read-only M3.5 review of the deterministic kernel before designing SQLite persistence. The review will cover architecture boundaries, a representative player-action flow, documentation information architecture, and test-suite value.
+Delegate the Ready, read-only TASK-035 review from a clean committed baseline, then independently review its evidence before accepting any recommendation or starting M4.
 
 ## Verified baseline
 
-* HEAD is `758bbdc t34` on clean `main`, ahead of `origin/main` by two commits.
+* The last verified clean baseline is `ae57bb1 cleanup` on `main`, synchronized with `origin/main`.
 * Project and installed package version: `0.33.0`.
 * TASK-034 is committed and Done.
 * At the accepted TASK-034 review baseline, focused tests passed `36`, the full suite and `make check` passed `323`, and formatting, Ruff, mypy, lock, metadata, Greybridge-content, and diff checks passed.
@@ -35,7 +35,7 @@ Greybridge cannot yet execute its flood, NPC activities, System director hooks, 
 
 ## Exact next action
 
-Specify the single M3.5 read-only review task and its evidence artifact. Do not delegate until its Ready brief is accepted and committed.
+Review and commit `doc/tasks/TASK-035-review-kernel-before-persistence.md` plus its roadmap and task-state routing changes. Then delegate it to a fresh Default reviewer without prior chat history.
 
 ## Files to re-read before continuing
 
@@ -44,4 +44,4 @@ Specify the single M3.5 read-only review task and its evidence artifact. Do not 
 3. `doc/roadmap.md` M3.5 and M4
 4. `doc/ideas.md` IDEA-010 and IDEA-011
 5. `doc/high_level_design.md` simulation-step flow, persistence, observability, and testing strategy
-6. Relevant persistence, scheduling, trace, and inspection requirements and decisions named by the future brief
+6. `doc/tasks/TASK-035-review-kernel-before-persistence.md` context manifest and review contract
