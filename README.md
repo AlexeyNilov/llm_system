@@ -522,6 +522,31 @@ witness audibility, record memory or belief, generate a response, persist data,
 narrate, or invoke a policy or LLM. Those remain caller, coordinator, perception,
 cognition, persistence, and presentation responsibilities.
 
+## Speech-overhearing event feedback projection
+
+Use `llm_system.simulation.project_speech_overhearing_feedback()` with a
+`ValidatedWorldState`, an authored character ID, and a caller-selected tuple of
+canonical events to produce immediate third-party speech feedback. Observer
+validation occurs first. The entire batch must then occur at the world's exact
+current simulation time; its first past or future event raises
+`WitnessEventTimeMismatchError`, including non-speech or otherwise excluded
+events.
+
+After time validation, every `ActorSpokeEvent` speaker is resolved in input
+order. The first absent speaker raises `SpeechSpeakerNotFoundError`, even when
+the observer is the event's speaker or recipient or is remote. Recipient
+existence and location are not revalidated because committed recipient identity
+remains addressed-delivery evidence and is not needed for third-party
+co-location.
+
+An event matches only when the observer is neither speaker nor addressed
+recipient and the speaker's exact current canonical location equals the
+observer's. Matches retain exact event objects, input order, and duplicates and
+use current canonical observation time. This pure projection does not accept
+historical events, reconstruct locations, model comprehension or reactions,
+add richer audibility, compose or deduplicate feedback, track delivery, record
+memory or belief, persist data, narrate, or invoke a policy or LLM.
+
 ## Take-witness event feedback projection
 
 Use `llm_system.simulation.project_take_witness_feedback()` with a

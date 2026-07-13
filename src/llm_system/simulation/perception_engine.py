@@ -73,6 +73,15 @@ class WitnessEventTimeMismatchError(ValueError):
         self.perceived_at_seconds: int = perceived_at_seconds
 
 
+class SpeechSpeakerNotFoundError(ValueError):
+    def __init__(self, event_id: UUID, speaker_id: AuthoredId) -> None:
+        super().__init__(
+            f"actor-spoke event {event_id} references missing speaker: {speaker_id}"
+        )
+        self.event_id: UUID = event_id
+        self.speaker_id: AuthoredId = speaker_id
+
+
 def _find_observer(
     world: ValidatedWorldState, observer_id: AuthoredId
 ) -> CharacterState:
@@ -122,6 +131,16 @@ def _validate_witness_event_times(
                 event.occurred_at_seconds,
                 perceived_at_seconds,
             )
+
+
+def _resolve_speech_speakers(
+    world: ValidatedWorldState, events: tuple[CanonicalEvent, ...]
+) -> dict[AuthoredId, CharacterState]:
+    characters = {state.character_id: state for state in world.state.characters}
+    for event in events:
+        if isinstance(event, ActorSpokeEvent) and event.speaker_id not in characters:
+            raise SpeechSpeakerNotFoundError(event.event_id, event.speaker_id)
+    return characters
 
 
 def _connection_observations(
@@ -289,4 +308,28 @@ def project_take_witness_feedback(
         and event.actor_id != observer_id
         and isinstance(event.previous_placement, ObjectAtLocation)
         and event.previous_placement.location_id == observer.location_id
+    )
+
+
+def project_speech_overhearing_feedback(
+    world: ValidatedWorldState,
+    observer_id: AuthoredId,
+    events: tuple[CanonicalEvent, ...],
+) -> tuple[EventObserved, ...]:
+    observer = _find_observer(world, observer_id)
+    time = world.state.simulation_time_seconds
+    _validate_witness_event_times(events, time)
+    speakers = _resolve_speech_speakers(world, events)
+    return tuple(
+        EventObserved(
+            observation_type="event",
+            source_type="canonical_event",
+            observer_id=observer_id,
+            observed_at_seconds=time,
+            event=event,
+        )
+        for event in events
+        if isinstance(event, ActorSpokeEvent)
+        and observer_id not in (event.speaker_id, event.recipient_id)
+        and speakers[event.speaker_id].location_id == observer.location_id
     )

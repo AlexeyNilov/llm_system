@@ -75,10 +75,12 @@ from llm_system.simulation.perception import (
 from llm_system.simulation.perception_engine import (
     FutureEventFeedbackError,
     PerceptionObserverNotFoundError,
+    SpeechSpeakerNotFoundError,
     WitnessEventTimeMismatchError,
     project_addressed_speech_feedback,
     project_current_perception,
     project_self_event_feedback,
+    project_speech_overhearing_feedback,
     project_take_witness_feedback,
 )
 from llm_system.simulation.randomness import (
@@ -188,6 +190,7 @@ __all__ = [
     "ScheduledActivityQueue",
     "ScheduledActivitySelection",
     "SpeakActionProposal",
+    "SpeechSpeakerNotFoundError",
     "SimulationTimeChanged",
     "StateChange",
     "SucceededOutcome",
@@ -211,6 +214,7 @@ __all__ = [
     "project_addressed_speech_feedback",
     "project_current_perception",
     "project_self_event_feedback",
+    "project_speech_overhearing_feedback",
     "project_take_witness_feedback",
     "resolve_move",
     "resolve_observe",

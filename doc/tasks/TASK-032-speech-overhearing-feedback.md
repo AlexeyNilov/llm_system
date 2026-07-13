@@ -1,6 +1,6 @@
 # TASK-032: Project immediate third-party speech overhearing
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -110,12 +110,45 @@ Stop and report a design gap if implementation requires historical location reco
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the exact-current-time third-party speech-overhearing
+projection, missing-speaker integrity error, public exports, focused behavioral
+coverage, documentation, and `0.31.0` package metadata.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/perception_engine.py`,
+`src/llm_system/simulation/__init__.py`,
+`tests/test_speech_overhearing_feedback.py`, `tests/test_package.py`, `README.md`,
+`pyproject.toml`, `uv.lock`, and
+`doc/tasks/TASK-032-speech-overhearing-feedback.md`.
 
-**Verification:** Pending
+**Verification:**
 
-**Deviations:** Pending
+* TDD red: `uv run pytest tests/test_speech_overhearing_feedback.py -q` exited
+  2 during collection with the expected missing public
+  `SpeechSpeakerNotFoundError` import.
+* TDD green: `uv run pytest tests/test_speech_overhearing_feedback.py -q`
+  passed: `9 passed in 0.10s`.
+* `uv sync --locked` passed; rebuilt and replaced editable `llm-system==0.30.0`
+  with `llm-system==0.31.0`.
+* `uv run pytest tests/test_speech_overhearing_feedback.py tests/test_addressed_speech_feedback.py tests/test_self_event_feedback.py tests/test_take_witness_feedback.py tests/test_speak_resolver.py tests/test_package.py -q`
+  passed: `33 passed in 0.13s`.
+* `make format` passed: `64 files left unchanged`.
+* `make lint` passed: `All checks passed!`.
+* `make mypy` passed: `Success: no issues found in 64 source files`.
+* `make test` passed: `286 passed in 0.30s`.
+* `make check` passed: 64 files formatted, Ruff clean, mypy clean, and
+  `286 passed in 0.29s`.
+* `uv lock --check` passed: `Resolved 19 packages in 0.50ms`.
+* `uv run python -c 'import importlib.metadata; print(importlib.metadata.version("llm-system"))'`
+  passed and printed `0.31.0`.
+* `git diff -- uv.lock` passed inspection: only the editable root-package
+  version changed from `0.30.0` to `0.31.0`.
+* `git diff --check` passed with no output.
+* Independent integration review repeated `uv sync --locked`, the required
+  focused suite (`33 passed`), `make format`, `make lint`, `make mypy`,
+  `make test` (`286 passed`), `make check` (`286 passed` plus all quality
+  gates), `uv lock --check`, installed-version inspection (`0.31.0`), lockfile
+  diff inspection, and `git diff --check`; all passed.
 
-**Design gaps or follow-ups:** Pending
+**Deviations:** None.
+
+**Design gaps or follow-ups:** None found within the accepted task boundary.
