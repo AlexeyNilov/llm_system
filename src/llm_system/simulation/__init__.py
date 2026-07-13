@@ -79,6 +79,13 @@ from llm_system.simulation.perception_engine import (
     project_self_event_feedback,
 )
 from llm_system.simulation.resolvers import resolve_move, resolve_observe, resolve_wait
+from llm_system.simulation.scheduling import (
+    EnvironmentalScheduledActivity,
+    NpcScheduledActivity,
+    ScheduledActivity,
+    ScheduledActivityQueue,
+    SystemDirectorScheduledActivity,
+)
 from llm_system.simulation.state import (
     CharacterState,
     ConnectionState,
@@ -121,6 +128,7 @@ __all__ = [
     "ConnectionTarget",
     "ConnectionObserved",
     "EventObserved",
+    "EnvironmentalScheduledActivity",
     "FailedOutcome",
     "FutureEventFeedbackError",
     "HelpActionProposal",
@@ -128,6 +136,7 @@ __all__ = [
     "LocationObserved",
     "MoveActionProposal",
     "NpcPolicyActionSource",
+    "NpcScheduledActivity",
     "ObjectAtLocation",
     "ObjectObserved",
     "ObjectPlacement",
@@ -151,10 +160,13 @@ __all__ = [
     "PerceptionSnapshot",
     "PerceptionObserverNotFoundError",
     "RejectedOutcome",
+    "ScheduledActivity",
+    "ScheduledActivityQueue",
     "SpeakActionProposal",
     "SimulationTimeChanged",
     "StateChange",
     "SucceededOutcome",
+    "SystemDirectorScheduledActivity",
     "SurroundingsTarget",
     "TakeActionProposal",
     "UseActionProposal",

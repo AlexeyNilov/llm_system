@@ -1,6 +1,6 @@
 # TASK-025: Define scheduled-activity and queue contracts
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -105,12 +105,29 @@ Stop and report a design gap if implementation requires scheduler selection or o
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the strict frozen scheduled-activity variants, closed
+discriminated union, immutable uniqueness-validating queue, public exports,
+documentation, and 0.24.0 version metadata within the task boundary.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/scheduling.py`,
+`src/llm_system/simulation/__init__.py`,
+`tests/test_scheduled_activity_contracts.py`, `tests/test_package.py`,
+`README.md`, `doc/high_level_design.md`, `pyproject.toml`, `uv.lock`, and this
+task brief.
 
-**Verification:** Pending
+**Verification:** Initial red: `.venv/bin/pytest
+tests/test_scheduled_activity_contracts.py -q` failed during collection with
+`ImportError: cannot import name 'EnvironmentalScheduledActivity'`. Focused
+greens: variant/strictness group `9 passed, 5 deselected`; queue group `5
+passed, 9 deselected`; completed focused file `15 passed`. `uv sync --locked`
+passed and installed editable `llm-system==0.24.0`; `make format` passed; `make
+lint` passed; `make mypy` passed with 54 source files; `make test` passed all 218
+tests; `make check` passed formatting, lint, mypy, and all 218 tests; `uv lock
+--check` passed with 19 packages; `git diff --check` passed. The only `uv.lock`
+change is editable root version `0.23.0` to `0.24.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None encountered. Scheduler selection, derived
+ordering, reference validation, execution, and persistence remain deferred as
+specified.

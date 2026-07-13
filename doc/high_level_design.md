@@ -245,7 +245,20 @@ The design requires stable identifiers and explicit schemas for these concepts:
 * Focused Observe resolver: a pure zero-time boundary that projects the authorized actor's current perception, treats surroundings as perceptible, and otherwise accepts only matching typed current-state observation membership. Success records one actor-observed event without state changes; every absent specific target rejects uniformly without canonical-existence disclosure. Rich inspection, checks, enrichment, event feedback, and observation recording remain outside Observe v0.
 * `EpisodicMemory`: durable character history derived from observations.
 * `Belief`: character-held claim with confidence, provenance, and revision state.
-* `ScheduledActivity`: eligibility time, owner, operation, and ordering metadata.
+* `ScheduledActivity`: a closed union of strict immutable one-shot
+  `EnvironmentalScheduledActivity`, `NpcScheduledActivity`, and
+  `SystemDirectorScheduledActivity` eligibility records. Every occurrence has an
+  application-assigned UUID, non-negative integer eligibility time, and unique
+  caller-assigned non-negative insertion sequence; the variants respectively
+  reference an authored schedule, NPC, or System director hook. Phase order is
+  derived from the variant as environmental, NPC, then System director rather
+  than stored on the record. `ScheduledActivityQueue` preserves an immutable
+  supplied tuple order, normalizes serialized lists, and rejects duplicate
+  activity identities and insertion sequences while allowing equal times and
+  storage order unrelated to execution order. These structural records neither
+  resolve authored references nor select, execute, recur, cancel, persist, or
+  remove scheduled work; those remain later scheduler, package-validation, and
+  execution boundaries.
 * `SystemNotification`: arbiter-confirmed mechanical payload and visibility.
 
 Exact Python models and storage representation remain implementation decisions. These conceptual boundaries must remain visible even if several records initially share one database table or document.

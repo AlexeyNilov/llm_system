@@ -143,6 +143,33 @@ These are contracts, not executable actions or proof of authority. They do not
 resolve references, mutate state, produce outcomes or events, or define
 world-action and scheduled-activity submissions.
 
+## Scheduled-activity contracts
+
+`llm_system.simulation` exposes a closed `ScheduledActivity` union of strict,
+immutable `EnvironmentalScheduledActivity`, `NpcScheduledActivity`, and
+`SystemDirectorScheduledActivity` records. Each record is one application-
+identified runtime occurrence with a required UUID `activity_id`, non-negative
+integer `eligible_at_seconds`, and caller-assigned non-negative integer
+`insertion_sequence`. Environmental records reference an authored `schedule_id`,
+NPC records identify an authored `npc_id`, and System-director records reference
+an authored `hook_id`.
+
+These are one-shot eligibility records, not recurring schedule definitions or
+executable payloads. They contain no callback, proposal, outcome, mechanic
+arguments, cancellation state, or stored phase priority. A later scheduler
+derives phase order from the variant as environmental, NPC, then System director
+and derives execution order separately from queue storage order.
+
+`ScheduledActivityQueue` contains exactly an immutable ordered tuple of those
+records. It accepts Python tuples or serialized JSON/YAML-style lists, normalizes
+lists to tuples, allows an empty queue, and preserves deliberately unsorted
+supplied order. Activity UUIDs and insertion sequences must each be unique;
+eligibility times may be equal. Construction validates only these structural
+invariants and does not resolve authored schedule, NPC, or hook references.
+Eligibility selection, ordering, removal, execution, recurrence, persistence,
+state mutation, time advancement, proposal submission, and LLM invocation remain
+later boundaries.
+
 ## Actor-action authorization
 
 Use `llm_system.simulation.authorize_actor_action()` to bind a trusted

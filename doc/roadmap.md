@@ -56,7 +56,7 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | [`TASK-023`](tasks/TASK-023-observe-resolver.md): Deterministic Observe v0 resolver | Done | TASK-017, TASK-020, TASK-022 |
 | Remaining Speak, Take, Use, and Help resolvers | Planned | Authorization plus accepted per-operation mechanics |
 | Recorded random source | Planned | Simulation arbiter |
-| [`TASK-025`](tasks/TASK-025-scheduled-activity-contracts.md): Scheduled-activity and queue contracts | Ready | M3 domain models |
+| [`TASK-025`](tasks/TASK-025-scheduled-activity-contracts.md): Scheduled-activity and queue contracts | Done | M3 domain models |
 | Deterministic eligibility selection and ordering | Planned | TASK-025 |
 | [`TASK-021`](tasks/TASK-021-perception-contracts.md): Observation and perception-snapshot contracts | Done | TASK-012, TASK-014 |
 | [`TASK-022`](tasks/TASK-022-current-state-perception.md): Deterministic current-state perception projection | Done | TASK-013, TASK-021 |
