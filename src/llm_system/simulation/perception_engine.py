@@ -1,12 +1,26 @@
+from uuid import UUID
+
 from llm_system.game_packages.entities import (
     NpcCharacterDefinition,
     ObjectDefinition,
     PlayerCharacterDefinition,
 )
 from llm_system.simulation._types import AuthoredId
+from llm_system.simulation.events import (
+    ActorActionFailedEvent,
+    ActorHelpedEvent,
+    ActorMovedEvent,
+    ActorObservedEvent,
+    ActorSpokeEvent,
+    ActorWaitedEvent,
+    CanonicalEvent,
+    ObjectTakenEvent,
+    ObjectUsedEvent,
+)
 from llm_system.simulation.perception import (
     CharacterObserved,
     ConnectionObserved,
+    EventObserved,
     LocationObserved,
     ObjectObserved,
     Observation,
@@ -26,6 +40,22 @@ class PerceptionObserverNotFoundError(ValueError):
         self.observer_id: AuthoredId = observer_id
 
 
+class FutureEventFeedbackError(ValueError):
+    def __init__(
+        self,
+        event_id: UUID,
+        occurred_at_seconds: int,
+        perceived_at_seconds: int,
+    ) -> None:
+        super().__init__(
+            f"canonical event {event_id} occurred at {occurred_at_seconds}, "
+            f"later than perception time {perceived_at_seconds}"
+        )
+        self.event_id: UUID = event_id
+        self.occurred_at_seconds: int = occurred_at_seconds
+        self.perceived_at_seconds: int = perceived_at_seconds
+
+
 def _find_observer(
     world: ValidatedWorldState, observer_id: AuthoredId
 ) -> CharacterState:
@@ -33,6 +63,36 @@ def _find_observer(
         if character.character_id == observer_id:
             return character
     raise PerceptionObserverNotFoundError(observer_id)
+
+
+def _event_owner_id(event: CanonicalEvent) -> AuthoredId:
+    if isinstance(event, ActorSpokeEvent):
+        return event.speaker_id
+    if isinstance(
+        event,
+        (
+            ActorObservedEvent,
+            ActorMovedEvent,
+            ObjectTakenEvent,
+            ObjectUsedEvent,
+            ActorHelpedEvent,
+            ActorWaitedEvent,
+            ActorActionFailedEvent,
+        ),
+    ):
+        return event.actor_id
+
+
+def _validate_event_times(
+    events: tuple[CanonicalEvent, ...], perceived_at_seconds: int
+) -> None:
+    for event in events:
+        if event.occurred_at_seconds > perceived_at_seconds:
+            raise FutureEventFeedbackError(
+                event.event_id,
+                event.occurred_at_seconds,
+                perceived_at_seconds,
+            )
 
 
 def _connection_observations(
@@ -134,4 +194,25 @@ def project_current_perception(
         observer_id=observer_id,
         perceived_at_seconds=time,
         observations=observations,
+    )
+
+
+def project_self_event_feedback(
+    world: ValidatedWorldState,
+    observer_id: AuthoredId,
+    events: tuple[CanonicalEvent, ...],
+) -> tuple[EventObserved, ...]:
+    _find_observer(world, observer_id)
+    time = world.state.simulation_time_seconds
+    _validate_event_times(events, time)
+    return tuple(
+        EventObserved(
+            observation_type="event",
+            source_type="canonical_event",
+            observer_id=observer_id,
+            observed_at_seconds=time,
+            event=event,
+        )
+        for event in events
+        if _event_owner_id(event) == observer_id
     )

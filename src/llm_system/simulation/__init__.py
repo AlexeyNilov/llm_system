@@ -73,8 +73,10 @@ from llm_system.simulation.perception import (
     PerceptionSnapshot,
 )
 from llm_system.simulation.perception_engine import (
+    FutureEventFeedbackError,
     PerceptionObserverNotFoundError,
     project_current_perception,
+    project_self_event_feedback,
 )
 from llm_system.simulation.resolvers import resolve_move, resolve_observe, resolve_wait
 from llm_system.simulation.state import (
@@ -120,6 +122,7 @@ __all__ = [
     "ConnectionObserved",
     "EventObserved",
     "FailedOutcome",
+    "FutureEventFeedbackError",
     "HelpActionProposal",
     "LocationTarget",
     "LocationObserved",
@@ -167,6 +170,7 @@ __all__ = [
     "commit_outcome",
     "dispatch_actor_action",
     "project_current_perception",
+    "project_self_event_feedback",
     "resolve_move",
     "resolve_observe",
     "resolve_wait",

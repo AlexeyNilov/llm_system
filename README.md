@@ -371,6 +371,27 @@ identifier, raises `PerceptionObserverNotFoundError` with the supplied
 events or emit `EventObserved`, and it adds no sensory mechanics, definition
 enrichment, recording, memory, belief, narration, persistence, or LLM behavior.
 
+## Self-action event feedback projection
+
+Use `llm_system.simulation.project_self_event_feedback()` with a
+`ValidatedWorldState`, an authored character ID, and a caller-selected tuple of
+canonical events to produce that character's self-action `EventObserved` tuple.
+The speaker owns an `ActorSpokeEvent`; the actor owns each other initial event
+variant. Recipients, assisted characters, targets, objects, possession, and
+proximity do not imply ownership. Matching events retain their exact event
+objects, input order, and duplicates and are observed at current canonical time.
+
+Observer validation occurs before event timing is inspected. The entire candidate
+batch is then validated in input order before ownership filtering, and the first
+event later than current canonical time raises `FutureEventFeedbackError`, even
+when another actor owns it. Past and current-time events are eligible.
+
+This operation is a stateless event-observation fragment. The caller owns event
+window selection and already-delivered tracking. It does not query event history,
+deduplicate, determine witness visibility or audibility, compose current-state
+observations or a `PerceptionSnapshot`, enrich or record observations, persist
+delivery state, create memory or beliefs, narrate, or invoke an LLM.
+
 ## Relational world-state validation
 
 Use `llm_system.simulation.validate_world_state()` to compare one structural

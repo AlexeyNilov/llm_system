@@ -1,6 +1,6 @@
 # TASK-024: Project stateless self-action event feedback
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -108,12 +108,12 @@ Stop and report a design gap if implementation requires witness semantics, targe
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented stateless self-action event feedback with exhaustive initial-event ownership, observer-first and whole-batch temporal validation, exact event retention, public exports, documentation, and the `0.23.0` version milestone.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/simulation/perception_engine.py`; `src/llm_system/simulation/__init__.py`; `tests/test_self_event_feedback.py`; `tests/test_package.py`; `README.md`; `doc/high_level_design.md`; `pyproject.toml`; `uv.lock`; `doc/tasks/TASK-024-self-event-feedback.md`.
 
-**Verification:** Pending
+**Verification:** Initial red: `.venv/bin/pytest -q tests/test_self_event_feedback.py` failed during collection with `ImportError: cannot import name 'FutureEventFeedbackError' from 'llm_system.simulation'`. Focused green: `.venv/bin/pytest -q tests/test_self_event_feedback.py` -> `4 passed`; focused regression set -> `23 passed`. Final green: `uv sync --locked`; `make format`; `make lint`; `make mypy` -> no issues in 52 source files; `make test` -> `203 passed`; `make check` -> formatting, lint, mypy, and `203 passed`; `uv lock --check`; `git diff --check`. `uv.lock` diff contains only editable root `llm-system` version `0.22.0` to `0.23.0`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None.

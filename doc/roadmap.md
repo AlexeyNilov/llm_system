@@ -59,7 +59,7 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | Simulation clock and deterministic scheduler | Planned | Event contracts |
 | [`TASK-021`](tasks/TASK-021-perception-contracts.md): Observation and perception-snapshot contracts | Done | TASK-012, TASK-014 |
 | [`TASK-022`](tasks/TASK-022-current-state-perception.md): Deterministic current-state perception projection | Done | TASK-013, TASK-021 |
-| [`TASK-024`](tasks/TASK-024-self-event-feedback.md): Stateless self-action event feedback | Ready | TASK-014, TASK-021, TASK-022 |
+| [`TASK-024`](tasks/TASK-024-self-event-feedback.md): Stateless self-action event feedback | Done | TASK-014, TASK-021, TASK-022 |
 | Witness event-feedback filtering | Planned | TASK-024 and accepted event-specific visibility semantics |
 
 ### M3.5: Architecture review before persistence
