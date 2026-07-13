@@ -1,6 +1,6 @@
 # TASK-039: Add the minimal FastAPI application boundary
 
-**Status:** Ready
+**Status:** Done
 
 Execution agents may set this task to In progress, Review, or Blocked. Only the architect or integrator may set Ready or Done.
 
@@ -145,14 +145,14 @@ Stop and report a design gap if implementation requires:
 
 Fill this section without rewriting the task contract.
 
-**Result:** Pending
+**Result:** Implemented the minimal dependency-explicit FastAPI application factory with exactly the four accepted HTTP operations, strict player-safe request and response models, server-owned trusted turn metadata, deterministic identity injection, create-route-only conflict mapping, and no module-global mutable runtime. Default OpenAPI, Swagger UI, and ReDoc HTTP routes are disabled while programmatic `app.openapi()` schema generation remains available.
 
-**Changed files:** Pending
+**Changed files:** `src/llm_system/api.py`; `tests/test_api.py`; `tests/test_package.py`; `pyproject.toml`; `uv.lock`; `doc/tasks/TASK-039-fastapi-application-boundary.md`.
 
-**Verification:** Pending
+**Verification:** TDD red recorded first: `uv run pytest tests/test_api.py -q` failed during collection with `ModuleNotFoundError: No module named 'fastapi'`. After implementation and review-finding corrections: `uv sync --locked` passed; `uv run pytest tests/test_api.py tests/test_actor_action_step.py tests/test_world_lifecycle.py` passed (40 tests); `make format` passed; `make lint` passed; the first review-correction `make mypy` run identified an optional `APIRoute.methods` annotation in the new route-surface test, which was corrected, and the rerun passed; `make test` passed (370 tests); `make check` passed (format check, lint, mypy, and 370 tests); `uv lock --check` passed; `git diff --check` passed. FastAPI's TestClient emitted one upstream Starlette deprecation warning recommending a future `httpx2` package, but all required checks passed with the task-authorized HTTPX dependency. The reset failure regression uses a real SQLite trigger to abort replacement insertion after timeline deletion starts, observes a detail-free HTTP 500, and verifies the prior world, events, and traces remain recoverable.
 
-**Context used:** Pending; list the documentation extracts and initially named source or test files actually consulted. Do not list every transitive implementation file.
+**Context used:** `AGENTS.md`; `doc/agent_roles/implementer.md`; `doc/agent_workflow.md`; `doc/glossary.md` entries `Action proposal`, `Action proposal submission`, `Canonical`, `Primary persistence`, `Validated game packages`, and `Validated world state`; `doc/requirements.md` named WORLD, ACTION, STORE, LIFECYCLE, STEP, and API extracts; `doc/decisions.md` entries `Give one application transaction ownership of step completion`, `Compose the first coordinator before scheduled execution`, `Keep trusted turn metadata on the server side of the first HTTP boundary`, and `Use explicit create, resume, and destructive development-reset operations`; `doc/high_level_design.md` named logical architecture, component responsibility, and persistence extracts; initial source entrypoints `src/llm_system/application/actor_action_step.py`, `src/llm_system/application/world_lifecycle.py`, `src/llm_system/application/__init__.py`, `src/llm_system/simulation/actions.py`, `src/llm_system/simulation/outcomes.py`, `src/llm_system/simulation/traces.py`, `src/llm_system/game_packages/entities.py`, and `src/llm_system/persistence/errors.py`; initial test entrypoints `tests/test_actor_action_step.py`, `tests/test_world_lifecycle.py`, and `tests/test_package.py`; the Greybridge `0.2.0` package pair; `pyproject.toml`; `uv.lock`; and `Makefile`.
 
-**Deviations:** Pending
+**Deviations:** None.
 
-**Design gaps or follow-ups:** Pending
+**Design gaps or follow-ups:** None required for this task. The upstream TestClient deprecation warning can be revisited when FastAPI/Starlette's HTTPX transition is part of an accepted dependency update; replacing the task-required HTTPX dependency now would exceed scope.

@@ -4,17 +4,19 @@ requires = ["hatchling"]
 
 [project]
 name = "llm-system"
-version = "0.36.0"
+version = "0.37.0"
 description = "An experimental persistent simulation with LLM-assisted narrative."
 readme = "README.md"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+    "fastapi>=0.116,<1",
     "pydantic>=2,<3",
     "pyyaml>=6,<7",
 ]
 
 [dependency-groups]
 dev = [
+    "httpx>=0.28,<1",
     "mypy>=1.17.1",
     "pytest>=8.4.1",
     "ruff>=0.12.4",

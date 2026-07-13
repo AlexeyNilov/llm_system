@@ -23,12 +23,14 @@ The deterministic Python kernel is implemented and reviewed. It can:
 * create the singleton world from validated package-authored initial state,
   resume it from exact recorded package versions, and reset its complete
   development timeline atomically;
+* expose lifecycle operations and typed structured player turns through a
+  minimal FastAPI boundary with server-owned identities and provenance;
 * migrate SQLite V1 worlds directly to V2 append-only completed-step trace
   history;
 * partition scheduled activities deterministically; and
 * validate caller-injected recorded integer draws.
 
-Help resolution, scheduled-activity execution, FastAPI, Streamlit, player-text
+Help resolution, scheduled-activity execution, Streamlit, player-text
 interpretation, NPC execution, the System director, narration, and the complete
 Greybridge scenario remain later work. See the [roadmap](doc/roadmap.md) for
 current delivery order.
@@ -117,6 +119,7 @@ Package validation establishes structural and semantic consistency. It does not 
 | Path | Purpose |
 | --- | --- |
 | `src/llm_system/application/` | Atomic application coordination across simulation and persistence boundaries |
+| `src/llm_system/api.py` | Minimal FastAPI lifecycle and structured player-turn boundary |
 | `src/llm_system/game_packages/` | Authored package models, loading, and semantic validation |
 | `src/llm_system/simulation/` | Runtime state, authorization, resolution, commitment, scheduling, randomness, and perception |
 | `src/llm_system/persistence/` | SQLite records, repositories, schema bootstrap, and unit of work |
