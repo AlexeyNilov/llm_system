@@ -156,6 +156,18 @@ An actor's desired immediate change or purpose. An intent describes what the act
 
 A separate read-only Streamlit development view over simulation-step traces, canonical state, and character perception snapshots. It is not part of the player experience and cannot edit canonical state.
 
+### Integer draw record
+
+A strict immutable audit value containing an application-supplied draw identity, extensible purpose code, inclusive integer bounds, and the validated result returned by an injected integer random source. It is not by itself an outcome, canonical event, simulation-step trace entry, or persisted generator state.
+
+### Integer draw request
+
+A strict immutable arbiter input identifying why one canonical integer draw is requested and defining an inclusive range with at least two possible results. Its identity and purpose do not enter the entropy source.
+
+### Integer random source
+
+An injected capability that returns one integer within supplied inclusive bounds. It receives no draw identity, purpose, rule context, outcome, or LLM content; the arbiter-facing recorded-draw boundary validates its result.
+
 ### Loaded game package
 
 A strict immutable pair of one validated concrete package manifest and its matching typed entrypoint definition. A loaded package is structurally trusted but has not necessarily passed relational, graph, dependency, or playability validation.

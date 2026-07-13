@@ -55,7 +55,8 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | [`TASK-020`](tasks/TASK-020-actor-action-dispatch.md): Actor-action operation dispatch | Done | TASK-017, TASK-018, TASK-019 |
 | [`TASK-023`](tasks/TASK-023-observe-resolver.md): Deterministic Observe v0 resolver | Done | TASK-017, TASK-020, TASK-022 |
 | Remaining Speak, Take, Use, and Help resolvers | Planned | Authorization plus accepted per-operation mechanics |
-| Recorded random source | Planned | Simulation arbiter |
+| [`TASK-027`](tasks/TASK-027-recorded-integer-draw-boundary.md): Recorded integer-draw contracts and injected source boundary | Ready | Simulation arbiter |
+| Seeded integer source and restorable generator-state contracts | Planned | TASK-027 |
 | [`TASK-025`](tasks/TASK-025-scheduled-activity-contracts.md): Scheduled-activity and queue contracts | Done | M3 domain models |
 | [`TASK-026`](tasks/TASK-026-scheduled-activity-selection.md): Deterministic eligibility selection and ordering | Done | TASK-025, TASK-013 |
 | [`TASK-021`](tasks/TASK-021-perception-contracts.md): Observation and perception-snapshot contracts | Done | TASK-012, TASK-014 |
@@ -79,6 +80,7 @@ Sequence the initial vertical slice by dependency and control when work is ready
 | Planned task | Depends on |
 | --- | --- |
 | SQLite schema and repositories | M3 domain contracts, M3.5 architecture review |
+| Persisted random seed and generator-state integration | SQLite repositories, seeded integer source |
 | Atomic simulation-step transaction and trace | SQLite repositories, scheduler |
 | World creation, resume, and reset | Packages, repositories |
 | FastAPI turn boundary | Atomic simulation step |

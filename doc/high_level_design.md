@@ -123,6 +123,14 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 * Validates proposals against current state and loaded rules.
 * Resolves actions, produces outcomes, advances simulation time, and emits canonical events.
 * Owns seeded randomness for explicit rule-governed checks and records every canonical draw.
+* Begins that boundary with `draw_recorded_integer(request, source)`: one
+  application-identified immutable request, one injected integer source that
+  sees only strict inclusive bounds, and one immutable record preserving the
+  validated result and exact audit metadata.
+* Rejects invalid source values without clamping, coercion, retry, or a draw
+  record, while preserving source-raised exceptions; concrete pseudorandom
+  generation, state persistence, history attachment, and rule-check formulas
+  remain later boundaries.
 * Rejects unsupported or impossible operations without accepting generated narrative as fact.
 
 ### Clock and scheduler
@@ -244,6 +252,17 @@ The design requires stable identifiers and explicit schemas for these concepts:
 * `OutcomeCommitResult`: the immutable result of atomically committing one structurally valid outcome against `ValidatedWorldState`, containing the exact outcome and resulting validated world without duplicating its event tuple.
 * Outcome time: each outcome has one atomic completion timestamp. Nested events share that time and causation identity; elapsed-time-triggered activities resolve separately after the triggering action.
 * Outcome reason codes: strict kebab-case machine values whose meanings are owned by deterministic resolvers rather than one central enum, generated prose, or package strings.
+* `IntegerDrawRequest`: a strict immutable application-identified request with
+  an extensible kebab-case purpose and strict inclusive integer bounds containing
+  at least two possible results.
+* `IntegerRandomSource`: an injected protocol exposing one keyword-only bounded
+  integer operation. It receives no identity, purpose, rule, outcome, or trace
+  context, so audit metadata cannot influence entropy generation.
+* `IntegerDrawRecord`: the strict immutable successful result preserving the
+  request's exact identity, purpose, and bounds plus one validated strict integer
+  result. Invalid returned values raise `RandomSourceContractError`; exceptions
+  raised by the source propagate unchanged. The record does not itself claim
+  persistence or attachment to an outcome, event, or simulation-step trace.
 * `Event`: a closed discriminated union of canonical domain facts with stable identity, simulation time, causation, and event-specific payload. Events do not contain narration or observer visibility and are durable history rather than the sole world-state persistence mechanism.
 * Initial event variants: actor observed, moved, spoke, helped, waited, or failed an action; and an object was taken or used. Their payloads reuse typed targets and placements where applicable.
 * `Observation`: a closed union of observer-specific location, connection, character, object, or canonical-event facts with observation time and fixed current-state or event provenance. Initial transient observations are ID-linked and have no generated observation UUID, confidence score, or salience score.

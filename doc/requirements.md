@@ -790,6 +790,22 @@ This helps ensure requirements are:
 
 **RANDOM-006:** The arbiter shall accept an injected random source so tests can exercise specified outcomes without depending on a pseudorandom implementation sequence.
 
+**RANDOM-007:** The initial canonical randomness primitive shall be one inclusive integer-range draw; dice, probability checks, choices, and weighted selection shall be deterministic rule mechanics built on that primitive rather than additional random-source operations.
+
+**RANDOM-008:** `IntegerDrawRequest` shall be a strict immutable record containing exactly application-supplied UUID `draw_id`, extensible strict kebab-case `purpose`, and strict integer `lower_inclusive` and `upper_inclusive` bounds, with `lower_inclusive < upper_inclusive`.
+
+**RANDOM-009:** `IntegerRandomSource` shall expose only keyword-based `draw_integer(*, lower_inclusive: int, upper_inclusive: int) -> int`; the source shall receive neither draw identity nor purpose.
+
+**RANDOM-010:** The public arbiter-facing operation shall have the contract `draw_recorded_integer(request: IntegerDrawRequest, source: IntegerRandomSource) -> IntegerDrawRecord`.
+
+**RANDOM-011:** `IntegerDrawRecord` shall be a strict immutable record containing exactly the request's draw identity, purpose, and inclusive bounds plus the returned strict integer result; the operation shall preserve request metadata exactly and shall not generate identity.
+
+**RANDOM-012:** If an integer random source returns a boolean, non-integer, or value outside the requested inclusive range, the draw operation shall raise `RandomSourceContractError` and shall not produce a draw record; it shall not clamp, coerce, or retry the result.
+
+**RANDOM-013:** If an integer random source raises an exception, the draw operation shall propagate that exception unchanged and shall not produce a draw record.
+
+**RANDOM-014:** The initial recorded-integer-draw boundary shall not provide a concrete pseudorandom generator, seed or generator-state persistence, rule-check formulas, outcome or event integration, simulation-step trace integration, retries, logging, or LLM behavior.
+
 ### Activity scheduling
 
 **SCHEDULE-001:** The scheduler shall order eligible activities by simulation time, explicit phase priority, and stable insertion sequence.

@@ -2,9 +2,9 @@
 
 ## Current objective
 
-Complete the remaining M3 deterministic-kernel boundaries through small accepted contracts and delegated TDD tasks. Scheduler eligibility records and deterministic selection are complete; the next unblocked design topic is the recorded random source.
+Complete the remaining M3 deterministic-kernel boundaries through small accepted contracts and delegated TDD tasks. TASK-027 now defines the first recorded integer-draw boundary and is Ready for implementation after its planning artifacts are committed.
 
-Repository baseline: commit `785d254 t26`, package version `0.25.0`. The worktree was clean before creating this handoff file; only `doc/codex-task-state.md` should now be uncommitted.
+Repository baseline before TASK-027 planning: commit `74756a4 plan`, package version `0.25.0`.
 
 ## Completed work
 
@@ -12,6 +12,7 @@ Repository baseline: commit `785d254 t26`, package version `0.25.0`. The worktre
 * TASK-024, self-action event feedback, is Done and committed. `src/llm_system/simulation/perception_engine.py::FutureEventFeedbackError` and `project_self_event_feedback` validate observer then whole-batch time, map all eight event owners exhaustively, and retain exact events.
 * TASK-025, scheduled-activity contracts, is Done and committed. `src/llm_system/simulation/scheduling.py` defines `EnvironmentalScheduledActivity`, `NpcScheduledActivity`, `SystemDirectorScheduledActivity`, `ScheduledActivity`, and `ScheduledActivityQueue`.
 * TASK-026, deterministic selection, is Done and committed. `src/llm_system/simulation/scheduling.py::ScheduledActivitySelection` and `select_eligible_activities` partition at canonical world time, order due work, preserve pending order, and retain exact activity objects. Review corrected validation precedence and added a regression test in `tests/test_scheduled_activity_selection.py`.
+* TASK-027 planning is complete and Ready but not implemented. Its accepted boundary is one application-identified inclusive integer draw through an injected source, with strict immutable request and record contracts and safe invalid-result failure.
 * Public exports are maintained in `src/llm_system/simulation/__init__.py`; accepted architecture and usage are reflected in `README.md`, `doc/high_level_design.md`, `doc/requirements.md`, `doc/decisions.md`, `doc/glossary.md`, and `doc/roadmap.md`.
 
 ## Decisions and rationale
@@ -33,29 +34,26 @@ Repository baseline: commit `785d254 t26`, package version `0.25.0`. The worktre
 * `uv sync --locked`, `uv lock --check`, and `git diff --check` -> passed.
 * Lockfile review -> only root package version `0.24.0` to `0.25.0` for TASK-026.
 * `git status --short` at commit `785d254` -> clean before this file was added.
+* TASK-027 planning review -> `git diff --check` passed; no production code or package metadata changed, so tests were not rerun.
 
 ## Tests
 
-All tests currently pass: `235 passed`. No known failing test, lint, formatting, typing, lock, or diff check exists.
+The last full-suite verification passed all `235` tests. No production code changed during TASK-027 planning, so the suite was not rerun. No known failing test, lint, formatting, typing, lock, or diff check exists.
 
 ## Blockers and unresolved questions
 
 No current blocker.
 
-Unresolved planned work includes the recorded random source; Speak, Take, Use, and Help mechanics; witness event feedback; authored environmental schedules and System-director hooks; activity execution/claiming/persistence/cascading semantics; and later M3.5 architecture and test-value reviews. Scheduled-activity execution should not be invented before its environmental mechanics, NPC policies, and director-hook consumers are grounded.
+Unresolved planned work includes TASK-027 implementation; a concrete seeded generator and generator-state persistence; draw history and simulation-step trace integration; Speak, Take, Use, and Help mechanics; witness event feedback; authored environmental schedules and System-director hooks; activity execution/claiming/persistence/cascading semantics; and later M3.5 architecture and test-value reviews. Scheduled-activity execution should not be invented before its environmental mechanics, NPC policies, and director-hook consumers are grounded.
 
 ## Exact next action
 
-Begin strategic design of the recorded random source. First decide the public injected-random interface and immutable draw-record contract, keeping rule checks, persistence, and specific game mechanics outside the first task. Continue one consequential question at a time; do not delegate until a Ready task brief is accepted and committed.
+Review and commit the Ready TASK-027 planning artifacts. After that, delegate `doc/tasks/TASK-027-recorded-integer-draw-boundary.md` only when explicitly requested; implementation and independent review remain separate workflow steps.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/codex-task-state.md`
 3. `doc/roadmap.md` M3 and M3.5
-4. `doc/requirements.md` sections “Outcome randomness” (`RANDOM-001` through `RANDOM-006`) and “Activity scheduling” (`SCHEDULE-001` through `SCHEDULE-023`)
-5. `doc/decisions.md` entries “Use recorded seeded randomness only for explicit checks”, “Serialize eligible activities deterministically”, “Represent scheduled work as one-shot typed eligibility records”, and “Partition due scheduled activities without executing them”
-6. `doc/high_level_design.md` sections “Simulation arbiter”, “Clock and scheduler”, “Principal records”, and “Testing strategy”
-7. `doc/glossary.md` entries “Scheduled activity”, “Scheduled activity queue”, “Scheduled activity selection”, “Scheduler”, and “Simulation arbiter”
-8. `src/llm_system/simulation/scheduling.py`
-9. `tests/test_scheduled_activity_contracts.py` and `tests/test_scheduled_activity_selection.py`
+4. `doc/tasks/TASK-027-recorded-integer-draw-boundary.md`
+5. The exact context manifest in TASK-027; do not load unrelated planning documents during delegated implementation
