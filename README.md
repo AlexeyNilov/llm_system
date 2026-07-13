@@ -69,16 +69,16 @@ The deterministic test suite requires no LLM, embeddings service, Qdrant instanc
 
 ## Deterministic player page
 
-Run the FastAPI application separately at `http://127.0.0.1:8000`, then start
-the structured player page:
+Start the FastAPI application and structured player page together:
 
 ```bash
 make player-page
 ```
 
-To use an API at another address, set `LLM_SYSTEM_API_URL` before running the
-target. The player-page command starts only Streamlit; it does not start or
-configure the API process.
+The target stores the development world in `.run/world.sqlite3` and stops the
+FastAPI child process when Streamlit exits. To use an API at another address,
+set `LLM_SYSTEM_API_URL` before running the target; in that case, stop the
+separately launched API yourself.
 
 ## Architecture at a glance
 

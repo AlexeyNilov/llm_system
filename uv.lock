@@ -340,7 +340,7 @@ wheels = [
 
 [[package]]
 name = "llm-system"
-version = "0.38.0"
+version = "0.39.0"
 source = { editable = "." }
 dependencies = [
     { name = "fastapi" },
@@ -348,6 +348,7 @@ dependencies = [
     { name = "pydantic" },
     { name = "pyyaml" },
     { name = "streamlit" },
+    { name = "uvicorn" },
 ]
 
 [package.dev-dependencies]
@@ -364,6 +365,7 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2,<3" },
     { name = "pyyaml", specifier = ">=6,<7" },
     { name = "streamlit", specifier = ">=1.47,<2" },
+    { name = "uvicorn", specifier = ">=0.35,<1" },
 ]
 
 [package.metadata.requires-dev]
