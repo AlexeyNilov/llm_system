@@ -49,6 +49,11 @@ but cannot settle normative questions.
 - Estimate the pre-code context budget and narrow broad selections.
 - Define acceptance criteria, permitted governance changes, verification, and
   stop conditions before setting a task Ready.
+- When a task becomes Ready, verify and commit its task brief and accepted
+  supporting planning artifacts, then delegate it immediately to a fresh coding
+  subagent using the configured role and agent. Do not wait for a separate user
+  request. Never include unrelated working-tree changes in that commit; stop and
+  report the conflict if the task artifacts cannot be isolated safely.
 
 ## Integration
 

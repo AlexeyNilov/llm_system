@@ -46,7 +46,7 @@ Greybridge cannot yet execute its flood, NPC activities, System director hooks, 
 
 ## Exact next action
 
-Verify and commit the accepted persistence decisions and Ready TASK-036 brief. Delegate only after the user explicitly requests delegation.
+Apply the automatic Ready-task handoff: commit any remaining task-owned planning artifact, delegate TASK-036 immediately to a fresh coding subagent, wait for its handoff, and independently review the result.
 
 ## Files to re-read before continuing
 
