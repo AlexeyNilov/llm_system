@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Implement and integrate the first revision-safe Greybridge caretaker actor turn, then use it as the concrete prerequisite for scheduled NPC execution.
+Plan the minimum scheduled-NPC activity lifecycle that can call the completed caretaker actor-turn coordinator without losing, duplicating, or indefinitely reselecting work.
 
 ## Verified baseline
 
@@ -30,21 +30,22 @@ Implement and integrate the first revision-safe Greybridge caretaker actor turn,
 * Parent verification for TASK-047 passes: focused server/API tests (40 passed), `make check` (503 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 * `select_eligible_activities` is pure and deliberately non-executing; the initial stored queue is empty and package schemas do not yet author scheduled runtime occurrences.
 * The first executable actor-runtime seam is therefore one explicitly requested `bridge-caretaker` turn. Its policy/context phase remains non-mutating, while its coordinator rechecks the observed world revision before constructing a trusted NPC submission and calling the existing action-step composition.
+* TASK-048 is accepted at project version `0.46.0`. `coordinate_caretaker_turn` supports only the authored matching caretaker rule policy, returns a strict completed-or-stale result, and preserves the scheduled queue exactly. Parent verification passes: focused coordinator/policy/action-step tests (31 passed), `make check` (510 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 
 ## Blockers and unresolved questions
 
-No blocker. TASK-048 is Ready. Scheduled activity claiming, consumption, recurrence, and activity-trace semantics remain intentionally unresolved after this bounded actor-turn task.
+No blocker. Scheduled activity claiming, consumption, recurrence, and activity-trace semantics remain intentionally unresolved. Scenario packages currently do not author runtime activity occurrences, so the next task must make one narrow lifecycle choice before execution can be delegated.
 
 ## Exact next action
 
-Commit and delegate `doc/tasks/TASK-048-revision-safe-caretaker-actor-turn.md` to the configured implementer, then independently review its result.
+Inspect package authoring boundaries, current queue persistence, scheduler selection, and completed actor turns; then define the smallest durable NPC-activity lifecycle and its failure behavior.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
 3. `doc/roadmap.md`: M5
-4. `doc/requirements.md`: `NPC-008` through `NPC-012`, `POLICY-007` through `POLICY-010`, and `STEP-001` through `STEP-010`
-5. `doc/decisions.md`: “Start actor policies with one pure caretaker decision” and “Start the actor runtime with one revision-safe caretaker turn”
-6. `src/llm_system/application/npc_decision.py` and `actor_action_step.py`
-7. `tests/test_caretaker_policy.py`, `tests/test_actor_action_step.py`, and `tests/test_player_turn_coordinator.py`
+4. `doc/requirements.md`: `TIME-005`, `NPC-001` through `NPC-007`, and `SCHEDULE-001` through `SCHEDULE-023`
+5. `doc/decisions.md`: “Serialize eligible activities deterministically”, “Compose the first coordinator before scheduled execution”, and “Start the actor runtime with one revision-safe caretaker turn”
+6. `src/llm_system/simulation/scheduling.py`, `application/npc_turn_coordinator.py`, and SQLite world repositories
+7. scheduling, persistence, and NPC-turn coordinator tests
