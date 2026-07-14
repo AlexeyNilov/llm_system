@@ -1086,6 +1086,12 @@ This helps ensure requirements are:
 
 **API-012:** Runtime bootstrap may configure the local functional gateway only from complete explicit environment settings for base URL, model, positive timeout seconds, and positive completion-token limit. Absent settings shall preserve the safe unavailable-gateway path; partial or invalid settings shall fail bootstrap without opening a server.
 
+**API-013:** The free-form player-turn endpoint shall expose distinct player-safe results for settled action completion, committed action with scheduled progress pending, and scheduled progress completed before a new input is interpreted. It shall not expose NPC context, proposal, trace payload, provider evidence, or unprocessed submitted text.
+
+**STEP-016:** After an action-linked player input commits, the player-turn coordinator shall attempt one due scheduled activity before presenting settled completion. A no-activity or completed scheduled result yields a final player perception and current world revision; a stale or operational scheduled result yields an honest committed-action progress-pending result without claiming a final turn state.
+
+**STEP-017:** Before interpreting a later player input, the coordinator shall attempt pending due scheduled activity. If it completes, it shall return a player-safe scheduled-progress result from the resulting state and shall not call the interpreter, persist the submitted input, or execute another player action. If no activity is due it may proceed to normal interpretation; unresolved progress shall remain pending.
+
 ### Deterministic player page
 
 **PLAYERPAGE-001:** The initial Streamlit player page shall communicate only through the FastAPI HTTP boundary and shall not load packages, open SQLite, call simulation or persistence services, or construct trusted submission metadata.

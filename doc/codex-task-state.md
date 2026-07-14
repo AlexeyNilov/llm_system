@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Plan the player-turn batching boundary so time-advancing player actions process due caretaker activity before returning player-facing completion.
+Implement player-safe pending and settled scheduled progress around free-form player turns.
 
 ## Verified baseline
 
@@ -36,11 +36,11 @@ Plan the player-turn batching boundary so time-advancing player actions process 
 
 ## Blockers and unresolved questions
 
-No blocker. Full queue draining, recurrence, environmental activity, System director hooks, and player-turn batching remain intentionally unresolved. The next user-visible requirement is processing the due caretaker activity after a time-advancing player action and before completion is presented.
+No blocker. TASK-051 is Ready. Full queue draining, recurrence, environmental activity, System director hooks, narration, and UI presentation remain deferred.
 
 ## Exact next action
 
-Inspect player-turn coordinator/API response ownership and the new scheduled-execution result, then define one bounded player-plus-due-caretaker completion contract.
+Commit and delegate `doc/tasks/TASK-051-player-turn-scheduled-progress.md`, then independently review it.
 
 ## Files to re-read before continuing
 

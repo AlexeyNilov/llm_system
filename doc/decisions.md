@@ -1540,3 +1540,23 @@ SQLite schema V4 migrates prior data and reset clears it.
 **Consequences:** One real due activity can progress deterministically without
 silently losing or repeating work, while keeping environment, director,
 recurrence, full queue draining, and player-turn batching separate.
+
+### 2026-07-14: Report committed player action when scheduled progress is pending
+
+**Status:** Accepted
+
+**Decision:** A free-form player action commits with its existing input trace
+before the separate due-activity coordinator runs. The endpoint attempts one
+due caretaker activity before presenting settled action completion. If scheduled
+work completes or none is due, it returns final player perception and the
+current revision. If scheduled work is stale or fails operationally, it returns
+an explicit player-safe action-committed/progress-pending result rather than a
+false rollback or a generic error claiming nothing happened. On the next player
+turn request, pending scheduled work is attempted before interpretation. A
+successful scheduled completion returns its own player-safe progress result and
+does not interpret or persist that newly submitted text; the player retries with
+updated perception.
+
+**Consequences:** Player action evidence stays atomic while post-action progress
+remains honest under failures. This introduces no background worker, retries,
+queue drain, or exposure of NPC private evidence.
