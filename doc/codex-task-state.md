@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Plan the local model gateway that will support the player interpreter, courier policy, and narrator without crossing simulation authority boundaries.
+Execute and integrate TASK-042: the local functional model gateway with strict validation evidence and one repair.
 
 ## Verified baseline
 
@@ -15,18 +15,17 @@ Plan the local model gateway that will support the player interpreter, courier p
 
 ## Blockers and unresolved questions
 
-No known blocker to planning the local model gateway. Actor-runtime assembly and scheduled caretaker execution remain separate M5 increments. The gateway must preserve the accepted local Gemma thinking-disable, strict validation, one-repair, and role-specific safe-failure boundaries without importing simulation authority.
+No known blocker. Actor-runtime assembly and scheduled caretaker execution remain separate M5 increments. Narrator prose support and role-specific safe-failure mapping remain outside TASK-042.
 
 ## Exact next action
 
-Inspect the accepted structured-output preflight evidence, local-model decisions and requirements, current dependencies, and the three concrete M5 consumers. Settle the smallest shared transport and functional structured-output boundary, then prepare TASK-042 for the local model gateway.
+Delegate the Ready TASK-042 to a fresh `implementer`, then independently review its request shape, strict content-only validation, one-repair bound, typed evidence, safe operational failures, resource ownership, and full verification.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
 3. `doc/roadmap.md`: M5
-4. `doc/reports/structured_output_preflight.md`
-5. `doc/requirements.md`: `LLM-001` through `LLM-009`
-6. `doc/decisions.md`: local Gemma structured-output decisions
-7. `README.md`: current local-model endpoint configuration only
+4. `doc/tasks/TASK-042-local-functional-model-gateway.md`
+5. TASK-042's exact context manifest
+6. The implementation diff and handoff evidence

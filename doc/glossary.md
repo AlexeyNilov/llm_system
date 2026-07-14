@@ -188,6 +188,10 @@ A structured node in the spatial graph. Connections define possible traversal be
 
 An immutable scenario-package record containing a location's stable identity and name. Perceptible features and mutable conditions are modeled separately rather than embedded in a free-form description.
 
+### Model gateway
+
+The application-owned boundary for calling configured local language-model services. It owns provider transport, bounded request settings, response-shape handling, and functional-output validation evidence, but it cannot interpret that output as canonical truth or apply simulation changes.
+
 ### Narrator
 
 The presentation component that turns the player's structured perception snapshot into prose. It may style confirmed information but cannot add canonical facts.

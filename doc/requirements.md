@@ -1174,6 +1174,22 @@ This helps ensure requirements are:
 
 **LLM-009:** When calling the local Gemma model for a functional LLM role, the model gateway shall request `chat_template_kwargs.enable_thinking=false` and shall treat absent or invalid `message.content` as a failed functional output rather than using `reasoning_content` as the result.
 
+**LLM-010:** The initial local model gateway shall accept an explicit base URL, model identifier, positive request timeout, positive completion-token limit, and injectable synchronous HTTP client or transport; it shall not read machine-specific configuration inside simulation or actor-domain logic.
+
+**LLM-011:** Each functional request shall use the configured model, temperature zero, the configured completion-token limit, `response_format={"type":"json_object"}`, and `chat_template_kwargs={"enable_thinking":false}`, and shall include the caller's messages plus a deterministic compact JSON Schema instruction derived from the requested strict Pydantic output model.
+
+**LLM-012:** A functional attempt shall be accepted only from an HTTP 200 response with one selected choice whose `finish_reason` is `stop` and whose non-blank `message.content` strictly validates as the requested Pydantic model; no other response field, including `reasoning_content`, shall be used as candidate output.
+
+**LLM-013:** Empty content, a non-`stop` finish reason, invalid JSON, or strict schema-validation failure shall cause exactly one repair request using the same original messages, schema, request settings, failed content, and normalized validation errors; failure of the repair shall return a failed result without further calls or best-effort extraction.
+
+**LLM-014:** Transport failure, non-200 HTTP status, or malformed provider response structure shall return a typed failed result without a repair request, without exposing provider response bodies or transport exception text as accepted model output.
+
+**LLM-015:** Every functional call result shall be strict and immutable and shall contain its final disposition, accepted typed value only on success, and ordered initial and optional repair attempt evidence including content, finish reason, failure kind, and validation errors.
+
+**LLM-016:** The shared gateway shall not choose player clarification, NPC fallback, or System-director skip behavior, construct action submissions, mutate or persist simulation state, or write traces; role-specific callers and later coordination own those actions using the gateway's typed disposition and evidence.
+
+**LLM-017:** A gateway shall close only an HTTP client it created and shall leave an injected client open for its owner.
+
 ### Development inspection
 
 **INSPECT-001:** The initial version shall provide a Streamlit development inspection page separate from the player interface.

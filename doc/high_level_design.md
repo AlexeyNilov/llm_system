@@ -232,7 +232,7 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 * Applies role-specific prompts, structured-output schemas, timeouts, and error handling.
 * Disables Gemma thinking for functional roles with `chat_template_kwargs.enable_thinking=false` and never treats `reasoning_content` as functional output.
 * Validates functional outputs through strict Pydantic models and permits at most one schema-guided repair attempt.
-* Produces role-specific clarification, fallback, no-op, or skip results after failed repair.
+* Returns typed validation evidence and a final disposition after failed repair; the invoking role maps that failure to clarification, fallback, no-op, or skip behavior.
 * Records original output, validation errors, repair output, and final disposition in the simulation-step trace.
 * Keeps provider details outside simulation and actor-domain logic.
 * Makes LLM calls replaceable by deterministic fakes in tests.
