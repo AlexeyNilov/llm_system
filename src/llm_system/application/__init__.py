@@ -2,6 +2,7 @@ from llm_system.application.actor_action_step import (
     CompletedActorActionStep,
     WorldPackageMismatchError,
     execute_actor_action_step,
+    execute_actor_action_step_in_unit,
 )
 from llm_system.application.npc_decision import (
     NpcDecisionContext,
@@ -22,6 +23,14 @@ from llm_system.application.player_interpreter import (
     PlayerInterpreterOutput,
     interpret_player_input,
 )
+from llm_system.application.player_turn_coordinator import (
+    ActionCompletedPlayerTurnResult,
+    ClarificationPlayerTurnResult,
+    PlayerTurnResult,
+    StalePlayerTurnResult,
+    ThoughtOnlyPlayerTurnResult,
+    coordinate_player_turn,
+)
 from llm_system.player_input_traces import (
     ActionLinkedCompletion,
     ClarificationCompletion,
@@ -39,8 +48,10 @@ from llm_system.application.world_lifecycle import (
 
 __all__ = [
     "ActiveWorld",
+    "ActionCompletedPlayerTurnResult",
     "ActionLinkedCompletion",
     "ClarificationCompletion",
+    "ClarificationPlayerTurnResult",
     "CompletedActorActionStep",
     "FunctionalGenerationAttempt",
     "FunctionalGenerationDisposition",
@@ -54,12 +65,17 @@ __all__ = [
     "PlayerInterpretationResult",
     "PlayerInputStepTrace",
     "PlayerInterpreterOutput",
+    "PlayerTurnResult",
+    "StalePlayerTurnResult",
+    "ThoughtOnlyPlayerTurnResult",
     "WorldPackageKindError",
     "WorldPackageMismatchError",
     "build_initial_world",
     "create_world",
     "decide_greybridge_caretaker",
+    "coordinate_player_turn",
     "execute_actor_action_step",
+    "execute_actor_action_step_in_unit",
     "interpret_player_input",
     "reset_world_for_development",
     "resume_world",

@@ -71,7 +71,7 @@ M4 is complete. The singleton world survives restart, advances atomically throug
 | TASK-042: local functional model gateway | Done; synchronous fakeable `httpx2` boundary with thinking disabled, strict content-only validation, one repair, and typed attempt evidence at version `0.41.0` |
 | TASK-043: player input interpreter | Done; bounded text-plus-perception interpretation into thought, one executable proposal, or safe clarification with generation evidence at version `0.42.0` |
 | TASK-044: durable player-input step traces | Done; SQLite V3 strictly preserves thought-only, clarification, and actor-action-linked interpretation evidence at version `0.43.0` |
-| TASK-045: transactional free-form player-turn coordinator | Ready; model-latency-safe interpretation plus atomic action/no-action trace completion |
+| TASK-045: transactional free-form player-turn coordinator | Done; revision-safe free-form interpretation and single-commit action/no-action completion at version `0.44.0` |
 | Free-form player turn API | Transactional free-form player-turn coordinator and explicit local-gateway application configuration |
 | Memory-free LLM courier policy | Local model gateway and actor runtime |
 | Narrator | Perception snapshots and local model gateway |

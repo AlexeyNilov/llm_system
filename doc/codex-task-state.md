@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Implement the transactional free-form player-turn coordinator before exposing its HTTP API.
+Plan the thin free-form player-turn HTTP endpoint over the accepted transactional coordinator.
 
 ## Verified baseline
 
@@ -23,25 +23,25 @@ Implement the transactional free-form player-turn coordinator before exposing it
 * Neutral immutable functional-generation and player-interpretation contracts preserve existing `llm_system.application` imports while allowing persistence to decode strict player-input records without importing application or HTTP code.
 * `PlayerInputStepTrace` preserves exact interpretation evidence and has exactly thought-only, clarification, or action-linked completion forms. Action links must match an existing completed actor-action trace at the same world and resulting revision.
 * SQLite V3 adds append-only player-input trace history, migrates V1/V2 records transactionally, and deletes that history during a development reset together with the existing timeline.
-* Parent verification passes: targeted 85-test regression suite, `make check` with 477 tests, `uv lock --check`, and `git diff --check`.
+* TASK-045 is accepted at project version `0.44.0`.
+* `coordinate_player_turn` reads perception outside a write transaction, rejects stale interpretations without identities or writes, and atomically commits either a no-action trace or the action/world/events/actor-trace/input-trace set.
+* Parent verification passes: coordinator plus related 74-test suite, `make check` with 484 tests, `uv lock --check`, and `git diff --check`.
 
 ## Blockers and unresolved questions
 
-TASK-045 is Ready. HTTP transport and local-gateway runtime configuration intentionally wait for the coordinator's player-safe, atomic completion contract.
+No blocker. The next HTTP task needs a strict free-text request and player-safe result mapping over the coordinator; explicit local-gateway runtime configuration remains a separate follow-up.
 
 ## Exact next action
 
-Commit and delegate `doc/tasks/TASK-045-transactional-freeform-player-turn-coordinator.md`, then independently review and integrate it before preparing the thin free-form HTTP endpoint.
+Specify the free-form HTTP request/response and stale mapping, then prepare the next Ready task without changing the deterministic structured `/turn` endpoint.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
-3. `doc/tasks/TASK-045-transactional-freeform-player-turn-coordinator.md`
-4. `doc/requirements.md`: `PLAY-008` through `PLAY-013`, `LLM-008`, `STORE-006` through `STORE-016`, and `STEP-001` through `STEP-015`
-5. `doc/decisions.md`: completed actor-action trace, player interpretation, player-input trace, and player-turn coordination decisions
-6. `src/llm_system/application/actor_action_step.py`
-7. `src/llm_system/application/player_interpreter.py`
-8. `src/llm_system/persistence/sqlite.py`: unit of work and both trace repositories
-9. `src/llm_system/player_input_traces.py`
-10. `tests/test_actor_action_step.py`, `tests/test_player_input_traces.py`, and `tests/test_player_interpreter.py`
+3. `doc/roadmap.md`: M5
+4. `doc/requirements.md`: `API-001` through `API-009`, `PLAY-008` through `PLAY-013`, and `STEP-011` through `STEP-015`
+5. `doc/decisions.md`: first HTTP boundary and player-turn coordination decisions
+6. `src/llm_system/api.py`
+7. `src/llm_system/application/player_turn_coordinator.py`
+8. `tests/test_api.py` and `tests/test_player_turn_coordinator.py`

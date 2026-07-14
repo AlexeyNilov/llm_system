@@ -7,7 +7,7 @@ from llm_system.persistence.records import (
     PackageReference,
     StoredWorld,
 )
-from llm_system.persistence.sqlite import SQLiteStore
+from llm_system.persistence.sqlite import SQLiteStore, SQLiteUnitOfWork
 from llm_system.simulation._types import _StrictContract
 from llm_system.simulation.actions import ActorActionSubmission
 from llm_system.simulation.authorization import authorize_actor_action
@@ -61,51 +61,69 @@ def execute_actor_action_step(
     event_id: UUID,
 ) -> CompletedActorActionStep:
     with store.unit_of_work() as unit:
-        stored = unit.worlds.get()
-        if stored is None:
-            raise MissingWorldError("the singleton world does not exist")
-        _require_compatible_packages(stored, packages)
-        world = validate_world_state(packages, stored.state)
-        authorized = authorize_actor_action(world, submission)
-        outcome = dispatch_actor_action(
-            authorized, outcome_id=outcome_id, event_id=event_id
-        )
-        committed = commit_outcome(world, outcome)
-        current_perception = project_current_perception(
-            committed.world, submission.actor_id
-        )
-        events = () if isinstance(outcome, RejectedOutcome) else outcome.events
-        self_event_feedback = project_self_event_feedback(
-            committed.world, submission.actor_id, events
-        )
-        trace = CompletedActorActionStepTrace(
-            trace_schema_version=1,
-            simulation_step_id=submission.simulation_step_id,
-            decision_context_id=submission.decision_context_id,
-            submission=submission,
-            outcome=outcome,
-            current_perception=current_perception,
-            self_event_feedback=self_event_feedback,
-        )
-        replacement = unit.worlds.replace(
-            world_id=stored.world_id,
-            expected_revision=stored.revision,
-            state=committed.world.state,
-            scheduled_queue=stored.scheduled_queue,
-        )
-        unit.events.append(
-            world_id=stored.world_id,
-            resulting_world_revision=replacement.revision,
-            events=events,
-        )
-        unit.traces.append(
-            world_id=stored.world_id,
-            resulting_world_revision=replacement.revision,
-            trace=trace,
+        completed = execute_actor_action_step_in_unit(
+            unit,
+            packages,
+            submission,
+            outcome_id=outcome_id,
+            event_id=event_id,
         )
         unit.commit()
-        return CompletedActorActionStep(
-            world_id=stored.world_id,
-            resulting_world_revision=replacement.revision,
-            trace=trace,
-        )
+        return completed
+
+
+def execute_actor_action_step_in_unit(
+    unit: SQLiteUnitOfWork,
+    packages: ValidatedGamePackages,
+    submission: ActorActionSubmission,
+    *,
+    outcome_id: UUID,
+    event_id: UUID,
+) -> CompletedActorActionStep:
+    stored = unit.worlds.get()
+    if stored is None:
+        raise MissingWorldError("the singleton world does not exist")
+    _require_compatible_packages(stored, packages)
+    world = validate_world_state(packages, stored.state)
+    authorized = authorize_actor_action(world, submission)
+    outcome = dispatch_actor_action(
+        authorized, outcome_id=outcome_id, event_id=event_id
+    )
+    committed = commit_outcome(world, outcome)
+    current_perception = project_current_perception(
+        committed.world, submission.actor_id
+    )
+    events = () if isinstance(outcome, RejectedOutcome) else outcome.events
+    self_event_feedback = project_self_event_feedback(
+        committed.world, submission.actor_id, events
+    )
+    trace = CompletedActorActionStepTrace(
+        trace_schema_version=1,
+        simulation_step_id=submission.simulation_step_id,
+        decision_context_id=submission.decision_context_id,
+        submission=submission,
+        outcome=outcome,
+        current_perception=current_perception,
+        self_event_feedback=self_event_feedback,
+    )
+    replacement = unit.worlds.replace(
+        world_id=stored.world_id,
+        expected_revision=stored.revision,
+        state=committed.world.state,
+        scheduled_queue=stored.scheduled_queue,
+    )
+    unit.events.append(
+        world_id=stored.world_id,
+        resulting_world_revision=replacement.revision,
+        events=events,
+    )
+    unit.traces.append(
+        world_id=stored.world_id,
+        resulting_world_revision=replacement.revision,
+        trace=trace,
+    )
+    return CompletedActorActionStep(
+        world_id=stored.world_id,
+        resulting_world_revision=replacement.revision,
+        trace=trace,
+    )
