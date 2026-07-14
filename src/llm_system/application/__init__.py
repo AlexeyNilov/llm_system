@@ -16,6 +16,12 @@ from llm_system.application.model_gateway import (
     HttpLocalModelGateway,
     ModelMessage,
 )
+from llm_system.application.player_interpreter import (
+    InterpretedPlayerProposal,
+    PlayerInterpretationResult,
+    PlayerInterpreterOutput,
+    interpret_player_input,
+)
 from llm_system.application.world_lifecycle import (
     ActiveWorld,
     WorldPackageKindError,
@@ -34,14 +40,18 @@ __all__ = [
     "FunctionalModelFailureKind",
     "FunctionalModelGateway",
     "HttpLocalModelGateway",
+    "InterpretedPlayerProposal",
     "ModelMessage",
     "NpcDecisionContext",
+    "PlayerInterpretationResult",
+    "PlayerInterpreterOutput",
     "WorldPackageKindError",
     "WorldPackageMismatchError",
     "build_initial_world",
     "create_world",
     "decide_greybridge_caretaker",
     "execute_actor_action_step",
+    "interpret_player_input",
     "reset_world_for_development",
     "resume_world",
 ]
