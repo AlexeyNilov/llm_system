@@ -1040,6 +1040,16 @@ This helps ensure requirements are:
 
 **STEP-010:** The public coordinator result shall identify the committed world and resulting revision and retain the exact completed actor-action trace returned only after durable success.
 
+**STEP-011:** The free-form player-turn coordinator shall read one current player perception and its world revision before calling the player interpreter, without holding a SQLite write unit of work during model latency. It shall then recheck the exact world identity and observed revision before any persistence.
+
+**STEP-012:** If the world changed after the coordinator obtained the interpretation perception, it shall return a typed stale-input failure, create no trusted action metadata, and leave world, event, actor-action trace, and player-input trace history unchanged.
+
+**STEP-013:** For a thought-only or clarification interpretation at the rechecked revision, the coordinator shall application-assign one player-input identity, append exactly one matching no-action player-input trace, commit it, and return completion only after durable success without advancing canonical state or time.
+
+**STEP-014:** For an interpreted proposal at the rechecked revision, the coordinator shall application-assign player-input, proposal, simulation-step, decision-context, outcome, and event identities; create the trusted player-interpreter submission; resolve the actor action; append its completed actor-action trace and the action-linked player-input trace; and commit all resulting world, events, and traces in one SQLite unit of work. It shall return completion only after durable success.
+
+**STEP-015:** The free-form coordinator shall expose only exact interpreted thought or clarification and player-safe committed action evidence. It shall not expose canonical state, package definitions, provider details, another actor's private information, functional prompt messages, or raw generation attempts.
+
 ### FastAPI application boundary
 
 **API-001:** The initial FastAPI application shall be constructed from an explicit SQLite store, game-package root, validated initial package pair, identity factory, and development-reset setting rather than module-global mutable state.

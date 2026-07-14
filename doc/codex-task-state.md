@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Plan the free-form player-turn coordinator and API on the durable player-input trace foundation.
+Implement the transactional free-form player-turn coordinator before exposing its HTTP API.
 
 ## Verified baseline
 
@@ -27,21 +27,21 @@ Plan the free-form player-turn coordinator and API on the durable player-input t
 
 ## Blockers and unresolved questions
 
-No blocker. The later coordinator still needs to obtain player perception before interpretation, recheck the observed revision after model latency, create trusted action metadata only for a proposal, and atomically persist either one no-action input trace or the linked actor-action and input traces.
+TASK-045 is Ready. HTTP transport and local-gateway runtime configuration intentionally wait for the coordinator's player-safe, atomic completion contract.
 
 ## Exact next action
 
-Inspect the current FastAPI turn boundary, lifecycle/resume services, actor-action coordinator, identity factory, and new player-input trace repository. Record the smallest accepted coordinator/API semantics for free text, stale revisions, and player-safe responses, then prepare the next Ready task.
+Commit and delegate `doc/tasks/TASK-045-transactional-freeform-player-turn-coordinator.md`, then independently review and integrate it before preparing the thin free-form HTTP endpoint.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
-3. `doc/roadmap.md`: M5
-4. `doc/requirements.md`: `PLAY-008` through `PLAY-013`, `API-001` through `API-010`, `LLM-008`, and `STORE-006` through `STORE-016`
-5. `doc/decisions.md`: player interpretation, player-input trace, and first HTTP boundary decisions
-6. `src/llm_system/api.py`
+3. `doc/tasks/TASK-045-transactional-freeform-player-turn-coordinator.md`
+4. `doc/requirements.md`: `PLAY-008` through `PLAY-013`, `LLM-008`, `STORE-006` through `STORE-016`, and `STEP-001` through `STEP-015`
+5. `doc/decisions.md`: completed actor-action trace, player interpretation, player-input trace, and player-turn coordination decisions
+6. `src/llm_system/application/actor_action_step.py`
 7. `src/llm_system/application/player_interpreter.py`
-8. `src/llm_system/application/actor_action_step.py`
-9. `src/llm_system/persistence/sqlite.py`: player-input trace repository and unit of work
-10. `tests/test_api.py` and `tests/test_player_input_traces.py`
+8. `src/llm_system/persistence/sqlite.py`: unit of work and both trace repositories
+9. `src/llm_system/player_input_traces.py`
+10. `tests/test_actor_action_step.py`, `tests/test_player_input_traces.py`, and `tests/test_player_interpreter.py`
