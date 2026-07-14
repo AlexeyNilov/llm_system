@@ -46,8 +46,8 @@ No blocker. Full queue draining, recurrence, environmental activity, System dire
 
 ## Exact next action
 
-Commit and delegate Ready TASK-056 to the implementer, then independently
-review its fact-preserving boundary and verification evidence.
+Independently review and integrate TASK-056 if accepted. Then prepare the M5
+play handoff and stop; do not begin M6 without direct stakeholder approval.
 
 ## Files to re-read before continuing
 

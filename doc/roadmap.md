@@ -61,6 +61,10 @@ The first M4 task brief is the pilot for the M3.6 context rules. It must record 
 
 M4 is complete. The singleton world survives restart, advances atomically through FastAPI, and is exercisable through the deterministic Streamlit player page. Deferred scheduled execution does not block this milestone because its activity variants still lack accepted execution semantics.
 
+**Stakeholder hold:** Do not begin M6 implementation or planning after M5. The
+stakeholder will first play the current vertical slice and provide direct
+approval to proceed.
+
 ## M5: Actor policies and local LLM integration
 
 **Outcome:** The caretaker and memory-free courier act through the same validated action-proposal boundary.
@@ -87,6 +91,8 @@ M4 is complete. The singleton world survives restart, advances atomically throug
 ## M6: System direction and progression
 
 **Outcome:** Event-driven creative direction and player-visible mechanics complete the LitRPG loop.
+
+**Status:** Held pending direct stakeholder approval after hands-on M5 play.
 
 | Planned task | Depends on |
 | --- | --- |
