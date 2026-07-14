@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Plan the thin free-form player-turn HTTP endpoint over the accepted transactional coordinator.
+Plan explicit local functional-gateway runtime configuration for the working free-form player-turn API.
 
 ## Verified baseline
 
@@ -25,15 +25,16 @@ Plan the thin free-form player-turn HTTP endpoint over the accepted transactiona
 * SQLite V3 adds append-only player-input trace history, migrates V1/V2 records transactionally, and deletes that history during a development reset together with the existing timeline.
 * TASK-045 is accepted at project version `0.44.0`.
 * `coordinate_player_turn` reads perception outside a write transaction, rejects stale interpretations without identities or writes, and atomically commits either a no-action trace or the action/world/events/actor-trace/input-trace set.
-* Parent verification passes: coordinator plus related 74-test suite, `make check` with 484 tests, `uv lock --check`, and `git diff --check`.
+* TASK-046 is accepted at project version `0.45.0`; `/player-turn` accepts only player text and maps coordinator results to player-safe HTTP responses.
+* Parent verification passes: API/coordinator 37-test suite, `make check` with 493 tests, `uv lock --check`, and `git diff --check`.
 
 ## Blockers and unresolved questions
 
-No blocker. The next HTTP task needs a strict free-text request and player-safe result mapping over the coordinator; explicit local-gateway runtime configuration remains a separate follow-up.
+No blocker. The free-form API currently uses safe durable clarification when no gateway is injected; runtime configuration is the next practical path to live local interpretation.
 
 ## Exact next action
 
-Specify the free-form HTTP request/response and stale mapping, then prepare the next Ready task without changing the deterministic structured `/turn` endpoint.
+Inspect the local deployment README and server bootstrap, then plan explicit runtime gateway settings without adding configuration to the simulation kernel.
 
 ## Files to re-read before continuing
 

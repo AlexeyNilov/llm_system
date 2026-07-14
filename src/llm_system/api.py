@@ -1,14 +1,25 @@
 from collections.abc import Callable
 from pathlib import Path
-from typing import Literal
+from typing import Annotated, Literal, TypeAlias
 from uuid import UUID, uuid4
 
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from llm_system.application import (
     ActiveWorld,
+    ActionCompletedPlayerTurnResult,
+    ClarificationPlayerTurnResult,
+    FunctionalGenerationAttempt,
+    FunctionalGenerationDisposition,
+    FunctionalGenerationResult,
+    FunctionalModelFailureKind,
+    FunctionalModelGateway,
+    ModelMessage,
+    StalePlayerTurnResult,
+    ThoughtOnlyPlayerTurnResult,
+    coordinate_player_turn,
     create_world,
     execute_actor_action_step,
     reset_world_for_development,
@@ -21,6 +32,7 @@ from llm_system.persistence.records import NonNegativeRevision, PackageReference
 from llm_system.simulation.actions import (
     ActorActionProposal,
     ActorActionSubmission,
+    NonBlankText,
     PlayerInterpreterActionSource,
 )
 from llm_system.simulation.outcomes import OutcomeReasonCode
@@ -44,6 +56,10 @@ class TurnRequest(_StrictApiModel):
     proposal: ActorActionProposal
 
 
+class PlayerTurnRequest(_StrictApiModel):
+    player_text: NonBlankText
+
+
 class TurnResponse(_StrictApiModel):
     world_id: UUID
     resulting_world_revision: NonNegativeRevision
@@ -54,12 +70,49 @@ class TurnResponse(_StrictApiModel):
     self_event_feedback: tuple[EventObserved, ...]
 
 
+class ThoughtOnlyPlayerTurnResponse(_StrictApiModel):
+    result_type: Literal["thought_only"]
+    private_thought: NonBlankText
+
+
+class ClarificationPlayerTurnResponse(_StrictApiModel):
+    result_type: Literal["clarification"]
+    clarification: NonBlankText
+
+
+class ActionCompletedPlayerTurnResponse(TurnResponse):
+    result_type: Literal["action_completed"]
+    private_thought: NonBlankText | None
+
+
+PlayerTurnResponse: TypeAlias = Annotated[
+    ThoughtOnlyPlayerTurnResponse
+    | ClarificationPlayerTurnResponse
+    | ActionCompletedPlayerTurnResponse,
+    Field(discriminator="result_type"),
+]
+
+
 class ApplicationErrorResponse(_StrictApiModel):
     code: Literal[
         "world-not-found",
         "world-already-exists",
         "development-reset-disabled",
+        "player-turn-stale",
     ]
+
+
+class _UnavailableFunctionalGateway:
+    def generate_functional[ResultT: BaseModel](
+        self, messages: tuple[ModelMessage, ...], output_model: type[ResultT]
+    ) -> FunctionalGenerationResult[ResultT]:
+        del messages, output_model
+        return FunctionalGenerationResult[ResultT](
+            disposition=FunctionalGenerationDisposition.FAILED,
+            initial_attempt=FunctionalGenerationAttempt(
+                failure_kind=FunctionalModelFailureKind.TRANSPORT_UNAVAILABLE
+            ),
+        )
 
 
 def create_app(
@@ -69,8 +122,12 @@ def create_app(
     initial_packages: ValidatedGamePackages,
     identity_factory: Callable[[], UUID] = uuid4,
     development_reset_enabled: bool = False,
+    gateway: FunctionalModelGateway | None = None,
 ) -> FastAPI:
     app = FastAPI(openapi_url=None, docs_url=None, redoc_url=None)
+    player_turn_gateway: FunctionalModelGateway = (
+        gateway if gateway is not None else _UnavailableFunctionalGateway()
+    )
 
     @app.exception_handler(MissingWorldError)
     async def handle_missing_world(
@@ -139,6 +196,23 @@ def create_app(
             self_event_feedback=trace.self_event_feedback,
         )
 
+    @app.post("/player-turn", response_model=PlayerTurnResponse)
+    def post_player_turn(
+        request: PlayerTurnRequest,
+    ) -> PlayerTurnResponse | JSONResponse:
+        player = _sole_player(initial_packages)
+        result = coordinate_player_turn(
+            store,
+            initial_packages,
+            player_turn_gateway,
+            player_text=request.player_text,
+            player_id=player.id,
+            identity_factory=identity_factory,
+        )
+        if isinstance(result, StalePlayerTurnResult):
+            return _error_response(409, "player-turn-stale")
+        return _player_turn_response(result)
+
     return app
 
 
@@ -164,12 +238,42 @@ def _sole_player(packages: ValidatedGamePackages) -> PlayerCharacterDefinition:
     return players[0]
 
 
+def _player_turn_response(
+    result: (
+        ThoughtOnlyPlayerTurnResult
+        | ClarificationPlayerTurnResult
+        | ActionCompletedPlayerTurnResult
+    ),
+) -> PlayerTurnResponse:
+    if isinstance(result, ThoughtOnlyPlayerTurnResult):
+        return ThoughtOnlyPlayerTurnResponse(
+            result_type="thought_only", private_thought=result.private_thought
+        )
+    if isinstance(result, ClarificationPlayerTurnResult):
+        return ClarificationPlayerTurnResponse(
+            result_type="clarification", clarification=result.clarification
+        )
+    trace = result.completed_action.trace
+    return ActionCompletedPlayerTurnResponse(
+        result_type="action_completed",
+        world_id=result.completed_action.world_id,
+        resulting_world_revision=result.completed_action.resulting_world_revision,
+        simulation_step_id=trace.simulation_step_id,
+        outcome_status=trace.outcome.status,
+        reason_code=trace.outcome.reason_code,
+        current_perception=trace.current_perception,
+        self_event_feedback=trace.self_event_feedback,
+        private_thought=result.private_thought,
+    )
+
+
 def _error_response(
     status_code: int,
     code: Literal[
         "world-not-found",
         "world-already-exists",
         "development-reset-disabled",
+        "player-turn-stale",
     ],
 ) -> JSONResponse:
     body = ApplicationErrorResponse(code=code)

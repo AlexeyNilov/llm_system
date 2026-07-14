@@ -1,12 +1,23 @@
 import sqlite3
+import json
+from collections.abc import Iterator
 from pathlib import Path
+from typing import cast
 from uuid import UUID
 
 import pytest
 from fastapi.testclient import TestClient
 from fastapi.routing import APIRoute
+from pydantic import BaseModel
 
+from llm_system.application import (
+    FunctionalGenerationAttempt,
+    FunctionalGenerationDisposition,
+    FunctionalGenerationResult,
+    PlayerInterpreterOutput,
+)
 from llm_system.api import create_app
+from llm_system.functional_generation import FunctionalModelGateway, ModelMessage
 from llm_system.game_packages import (
     LoadedRulePackage,
     LoadedScenarioPackage,
@@ -15,6 +26,7 @@ from llm_system.game_packages import (
 )
 from llm_system.game_packages.validation import ValidatedGamePackages
 from llm_system.persistence import SQLiteStore
+from llm_system.simulation import WaitActionProposal
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_ROOT = REPOSITORY_ROOT / "game_packages"
@@ -25,6 +37,51 @@ CONTEXT_ID = UUID("00000000-0000-4000-8000-000000000004")
 OUTCOME_ID = UUID("00000000-0000-4000-8000-000000000005")
 EVENT_ID = UUID("00000000-0000-4000-8000-000000000006")
 REPLACEMENT_WORLD_ID = UUID("00000000-0000-4000-8000-000000000007")
+
+
+class FakeGateway(FunctionalModelGateway):
+    def __init__(self, output: PlayerInterpreterOutput) -> None:
+        self._output = output
+
+    def generate_functional[ResultT: BaseModel](
+        self, messages: tuple[ModelMessage, ...], output_model: type[ResultT]
+    ) -> FunctionalGenerationResult[ResultT]:
+        del messages, output_model
+        return FunctionalGenerationResult[ResultT](
+            disposition=FunctionalGenerationDisposition.ACCEPTED,
+            value=cast(ResultT, self._output),
+            initial_attempt=FunctionalGenerationAttempt(
+                content=json.dumps(self._output.model_dump(mode="json")),
+                finish_reason="stop",
+            ),
+        )
+
+
+class StaleMakingGateway(FakeGateway):
+    def __init__(self, output: PlayerInterpreterOutput, store: SQLiteStore) -> None:
+        super().__init__(output)
+        self._store = store
+
+    def generate_functional[ResultT: BaseModel](
+        self, messages: tuple[ModelMessage, ...], output_model: type[ResultT]
+    ) -> FunctionalGenerationResult[ResultT]:
+        result = super().generate_functional(messages, output_model)
+        with self._store.unit_of_work() as unit:
+            world = unit.worlds.get()
+            assert world is not None
+            unit.worlds.replace(
+                world_id=world.world_id,
+                expected_revision=world.revision,
+                state=world.state,
+                scheduled_queue=world.scheduled_queue,
+            )
+            unit.commit()
+        return result
+
+
+def _player_turn_identities() -> Iterator[UUID]:
+    for number in range(1, 20):
+        yield UUID(f"00000000-0000-4000-8000-{number:012d}")
 
 
 def _packages() -> ValidatedGamePackages:
@@ -332,7 +389,157 @@ def test_turn_openapi_exposes_only_the_discriminated_proposal_union(
         assert forbidden not in encoded
 
 
-def test_application_registers_exactly_the_four_accepted_http_operations(
+@pytest.mark.parametrize(
+    ("output", "expected_type", "expected_status"),
+    [
+        (
+            PlayerInterpreterOutput(
+                result_type="interpreted",
+                private_thought="I should consider this.",
+                proposal=None,
+                clarification=None,
+            ),
+            "thought_only",
+            200,
+        ),
+        (
+            PlayerInterpreterOutput(
+                result_type="clarification",
+                private_thought=None,
+                proposal=None,
+                clarification="Which direction do you mean?",
+            ),
+            "clarification",
+            200,
+        ),
+        (
+            PlayerInterpreterOutput(
+                result_type="interpreted",
+                private_thought="I will wait.",
+                proposal=WaitActionProposal(operation="wait", duration_seconds=1),
+                clarification=None,
+            ),
+            "action_completed",
+            200,
+        ),
+    ],
+)
+def test_player_turn_maps_each_committed_coordinator_result(
+    tmp_path: Path,
+    output: PlayerInterpreterOutput,
+    expected_type: str,
+    expected_status: int,
+) -> None:
+    store = SQLiteStore.open(tmp_path / "world.sqlite3")
+    identities = _player_turn_identities()
+    client = TestClient(
+        create_app(
+            store=store,
+            package_root=PACKAGE_ROOT,
+            initial_packages=_packages(),
+            identity_factory=lambda: next(identities),
+            gateway=FakeGateway(output),
+        )
+    )
+    assert client.post("/world").status_code == 200
+
+    response = client.post("/player-turn", json={"player_text": "I act."})
+
+    assert response.status_code == expected_status
+    assert response.json()["result_type"] == expected_type
+    if expected_type == "action_completed":
+        assert set(response.json()) == {
+            "result_type",
+            "world_id",
+            "resulting_world_revision",
+            "simulation_step_id",
+            "outcome_status",
+            "reason_code",
+            "current_perception",
+            "self_event_feedback",
+            "private_thought",
+        }
+        assert response.json()["outcome_status"] == "succeeded"
+
+
+def test_player_turn_stale_is_bounded_and_does_not_claim_completion(
+    tmp_path: Path,
+) -> None:
+    store = SQLiteStore.open(tmp_path / "world.sqlite3")
+    identities = _player_turn_identities()
+    client = TestClient(
+        create_app(
+            store=store,
+            package_root=PACKAGE_ROOT,
+            initial_packages=_packages(),
+            identity_factory=lambda: next(identities),
+            gateway=StaleMakingGateway(
+                PlayerInterpreterOutput(
+                    result_type="interpreted",
+                    private_thought="I should wait.",
+                    proposal=None,
+                    clarification=None,
+                ),
+                store,
+            ),
+        )
+    )
+    assert client.post("/world").status_code == 200
+
+    response = client.post("/player-turn", json={"player_text": "I wait."})
+
+    assert response.status_code == 409
+    assert response.json() == {"code": "player-turn-stale"}
+
+
+@pytest.mark.parametrize(
+    "body",
+    [
+        {},
+        {"player_text": "   "},
+        {"player_text": "I wait.", "actor_id": "player"},
+        {"player_text": "I wait.", "revision": 0},
+    ],
+)
+def test_player_turn_rejects_malformed_or_trusted_client_fields(
+    tmp_path: Path, body: dict[str, object]
+) -> None:
+    client = TestClient(
+        create_app(
+            store=SQLiteStore.open(tmp_path / "world.sqlite3"),
+            package_root=PACKAGE_ROOT,
+            initial_packages=_packages(),
+        )
+    )
+
+    assert client.post("/player-turn", json=body).status_code == 422
+
+
+def test_player_turn_without_a_gateway_returns_the_safe_clarification(
+    tmp_path: Path,
+) -> None:
+    store = SQLiteStore.open(tmp_path / "world.sqlite3")
+    identities = _player_turn_identities()
+    client = TestClient(
+        create_app(
+            store=store,
+            package_root=PACKAGE_ROOT,
+            initial_packages=_packages(),
+            identity_factory=lambda: next(identities),
+        )
+    )
+    assert client.post("/world").status_code == 200
+
+    response = client.post("/player-turn", json={"player_text": "I wait."})
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "result_type": "clarification",
+        "clarification": "I couldn't interpret that safely. Please clarify your intended thought or action.",
+    }
+
+
+def test_application_registers_exactly_the_five_accepted_http_operations(
     tmp_path: Path,
 ) -> None:
     app = create_app(
@@ -353,11 +560,13 @@ def test_application_registers_exactly_the_four_accepted_http_operations(
         ("/world", "GET"),
         ("/development/reset", "POST"),
         ("/turn", "POST"),
+        ("/player-turn", "POST"),
     }
     assert app.openapi()["paths"].keys() == {
         "/world",
         "/development/reset",
         "/turn",
+        "/player-turn",
     }
 
 
