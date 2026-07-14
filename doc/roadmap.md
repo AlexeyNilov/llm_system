@@ -60,7 +60,7 @@ M4 is complete. The singleton world survives restart, advances atomically throug
 
 | Planned task | Depends on |
 | --- | --- |
-| [TASK-041](tasks/TASK-041-rule-driven-caretaker-policy.md): rule-driven caretaker policy | Ready; accepted NPC context and policy contracts plus Greybridge package |
+| TASK-041: rule-driven caretaker policy | Done; strict bounded NPC context plus a pure deterministic seek, take, return, reinforce, or Wait proposal policy at version `0.40.0` |
 | Local model gateway | Structured-output preflight and Python foundation |
 | Player input interpreter | Local model gateway and action contracts |
 | Memory-free LLM courier policy | Local model gateway and actor runtime |

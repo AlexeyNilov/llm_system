@@ -2,29 +2,31 @@
 
 ## Current objective
 
-Execute and integrate TASK-041: the bounded NPC decision context and rule-driven Greybridge caretaker policy.
+Plan the local model gateway that will support the player interpreter, courier policy, and narrator without crossing simulation authority boundaries.
 
 ## Verified baseline
 
-* TASK-040 is independently reviewed and accepted at project version `0.38.0`; M4 is complete.
-* The player page communicates only through FastAPI using a five-second bounded HTTP client and validates every recognized response against existing API models.
-* It exposes all seven typed proposal forms, deterministic lifecycle/result presentation, confirmation-gated development reset, and session-only committed-turn history.
-* HTTP/application failures remain distinct from completed domain outcomes and do not append or clear history incorrectly. Owned HTTP resources close on every rerun path.
-* The page starts no API process and performs no package, SQLite, application-service, simulation-resolution, LLM, narration, or inspection work.
-* Parent verification passes: 57 focused tests, `make check` with 406 tests, `uv lock --check`, and `git diff --check`.
+* M4 is complete: the singleton world persists and advances atomically through FastAPI, and the deterministic Streamlit page remains a thin HTTP client.
+* TASK-041 is accepted at project version `0.40.0`.
+* `NpcDecisionContext` is a strict immutable application contract containing only application identity, NPC identity context, goals, current plan, and actor-matching perception.
+* `decide_greybridge_caretaker` is a pure deterministic proposal producer that uses typed observations for the seek, take, return, and reinforce sequence and falls back to a 60-second Wait.
+* The policy receives no canonical world state, creates no trusted submission metadata, makes no LLM call, and performs no mutation or execution.
+* Parent verification passes: 18 focused/regression tests, `make check` with 418 tests, `uv lock --check`, and `git diff --check`.
 
 ## Blockers and unresolved questions
 
-No known blocker. Executing scheduled NPC activity through the coordinator remains a later M5 increment that needs this policy contract and an actor runtime first. Free-form player interpretation, local model integration, narration, and the memory-free courier remain separate M5 tasks.
+No known blocker to planning the local model gateway. Actor-runtime assembly and scheduled caretaker execution remain separate M5 increments. The gateway must preserve the accepted local Gemma thinking-disable, strict validation, one-repair, and role-specific safe-failure boundaries without importing simulation authority.
 
 ## Exact next action
 
-Delegate the Ready TASK-041 to a fresh `implementer`, then independently review its diff and verification against the bounded context, pure proposal-only policy, deterministic priority sequence, and 60-second fallback.
+Inspect the accepted structured-output preflight evidence, local-model decisions and requirements, current dependencies, and the three concrete M5 consumers. Settle the smallest shared transport and functional structured-output boundary, then prepare TASK-042 for the local model gateway.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
-3. `doc/tasks/TASK-041-rule-driven-caretaker-policy.md`
-4. TASK-041's exact context manifest
-5. The implementation diff and handoff evidence
+3. `doc/roadmap.md`: M5
+4. `doc/reports/structured_output_preflight.md`
+5. `doc/requirements.md`: `LLM-001` through `LLM-009`
+6. `doc/decisions.md`: local Gemma structured-output decisions
+7. `README.md`: current local-model endpoint configuration only
