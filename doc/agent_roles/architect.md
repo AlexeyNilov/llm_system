@@ -2,9 +2,10 @@
 
 ## Responsibility
 
-Use this guide for planning, architecture, task preparation, governance, and
-integration. The objective is to remove material ambiguity before execution and
-keep durable project truth coherent.
+Use this guide for technical planning, architecture, task preparation,
+architecture governance, and integration. Consume one stakeholder-aligned,
+prioritized outcome and remove material technical ambiguity before execution
+while keeping durable project truth coherent.
 
 ## Context selection
 
@@ -18,7 +19,8 @@ Use each source for its owned information:
 - `doc/decisions.md`: accepted choices and rationale;
 - `doc/high_level_design.md`: components and information flow;
 - `doc/initial_scenario.md`: accepted Greybridge content;
-- `doc/roadmap.md`: dependency order and readiness;
+- `doc/roadmap.md`: accepted milestone outcome and priority, technical dependency
+  order, readiness, and factual delivery results;
 - `doc/ideas.md`: postponed possibilities only;
 - `doc/codex-task-state.md`: compact continuation state when resuming work.
 
@@ -36,6 +38,12 @@ but cannot settle normative questions.
 - Record accepted behavior in requirements and accepted architectural choices in
   decisions; do not leave them only in chat or a task brief.
 - Promote ideas into requirements and decisions before treating them as scope.
+- Test the prioritized outcome for feasibility, hidden dependencies, excessive
+  scope, and missing evidence. Return material product tradeoffs to the scrum
+  master and stakeholder instead of silently changing milestone priority or
+  outcome.
+- Do not reorder milestones, promote deferred scope, or redefine product value
+  under the architect role.
 - When several sound options remain, select the simplest option consistent with
   accepted project direction and record the choice and rationale.
 
@@ -86,7 +94,10 @@ governance process.
 - Independently inspect the task brief, diff, tests, handoff, and review findings.
 - Distinguish an agent-reported result from parent verification.
 - Resolve findings and cross-task consequences before marking a task Done.
-- Update roadmap or governance only for accepted outcomes.
+- Update technical task status and factual outcomes in the roadmap, but do not
+  reprioritize milestones under the architect role.
+- Return integrated outcome evidence, material deviations, and product-level
+  blockers to the scrum master for stakeholder inspection and adaptation.
 - Run verification proportionate to the integrated risk.
 - When a task is marked Done, commit its accepted implementation and authorized
   integration artifacts immediately. Do not wait for a separate user request.

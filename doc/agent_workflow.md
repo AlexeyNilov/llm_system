@@ -23,7 +23,7 @@ Use each artifact for one kind of information:
 | `doc/high_level_design.md` | Consolidated architecture and information flows |
 | `doc/initial_scenario.md` | Accepted initial playable content |
 | `doc/ideas.md` | Postponed possibilities, not approved scope |
-| `doc/roadmap.md` | Dependency order, milestones, and task readiness |
+| `doc/roadmap.md` | Milestone priority and outcomes, technical dependency order, task readiness, and factual delivery results |
 | `doc/tasks/TASK-*.md` | Temporary contracts and handoff records for active work; removed after integration |
 | `doc/reviews/` | Independent evidence and recommendations, subject to integrator disposition |
 | `doc/codex-task-state.md` | Compact continuation state for the architect or integrator chat |
@@ -43,7 +43,7 @@ Use for durable repository conventions, safety boundaries, and routing to one ro
 
 ### Role guide
 
-Use one role guide for the active responsibility. The root `AGENTS.md` routes planning and integration to the architect guide, implementation and content work to the implementer guide, and independent evaluation to the reviewer guide. A Ready task names its guide explicitly.
+Use one role guide for the active responsibility. The root `AGENTS.md` routes product direction and delivery-flow stewardship to the scrum-master guide, technical planning and integration to the architect guide, implementation and content work to the implementer guide, and independent evaluation to the reviewer guide. A Ready task names its guide explicitly.
 
 Do not preload all role guides. If work changes responsibility materially, complete or hand off the current responsibility before selecting another guide. A role guide defines procedure; it does not supply task-specific domain context.
 
@@ -86,11 +86,24 @@ Use when work requires live external systems or private shared data. It is a cap
 
 Roles describe responsibility. They do not require custom-agent files initially.
 
+### Scrum master
+
+Detailed procedure: [`agent_roles/scrum_master.md`](agent_roles/scrum_master.md).
+
+* Facilitates alignment between the stakeholder, `doc/goal.md`, and the roadmap.
+* Maintains milestone outcomes, priority, current focus, feedback disposition,
+  and delivery-flow improvements with stakeholder authority.
+* Makes blockers visible, routes them to an accountable owner, and drives an
+  explicit next action without taking over another role's decisions.
+* Gives the architect one bounded prioritized outcome and adapts from returned
+  feasibility and integrated-result evidence.
+
 ### Architect and integrator
 
 Detailed procedure: [`agent_roles/architect.md`](agent_roles/architect.md).
 
-* Maintains requirements, decisions, glossary, high-level design, and roadmap.
+* Maintains requirements, decisions, glossary, high-level design, technical
+  roadmap decomposition, dependencies, readiness, and factual task outcomes.
 * Resolves ambiguity before implementation is delegated.
 * Writes or approves task briefs.
 * Integrates reviewed work and handles cross-task consequences.
@@ -120,6 +133,31 @@ Detailed procedure: [`agent_roles/reviewer.md`](agent_roles/reviewer.md).
 * Prioritizes correctness, authority boundaries, information leaks, regressions, and missing tests.
 * Remains read-only and independent from the implementation approach where possible.
 
+## Product-to-delivery loop
+
+The stakeholder retains product authority. The scrum master facilitates product
+direction and maintains accepted milestone priority; the architect owns the
+technical path from one prioritized outcome to Ready tasks and integrated
+evidence.
+
+1. The stakeholder and scrum master compare feedback and current evidence with
+   `doc/goal.md`.
+2. The scrum master records an accepted current milestone outcome, priority,
+   constraints, and exclusions in `doc/roadmap.md`.
+3. The architect tests feasibility and returns hidden dependencies, scope risks,
+   or strategic questions rather than silently changing the outcome.
+4. Once technically unambiguous, the architect prepares and delegates
+   just-in-time Ready tasks.
+5. Implementers, reviewers, and the integrator produce and verify inspectable
+   outcome evidence.
+6. The scrum master brings that evidence and resulting feedback back to the
+   stakeholder and adapts the roadmap.
+
+Hand off one current outcome rather than pushing the entire roadmap as execution
+context. If work changes from product stewardship to technical planning or back,
+finish or explicitly hand off the active responsibility before selecting the
+other guide.
+
 ## Task lifecycle
 
 Use these statuses:
@@ -132,7 +170,11 @@ Use these statuses:
 6. **Done**: Review findings are resolved, the integrator has accepted the result,
    and its task brief has been deleted from `doc/tasks/`.
 
-Only the architect or integrator promotes a task to Ready or Done. An execution agent may move a Ready task to In progress and then to Review or Blocked; it must never mark its own work Done.
+Only the architect or integrator promotes a task to Ready or Done. The scrum
+master may propose or maintain milestone priority and current focus but does not
+change task readiness or accept implementation. An execution agent may move a
+Ready task to In progress and then to Review or Blocked; it must never mark its
+own work Done.
 
 Task briefs are working artifacts, not permanent project history. Before deleting
 an accepted brief, the integrator must record any durable outcome, deviation, or
@@ -241,7 +283,10 @@ Parallelize primarily:
 
 Avoid parallel agents editing the same files or adjacent contracts. Parallel write-heavy work creates merge conflicts and hidden design divergence even when Git can merge the text.
 
-The integrator controls merge order according to `doc/roadmap.md` dependencies.
+The scrum master controls accepted milestone priority with the stakeholder. The
+integrator controls merge order according to the roadmap's technical
+dependencies and reports any resulting priority conflict rather than overriding
+either boundary silently.
 
 ## Review and integration
 

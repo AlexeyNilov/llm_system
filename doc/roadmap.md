@@ -4,6 +4,13 @@
 
 Show the current delivery sequence, deferred scope, and readiness for delegation. Completed task outcomes remain summarized here and detailed history remains in Git. `doc/tasks/` contains only active work contracts and the reusable template. Only work with a Ready task brief may be delegated.
 
+The scrum master owns proposed milestone outcomes, ordering, current focus, and
+feedback-driven adaptation with stakeholder authority. The architect owns
+technical decomposition, dependencies, and readiness. The integrator records
+verified task completion and factual outcomes. A role may edit the other role's
+roadmap surface only through an explicit handoff; factual evidence may challenge
+priority, but does not silently change it.
+
 ## Current position
 
 | Milestone | Status | Outcome |

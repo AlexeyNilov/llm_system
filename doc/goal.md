@@ -41,9 +41,19 @@ The first scenario should be small but meaningful: one player, three connected l
 - The system should remain open-ended rather than becoming a fixed plot or command-menu game.
 - Combat, GraphRAG, multiple worlds, real-time progression, rich belief revision, and generated game packages should remain deferred until the core loop is validated.
 
-## Planning-agent objective
+## Product and delivery objective
 
-Create an implementation roadmap that takes the repository from its current deterministic kernel and persistence/application foundation to the first validated playable vertical slice.
+The scrum master works with the stakeholder to keep an outcome-oriented roadmap
+aligned with this vision and the evidence produced by each integrated increment.
+For the current milestone, make the intended value, priority, constraints,
+explicit exclusions, and evidence for stakeholder inspection clear. Prefer one
+current milestone and adapt its order or scope only with stakeholder authority.
+
+## Architecture-planning objective
+
+For the current prioritized outcome, create a just-in-time implementation path
+that takes the repository from its actual state toward the first validated
+playable vertical slice.
 
 For each proposed task, define:
 
@@ -57,4 +67,7 @@ For each proposed task, define:
 - permitted governance-document changes;
 - dependencies and stop conditions.
 
-Prioritize the smallest coherent vertical slice that proves the architecture end to end. Do not expand scope into deferred systems unless a concrete requirement demonstrates that they are necessary for the first playable experience.
+The scrum master and architect should prefer the smallest coherent vertical
+slice that proves the architecture end to end. Do not expand scope into deferred
+systems unless accepted product direction and a concrete requirement demonstrate
+that they are necessary for the first playable experience.

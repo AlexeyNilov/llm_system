@@ -16,7 +16,8 @@ Read exactly one guide before substantial work:
 
 | Work being performed | Role guide |
 | --- | --- |
-| Planning, architecture, task preparation, or integration | [`doc/agent_roles/architect.md`](doc/agent_roles/architect.md) |
+| Product direction, roadmap prioritization, stakeholder feedback, or delivery-flow stewardship | [`doc/agent_roles/scrum_master.md`](doc/agent_roles/scrum_master.md) |
+| Technical planning, architecture, task preparation, or integration | [`doc/agent_roles/architect.md`](doc/agent_roles/architect.md) |
 | Code, tests, packages, scenarios, or other implementation | [`doc/agent_roles/implementer.md`](doc/agent_roles/implementer.md) |
 | Independent review, audit, or bounded evidence gathering | [`doc/agent_roles/reviewer.md`](doc/agent_roles/reviewer.md) |
 

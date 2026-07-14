@@ -1355,6 +1355,57 @@ Independent review is selective rather than mandatory after every implementation
 
 **Consequences:** The player role gains a bounded, fakeable, inspectable interpretation stage that can represent thought-only input, speech, another action, or clarification without claiming success. A later API task can create trusted identities and submit only a present proposal; thought-only and clarification results can return without advancing time. The initial prompt operates on ID-linked perception, so authored display-name enrichment remains a separate improvement rather than an implicit package leak.
 
+### 2026-07-14: Separate lean product and flow stewardship from technical planning
+
+**Status:** Accepted
+
+**Context:** The architect guide combined product-direction facilitation,
+roadmap prioritization, technical architecture, task preparation, and
+integration. As the roadmap moved through several milestones, that combination
+left stakeholder feedback, value prioritization, and blocker stewardship
+implicit while asking one responsibility to both choose outcomes and design
+their technical realization. The project has one active stakeholder and does
+not need a full Scrum process, but it does need a durable feedback loop between
+product intent and delivery evidence.
+
+**Decision:** Add a lean `scrum_master` role guide as an explicit hybrid of
+product-support and delivery-effectiveness responsibilities. The stakeholder
+retains final product authority. The scrum master facilitates alignment with
+`doc/goal.md`, proposes and maintains accepted milestone outcomes and priority,
+routes feedback, limits work in progress, and drives named blockers toward an
+owner and next action. The architect retains requirements, decisions, technical
+decomposition, task readiness, integration, and factual task outcomes. The
+scrum master hands the architect one prioritized outcome; the architect returns
+feasibility evidence, dependencies, risks, readiness or a named blocker, and
+integrated outcome evidence. Only the architect or integrator may promote tasks
+to Ready or Done. Continue selecting exactly one responsibility-specific guide
+at a time.
+
+Apply lean principles through customer value, small demonstrable outcomes,
+visible flow, pull-based just-in-time planning, waste removal, and continuous
+adaptation. Do not add mandatory sprints, estimates, velocity, recurring
+ceremonies, a custom agent profile, or a separate feedback artifact without an
+observed need.
+
+**Alternatives considered:** Keep all planning with the architect, model a
+strict Scrum Master that cannot steward roadmap priority, create separate
+Product Owner and Scrum Master roles, split roadmap and technical planning into
+new parallel documents, or add a custom agent immediately. These respectively
+preserve the overloaded boundary, omit the stakeholder-facing responsibility
+that motivated the change, add unnecessary roles for one stakeholder, increase
+handoff and synchronization waste, or specialize runtime configuration before
+repeated use demonstrates a need.
+
+**Consequences:** Product value and flow gain an explicit owner without moving
+technical authority or integration acceptance. `doc/roadmap.md` remains one
+artifact with section-level semantic ownership: the scrum master owns milestone
+priority and focus, the architect owns decomposition and readiness, and the
+integrator records verified results. The earlier decision to use one active
+role guide remains in force but now routes four responsibilities instead of
+three. The hybrid name must remain explicit so future agents do not mistake the
+role for a standards-pure Scrum Master or allow it to override stakeholder or
+architect authority.
+
 ### 2026-07-14: Persist player interpretation in a linked input trace
 
 **Status:** Accepted
