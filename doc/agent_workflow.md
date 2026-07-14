@@ -168,7 +168,8 @@ Use these statuses:
 4. **Review**: Implementation and task-local verification are complete.
 5. **Blocked**: A named external condition or unresolved design gap prevents progress.
 6. **Done**: Review findings are resolved, the integrator has accepted the result,
-   and its task brief has been deleted from `doc/tasks/`.
+   and its task brief has been deleted from `doc/tasks/` in the same integration
+   commit. A task cannot be marked Done while its brief remains in that directory.
 
 Only the architect or integrator promotes a task to Ready or Done. The scrum
 master may propose or maintain milestone priority and current focus but does not
