@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Plan the server-owned free-form player turn boundary that invokes interpretation and executes only a present proposal.
+Plan durable player-input step traces so functional interpretation evidence survives both action and non-action inputs before the free-form API is exposed.
 
 ## Verified baseline
 
@@ -23,20 +23,21 @@ Plan the server-owned free-form player turn boundary that invokes interpretation
 
 ## Blockers and unresolved questions
 
-No known blocker to planning API integration. The boundary must project current player perception before interpretation, preserve server-owned identities, execute only a present proposal through the existing atomic coordinator, and return thought-only or clarification without advancing revision or simulation time. Streamlit text integration and narration remain later tasks.
+No blocker to trace planning. Direct API integration is intentionally waiting because the existing trace schema stores only completed actor actions: it cannot retain required functional generation evidence for thought-only, clarification, or interpreted-action paths. The next design must preserve SQLite authority and avoid holding a write transaction open during model latency.
 
 ## Exact next action
 
-Inspect the FastAPI lifecycle and turn contracts, current-perception projection, interpreter result, identity factory, and atomic coordinator. Settle a strict free-text request and discriminated response that preserves the existing structured `/turn` compatibility while adding an honest non-committing path, then prepare TASK-044.
+Inspect the completed actor-action trace, SQLite trace schema/repository and migrations, interpreter result contracts, and unit-of-work ownership. Settle the smallest backward-compatible trace variants and persistence shape for thought, clarification, and action completion, then prepare TASK-044 before returning to the free-form API.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
 3. `doc/roadmap.md`: M5
-4. `doc/requirements.md`: API, player interpretation, time, and trace extracts
-5. `doc/high_level_design.md`: player interpreter and simulation-step flow
-6. `src/llm_system/api.py`
-7. `src/llm_system/application/player_interpreter.py`
-8. `src/llm_system/application/actor_action_step.py`
-9. `src/llm_system/simulation/perception_engine.py`
+4. `doc/requirements.md`: `LLM-008`, `STORE-007` through `STORE-014`, and `STEP-004` through `STEP-010`
+5. `doc/decisions.md`: minimal completed trace, SQLite V2, and player interpretation decisions
+6. `src/llm_system/simulation/traces.py`
+7. `src/llm_system/persistence/records.py`
+8. `src/llm_system/persistence/sqlite.py`: schema, trace repository, and decoding
+9. `src/llm_system/application/player_interpreter.py`
+10. `src/llm_system/application/actor_action_step.py`
