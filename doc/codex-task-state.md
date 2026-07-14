@@ -47,8 +47,8 @@ M6 is explicitly held pending direct stakeholder approval after hands-on M5 play
 
 ## Exact next action
 
-Provide the M5 play handoff with local run steps and stop. Do not begin M6
-planning or implementation without direct stakeholder approval.
+Wait for stakeholder hands-on M5 feedback and direct approval. Do not begin M6
+planning or implementation before that approval.
 
 ## Files to re-read before continuing
 
@@ -58,3 +58,4 @@ planning or implementation without direct stakeholder approval.
 4. `doc/requirements.md`: narration/presentation requirements and `LLM-001` through `LLM-012`
 5. `doc/decisions.md`: “Start narration with deterministic perception rendering” and local functional-gateway decisions
 6. `src/llm_system/narration.py`, `src/llm_system/application/model_gateway.py`, and player-turn API/page response contracts
+7. `README.md`: “Play the M5 slice”
