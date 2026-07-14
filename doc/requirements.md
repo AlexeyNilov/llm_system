@@ -1136,6 +1136,8 @@ This helps ensure requirements are:
 
 **PLAYERPAGE-008:** The first page shall not start or configure an ASGI server, implement production deployment or authentication, expose inspection data, invoke an LLM, execute NPC or System activity, or add an alternate direct application path.
 
+**PLAYERPAGE-009:** The free-form player-turn input and returned chat history shall remain the main player-page content. Development reset shall appear only in a collapsed secondary developer-tools section; its existing explicit confirmation and reset API call shall remain unchanged.
+
 ### Outcome randomness
 
 **RANDOM-001:** The simulation shall resolve outcomes deterministically unless a loaded rule explicitly requires a random check.

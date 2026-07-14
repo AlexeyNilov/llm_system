@@ -88,6 +88,14 @@ approval to proceed.
 | TASK-055: deterministic player narrator | Done; player-turn responses now carry deterministic prose from a restricted snapshot-derived context, and the Streamlit chat renders it at version `0.53.0`. |
 | TASK-056: typed LLM narrator style planning | Done; local model selects only validated enum-based voice and section-order plans after a committed player-turn result, while deterministic templates retain ownership of every factual sentence at version `0.54.0`. |
 
+**Accepted stakeholder follow-up:** Keep the free-form player text input as the
+main focus area. Move the destructive “Development reset” control into
+secondary developer tooling while preserving its explicit confirmation step.
+This is a UI hierarchy refinement and does not change the player-turn contract,
+product vision, or M6 scope.
+
+| TASK-057: demote development reset control | Ready; render the existing confirmed reset only in collapsed secondary developer tooling while keeping chat primary. |
+
 ## M6: System direction and progression
 
 **Outcome:** Event-driven creative direction and player-visible mechanics complete the LitRPG loop.

@@ -2,8 +2,8 @@
 
 ## Current objective
 
-Prepare the completed M5 vertical slice for stakeholder play, then wait for
-direct approval before beginning M6.
+Complete the accepted M5 player-page hierarchy follow-up, then return to the
+stakeholder play hold before M6.
 
 ## Verified baseline
 
@@ -40,15 +40,17 @@ direct approval before beginning M6.
 * TASK-054 is accepted at project version `0.52.0`. `coordinate_due_npc_activity` executes only one first-due caretaker or courier activity. Courier policy evaluation receives the existing injected player-turn gateway outside the write transaction, then its exact policy result is atomically retained in a V2 trace whose context and proposal are verified against the linked action trace. SQLite V5 preserves V4 records without rewrite; Greybridge schedules caretaker then courier. Parent verification passed the focused 40-test suite, format, lint, mypy, full `make test` (525 passed), `uv lock --check`, and `git diff --check`.
 * TASK-055 is accepted at project version `0.53.0`. A restricted enrichment boundary converts only player-current perception IDs into frozen approved display fields; the pure renderer cannot access packages or world state. Player-turn responses with current perception carry narration, the Streamlit chat renders it instead of raw observation IDs, and typed narration-context failure preserves the committed result with a fixed non-factual fallback. Parent verification passed focused narration/API/page tests (59), format, lint, mypy, full `make test` (530 passed), `uv lock --check`, and `git diff --check`.
 * TASK-056 is accepted at project version `0.54.0`. `select_narration_style` receives only `PlayerNarrationContext` and returns only a strict enum-based voice and section order. The renderer validates every context-eligible section appears exactly once and owns every factual string; invalid, unavailable, and failed generation use the existing direct default. The API invokes styling only after the player-turn coordinator returns, with no persistence or trace change. Parent verification passed focused narration/style/API tests (43), format, lint, mypy, full `make test` (534 passed), `uv lock --check`, and `git diff --check`.
+* The stakeholder accepted one M5-only UI hierarchy follow-up: keep free-form chat primary and move the destructive, explicitly confirmed development reset into collapsed secondary developer tooling. It changes neither the player-turn contract nor M6 scope.
 
 ## Blockers and unresolved questions
 
-M6 is explicitly held pending direct stakeholder approval after hands-on M5 play. Full queue draining, recurrence, environmental activity, System director hooks, durable presentation evidence, and generic policy dispatch remain deferred.
+M6 is explicitly held pending direct stakeholder approval after hands-on M5 play. TASK-057 is the accepted M5 UI follow-up. Full queue draining, recurrence, environmental activity, System director hooks, durable presentation evidence, and generic policy dispatch remain deferred.
 
 ## Exact next action
 
-Wait for stakeholder hands-on M5 feedback and direct approval. Do not begin M6
-planning or implementation before that approval.
+Commit and delegate Ready TASK-057. After accepted integration, wait for
+stakeholder hands-on M5 feedback and direct approval; do not begin M6 planning
+or implementation before that approval.
 
 ## Files to re-read before continuing
 
