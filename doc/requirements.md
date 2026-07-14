@@ -194,6 +194,8 @@ This helps ensure requirements are:
 
 **PLAY-012:** The player-interpreter service shall preserve the exact player input, perception snapshot, functional-generation evidence, and final interpreted-or-clarification result without creating trusted identities, submitting or resolving an action, advancing time, mutating state, persisting data, or narrating an outcome.
 
+**PLAY-013:** The later player-turn coordinator shall retain one durable player-input trace for every completed free-form player input. A trace shall preserve the exact interpreter result, including functional-generation evidence, and classify the completion as thought-only, clarification, or action-linked; thought-only and clarification completions shall not advance canonical world revision.
+
 ### Player-visible System interface
 
 **UI-001:** The system shall keep the internal System director hidden from the player.
@@ -982,7 +984,7 @@ This helps ensure requirements are:
 
 **STORE-008:** SQLite persistence operations participating in one application step shall use an explicit unit of work whose repositories share one active connection, cannot commit independently, and become durable only when the application explicitly commits the unit; exceptions and uncommitted exits shall roll back the transaction.
 
-**STORE-009:** Opening an empty SQLite store shall create the current schema version 2 transactionally and record it with `PRAGMA user_version`; opening schema version 1 shall migrate it transactionally to version 2 without losing world or event data, opening version 2 shall preserve its data, and opening any other version shall fail without modifying the database.
+**STORE-009:** Opening an empty SQLite store shall create the current schema version 3 transactionally and record it with `PRAGMA user_version`; opening schema version 1 or 2 shall migrate transactionally to version 3 without losing world, canonical-event, or completed actor-action trace data, opening version 3 shall preserve its data, and opening any other version shall fail without modifying the database.
 
 **STORE-010:** Loading persistence data shall strictly decode a stored-world record containing its package references, runtime state, and scheduled queue without resolving package files; before simulation use, an application service shall resolve the exact recorded package versions and validate the decoded state against them.
 
@@ -993,6 +995,10 @@ This helps ensure requirements are:
 **STORE-013:** Simulation-step trace history shall be a separate append-only SQLite record ordered by database-assigned insertion sequence and associated with its world, resulting world revision, unique simulation-step identity, outcome identity, outcome status, and strict trace payload.
 
 **STORE-014:** A trace insert shall require the current world identity and revision, reject a duplicate simulation-step identity, and strictly cross-check explicit trace metadata against its payload; any failure shall poison and roll back the surrounding unit of work.
+
+**STORE-015:** Player-input trace history shall be a separate append-only SQLite record ordered by database-assigned insertion sequence and associated with its world, observed and resulting world revisions, unique application-assigned player-input identity, completion kind, optional linked actor-action simulation-step identity, and strict trace payload.
+
+**STORE-016:** A player-input trace insert shall require the current world identity and its resulting revision, reject a duplicate player-input identity, and strictly cross-check explicit metadata against its payload. Thought-only and clarification traces shall retain the same observed and resulting revisions. An action-linked trace shall retain exactly one greater resulting revision and reference a completed actor-action trace with the same world and resulting revision. Any failure shall poison and roll back the surrounding unit of work.
 
 ### World lifecycle
 

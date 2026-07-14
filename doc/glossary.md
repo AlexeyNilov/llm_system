@@ -252,6 +252,10 @@ The immutable ordered collection of observations currently available to one char
 
 The human participant who owns their own sensemaking and intent. The application interprets only what the player explicitly communicates and does not invent player motives.
 
+### Player-input trace
+
+The durable, append-only record of one completed free-form player input. It retains the exact player interpretation and functional-generation evidence, then classifies completion as thought-only, clarification, or an action link to the corresponding completed actor-action trace. It is distinct from the actor-action trace because a player input may complete without a submitted action or canonical world change.
+
 ### Primary persistence
 
 The authoritative durable data store. SQLite is the primary persistence technology for the initial version.

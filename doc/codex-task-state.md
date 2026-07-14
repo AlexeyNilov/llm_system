@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Plan durable player-input step traces so functional interpretation evidence survives both action and non-action inputs before the free-form API is exposed.
+Implement durable player-input step traces so functional interpretation evidence survives both action and non-action inputs before the free-form API is exposed.
 
 ## Verified baseline
 
@@ -23,19 +23,19 @@ Plan durable player-input step traces so functional interpretation evidence surv
 
 ## Blockers and unresolved questions
 
-No blocker to trace planning. Direct API integration is intentionally waiting because the existing trace schema stores only completed actor actions: it cannot retain required functional generation evidence for thought-only, clarification, or interpreted-action paths. The next design must preserve SQLite authority and avoid holding a write transaction open during model latency.
+TASK-044 is Ready. Direct API integration intentionally waits for its accepted storage contract: the existing actor-action trace cannot retain required functional-generation evidence for thought-only, clarification, or interpreted-action paths. The task fixes the contract and persistence seam, but the later coordinator still owns observed-revision recheck and atomic player-turn completion.
 
 ## Exact next action
 
-Inspect the completed actor-action trace, SQLite trace schema/repository and migrations, interpreter result contracts, and unit-of-work ownership. Settle the smallest backward-compatible trace variants and persistence shape for thought, clarification, and action completion, then prepare TASK-044 before returning to the free-form API.
+Commit and delegate `doc/tasks/TASK-044-durable-player-input-step-traces.md` to the configured fresh implementer. Independently review and integrate the result, then plan the player-turn coordinator and free-form API over the durable trace contract.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
-3. `doc/roadmap.md`: M5
-4. `doc/requirements.md`: `LLM-008`, `STORE-007` through `STORE-014`, and `STEP-004` through `STEP-010`
-5. `doc/decisions.md`: minimal completed trace, SQLite V2, and player interpretation decisions
+3. `doc/tasks/TASK-044-durable-player-input-step-traces.md`
+4. `doc/requirements.md`: `PLAY-008` through `PLAY-013`, `LLM-008`, and `STORE-007` through `STORE-016`
+5. `doc/decisions.md`: minimal completed actor-action trace, SQLite V2, player interpretation, and player-input trace decisions
 6. `src/llm_system/simulation/traces.py`
 7. `src/llm_system/persistence/records.py`
 8. `src/llm_system/persistence/sqlite.py`: schema, trace repository, and decoding
