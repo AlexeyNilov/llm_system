@@ -2,7 +2,8 @@
 
 ## Current objective
 
-Plan courier scheduled execution through the existing one-activity authority boundary.
+Deliver TASK-054: one courier scheduled decision through the shared one-activity
+authority boundary, with durable functional-generation evidence.
 
 ## Verified baseline
 
@@ -36,21 +37,22 @@ Plan courier scheduled execution through the existing one-activity authority bou
 * TASK-051 is accepted at project version `0.49.0`. `coordinate_player_turn` attempts one due caretaker activity after a committed action and before a later input is interpreted. Settled turns return the final player perception and revision; stale or operational scheduled execution returns a player-safe pending result without leaking NPC-private evidence. Parent verification passes: focused player-turn/scheduled/API tests (49 passed), `make check` (525 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 * TASK-052 is accepted at project version `0.50.0`. The Streamlit page is now a thin free-form chat client for `/player-turn`; it validates strict player-safe response variants, maps stale input, retains text only for completed interpretations, and shows scheduled-only progress without retaining discarded text. Parent verification passes: focused player-page/API tests (54 passed), `make check` (509 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 * TASK-053 is accepted at project version `0.51.0`. `decide_injured_courier` receives only bounded courier context and an injected gateway, returns one strict supported proposal with functional-generation evidence, and maps failed generations to deterministic Wait 60. Parent verification passes: focused courier/gateway tests (30 passed), `make check` (520 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
+* TASK-054 is Ready. Its accepted design retains the caretaker V1 trace, adds a closed courier V2 trace linked to matching committed provenance, uses SQLite V5 as a non-rewriting compatibility migration, and runs the time-zero courier after caretaker through the existing player-turn scheduling boundary.
 
 ## Blockers and unresolved questions
 
-No blocker. Full queue draining, recurrence, environmental activity, System director hooks, and narration remain deferred.
+No blocker. Full queue draining, recurrence, environmental activity, System director hooks, narration, and generic policy dispatch remain deferred.
 
 ## Exact next action
 
-Inspect courier activity and scheduled-execution seams, then prepare the smallest task that schedules and executes one courier turn with trusted provenance and retained generation evidence.
+Commit TASK-054 planning artifacts and delegate the Ready task to the configured
+fresh implementer; independently review its handoff before integration.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
-3. `doc/roadmap.md`: M5
-4. `doc/roadmap.md`: M5
-5. `doc/requirements.md`: `NPC-001` through `NPC-012`, `LLM-001` through `LLM-017`, and `STEP-001` through `STEP-017`
-6. `doc/decisions.md`: “Start actor policies with one pure caretaker decision”, “Make local functional calls provider-neutral and schema-strict”, and “Execute the first due caretaker activity through the existing atomic action step”
-7. `game_packages/scenarios/storm-at-greybridge/0.2.0`, `src/llm_system/application/npc_decision.py`, `src/llm_system/application/scheduled_execution_coordinator.py`, and their tests
+3. `doc/tasks/TASK-054-courier-scheduled-execution.md`
+4. `doc/requirements.md`: `NPC-013` through `NPC-015`, `LLM-001` through `LLM-008`, `STEP-016` through `STEP-017`, and `SCHEDULE-029` through `SCHEDULE-038`
+5. `doc/decisions.md`: the four TASK-054 decision titles named in its context manifest
+6. `src/llm_system/application/scheduled_execution_coordinator.py`, `src/llm_system/application/player_turn_coordinator.py`, `src/llm_system/application/npc_decision.py`, `src/llm_system/simulation/traces.py`, and `src/llm_system/persistence/sqlite.py`

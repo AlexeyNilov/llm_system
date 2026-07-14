@@ -1611,3 +1611,28 @@ functional evidence, and consumption of a courier activity.
 bounded decision producer without treating the model as authoritative or
 coupling policy work to queue semantics. The result gives the later coordinator
 the exact generation evidence it needs rather than discarding the LLM boundary.
+
+### 2026-07-14: Execute the courier through the serialized scheduled-activity boundary
+
+**Status:** Accepted
+
+**Decision:** Extend the existing one-due scheduled NPC coordinator with the
+authored courier policy, using the already-injected player-turn functional
+gateway rather than a global model configuration. The coordinator evaluates the
+courier policy outside the SQLite write unit, then rechecks world identity,
+revision, and the exact first due activity before it assigns trusted action
+identities and commits.
+
+Keep the existing caretaker scheduled trace unchanged. Add a separate strict
+schema-version-2 courier execution trace that contains the selected courier
+activity, selection time, decision-context and simulation-step identities, and
+the exact `CourierPolicyResult`. At persistence, validate that its context and
+proposal match the linked committed actor-action trace. SQLite V5 records this
+new trace payload capability without rewriting V4 records. Greybridge authors a
+time-zero courier occurrence directly after the caretaker, so serialized
+scheduling resolves only one of them per attempt.
+
+**Consequences:** The model proposes but does not own truth: its original
+functional evidence and deterministic failure fallback become durable only with
+the validated action they informed. This adds no registry, background worker,
+retries, recurrence, queue draining, or non-NPC scheduling semantics.

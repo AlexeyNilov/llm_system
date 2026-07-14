@@ -1206,15 +1206,23 @@ This helps ensure requirements are:
 
 **SCHEDULE-029:** The initial scheduled-execution coordinator shall select at most one first due activity from the validated persisted queue. With no due activity it shall return a typed no-activity result without identities or writes; if the first due variant is unsupported it shall fail without consuming or skipping it.
 
-**SCHEDULE-030:** The initial coordinator shall execute only a due `NpcScheduledActivity` for the authored Greybridge caretaker through its existing bounded policy and authoritative actor-action path. It shall derive policy provenance from the authored NPC rather than activity data, and shall not execute environmental or System-director activity.
+**SCHEDULE-030:** The initial coordinator shall execute only a due `NpcScheduledActivity` for either the authored Greybridge caretaker's matching rule policy or the authored injured courier's matching LLM policy through the authoritative actor-action path. It shall derive policy provenance from the authored NPC rather than activity data, and shall not execute environmental or System-director activity.
 
 **SCHEDULE-031:** Policy evaluation shall occur outside a SQLite write unit of work. Before assigning trusted action identities, the coordinator shall recheck exact world identity, revision, and that the selected activity remains the first due queue entry; a mismatch returns typed stale activity with no writes.
 
-**SCHEDULE-032:** A completed or rejected caretaker activity shall atomically replace the world with the selected activity removed, append the ordinary actor-action events and trace, append exactly one linked scheduled-activity execution trace, and commit once. Operational failure shall leave queue, world, events, and both trace histories unchanged.
+**SCHEDULE-032:** A completed or rejected supported NPC activity shall atomically replace the world with the selected activity removed, append the ordinary actor-action events and trace, append exactly one linked scheduled-activity execution trace, and commit once. Operational failure shall leave queue, world, events, and both trace histories unchanged.
 
-**SCHEDULE-033:** A scheduled-activity execution trace shall be strict immutable schema version 1 evidence containing the exact selected activity, its selected-at simulation time, and the linked completed actor-action simulation-step identity. Persistence shall verify the linked actor trace has the same world and resulting revision.
+**SCHEDULE-033:** The caretaker scheduled-activity execution trace shall remain strict immutable schema version 1 evidence containing the exact selected activity, its selected-at simulation time, and the linked completed actor-action simulation-step identity. Persistence shall verify the linked actor trace has the same world and resulting revision.
 
 **SCHEDULE-034:** SQLite schema version 4 shall add append-only scheduled-activity execution trace history and migrate V1, V2, and V3 transactionally without rewriting existing world, event, actor-action, or player-input records. Development reset shall clear the new history together with the existing timeline.
+
+**SCHEDULE-035:** The coordinator shall evaluate a courier LLM policy outside a SQLite write unit of work using the injected functional gateway. Before assigning trusted action identities, it shall recheck exact world identity, revision, and first-due queue selection; a mismatch shall return typed stale activity with no writes.
+
+**SCHEDULE-036:** A courier scheduled-activity execution trace shall be strict immutable schema version 2 evidence containing the exact selected courier NPC activity, selected-at simulation time, trusted decision-context and simulation-step identities, and the exact `CourierPolicyResult`. It shall require its result proposal to equal the linked trusted submission proposal. Persistence shall verify the linked actor trace has the same world, resulting revision, decision-context identity, and proposal.
+
+**SCHEDULE-037:** SQLite schema version 5 shall accept the prior append-only scheduled-activity trace table and migrate V1 through V4 transactionally without rewriting existing world, event, actor-action, player-input, or scheduled-activity trace records. Development reset shall continue clearing scheduled-activity trace history together with the existing timeline.
+
+**SCHEDULE-038:** Greybridge shall materialize an initial time-zero courier NPC activity after its existing caretaker activity. The one-activity scheduler shall execute caretaker first and leave courier progress for the next scheduler attempt; it shall not drain the queue.
 
 ### System director eligibility
 

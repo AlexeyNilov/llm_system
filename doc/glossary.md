@@ -140,6 +140,14 @@ Information through which an actor may learn about consequences. Feedback is fil
 
 An LLM-backed component whose output may request later behavior rather than merely present confirmed information. The player input interpreter, LLM-assisted NPC decision policy, and System director are functional LLM roles and require structured output.
 
+### Functional-generation evidence
+
+The immutable ordered record of one functional LLM call's accepted or failed
+attempts, including validated output when accepted and validation or provider
+failure classification when not. It is inspectable evidence of a model boundary,
+not canonical truth; a policy or coordinator separately selects any safe
+fallback and the simulation arbiter separately validates and commits an action.
+
 ### Game package
 
 A versioned, validated collection of external game definitions loaded by the simulation kernel. Rule packs and scenario packs are game packages.
