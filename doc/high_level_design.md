@@ -123,6 +123,7 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 * Maps free-form attempted actions to supported structured proposals.
 * Requests clarification or reports unsupported attempts rather than inventing mechanics.
 * Never decides the player's motives or whether an attempted action succeeds.
+* Initially receives only the exact player text and current ID-linked perception; speech occupies the one proposal slot through `SpeakActionProposal`, while thought-only and clarification results contain no proposal and cannot advance time.
 
 ### Simulation arbiter
 

@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Plan the player input interpreter that maps explicit free-form input to the existing action-proposal boundary or a safe clarification result.
+Execute and integrate TASK-043: strict free-form player interpretation into one thought/proposal result or safe clarification.
 
 ## Verified baseline
 
@@ -19,19 +19,17 @@ Plan the player input interpreter that maps explicit free-form input to the exis
 
 ## Blockers and unresolved questions
 
-No known blocker to planning the player interpreter. The contract must distinguish private thought, speech, one optional action proposal, and clarification without inventing player motives or trusted identities. API/UI text integration should follow after the interpreter service itself is accepted.
+No known blocker. API and Streamlit text integration, trusted submission construction, execution, narration, and restricted authored-name enrichment remain separate follow-ups after the interpreter service is accepted.
 
 ## Exact next action
 
-Inspect `PLAY-001` and `PLAY-002`, player/time/LLM failure requirements, the existing action proposal union, perception context, and API trust boundary. Settle the smallest strict interpretation result and safe-failure mapping, then prepare TASK-043.
+Delegate the Ready TASK-043 to a fresh `implementer`, then independently review its schema, bounded prompt context, supported proposal subset, fixed safe clarification, evidence preservation, and absence of authority or side effects.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
 3. `doc/roadmap.md`: M5
-4. `doc/requirements.md`: player interaction, time, action proposal, and LLM failure extracts
-5. `doc/high_level_design.md`: “Player input interpreter” and context envelope
-6. `src/llm_system/application/model_gateway.py`
-7. `src/llm_system/simulation/actions.py`
-8. `src/llm_system/api.py`: current player turn trust boundary
+4. `doc/tasks/TASK-043-player-input-interpreter.md`
+5. TASK-043's exact context manifest
+6. The implementation diff and handoff evidence

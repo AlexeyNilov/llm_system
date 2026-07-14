@@ -184,6 +184,16 @@ This helps ensure requirements are:
 
 **PLAY-007:** The initial vertical slice shall include at least one player-visible progression event governed by the loaded rule pack.
 
+**PLAY-008:** The initial player interpreter shall accept one non-blank free-form player input together with only the player's current `PerceptionSnapshot`; it shall not receive canonical world state, another actor's private information, trusted submission metadata, or prior conversation history.
+
+**PLAY-009:** Functional player interpretation output shall be one strict immutable record that is either `interpreted`, containing an optional non-blank explicit private thought and at most one supported actor-action proposal with at least one present, or `clarification`, containing only one non-blank clarification message.
+
+**PLAY-010:** Initial interpreted proposals shall use the existing Observe, Move, Speak, Take, Use, or Wait proposal contracts. Speech shall be represented by `SpeakActionProposal`; Help shall remain unavailable to free-form interpretation until its resolver exists.
+
+**PLAY-011:** An accepted model-produced clarification shall be returned without an action proposal. Any failed model-gateway result shall map to one fixed application-owned clarification without accepting invalid output or exposing provider failure detail.
+
+**PLAY-012:** The player-interpreter service shall preserve the exact player input, perception snapshot, functional-generation evidence, and final interpreted-or-clarification result without creating trusted identities, submitting or resolving an action, advancing time, mutating state, persisting data, or narrating an outcome.
+
 ### Player-visible System interface
 
 **UI-001:** The system shall keep the internal System director hidden from the player.
