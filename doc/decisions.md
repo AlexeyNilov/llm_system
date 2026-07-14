@@ -1517,3 +1517,26 @@ eligibility without executing it. Selection, claiming, consumption, retry,
 environmental activities, System director hooks, and player-turn batching stay
 separate decisions. The initial queue provides a real next consumer for the
 scheduled NPC execution coordinator.
+
+### 2026-07-14: Consume one due caretaker activity with linked durable evidence
+
+**Status:** Accepted
+
+**Decision:** Add one application coordinator that selects only the first due
+activity, prepares the existing caretaker policy decision outside a write unit,
+then rechecks world identity/revision and first-due activity before commit. It
+supports only a caretaker NPC activity; no due activity returns a typed
+no-activity result, while another due variant fails without skipping it. A
+resolved caretaker activity, including a rejected action outcome, atomically
+removes that exact one-shot queue record, persists the normal actor-action
+result, and appends a linked scheduled-activity execution trace. Operational
+failure rolls the entire transaction back; stale selection writes nothing.
+
+The scheduling evidence is a new strict append-only trace linked to the
+existing actor-action trace, rather than a wider replacement for that established
+schema. It stores the exact activity, selected-at time, and simulation-step ID;
+SQLite schema V4 migrates prior data and reset clears it.
+
+**Consequences:** One real due activity can progress deterministically without
+silently losing or repeating work, while keeping environment, director,
+recurrence, full queue draining, and player-turn batching separate.

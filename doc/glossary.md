@@ -296,6 +296,13 @@ An immutable ordered collection of one-shot scheduled activities with unique act
 
 An immutable scheduler result that records canonical selection time, due activities in deterministic execution order, and the remaining future queue. It is a validated partition, not a claim, transaction, or execution result.
 
+### Scheduled activity execution trace
+
+Durable evidence that one selected one-shot scheduled activity was consumed and
+linked to a completed actor-action step. It records the exact activity,
+selection time, and linked simulation-step identity; it does not replace the
+actor-action trace or claim execution of unimplemented activity variants.
+
 ### Scheduler
 
 The deterministic component that selects and serializes eligible scheduled activities. It does not itself resolve their effects.

@@ -76,6 +76,7 @@ M4 is complete. The singleton world survives restart, advances atomically throug
 | TASK-047: local gateway runtime configuration | Done; all-or-none server bootstrap configuration injects the local functional gateway or preserves the unavailable-gateway clarification path; invalid configuration fails before app construction. |
 | TASK-048: revision-safe caretaker actor turn | Done; bounded caretaker context and pure policy recheck the observed revision before one atomic trusted NPC action step at version `0.46.0`; scheduled activities remain unchanged. |
 | TASK-049: package-authored initial NPC eligibility | Done; strict scenario declarations materialize one deterministic time-zero caretaker activity into create/reset queue state at version `0.47.0`, without scheduled execution. |
+| TASK-050: one due caretaker scheduled execution | Ready; atomically consume the first due caretaker activity with linked scheduling evidence, leaving other variants and player batching deferred. |
 | Memory-free LLM courier policy | Local model gateway and actor runtime |
 | Narrator | Perception snapshots and local model gateway |
 

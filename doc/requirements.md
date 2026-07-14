@@ -1192,6 +1192,18 @@ This helps ensure requirements are:
 
 **SCHEDULE-028:** Initial activity declarations and materialization shall not select, execute, consume, reschedule, recur, invoke an LLM or policy, advance time, or alter the existing resume behavior.
 
+**SCHEDULE-029:** The initial scheduled-execution coordinator shall select at most one first due activity from the validated persisted queue. With no due activity it shall return a typed no-activity result without identities or writes; if the first due variant is unsupported it shall fail without consuming or skipping it.
+
+**SCHEDULE-030:** The initial coordinator shall execute only a due `NpcScheduledActivity` for the authored Greybridge caretaker through its existing bounded policy and authoritative actor-action path. It shall derive policy provenance from the authored NPC rather than activity data, and shall not execute environmental or System-director activity.
+
+**SCHEDULE-031:** Policy evaluation shall occur outside a SQLite write unit of work. Before assigning trusted action identities, the coordinator shall recheck exact world identity, revision, and that the selected activity remains the first due queue entry; a mismatch returns typed stale activity with no writes.
+
+**SCHEDULE-032:** A completed or rejected caretaker activity shall atomically replace the world with the selected activity removed, append the ordinary actor-action events and trace, append exactly one linked scheduled-activity execution trace, and commit once. Operational failure shall leave queue, world, events, and both trace histories unchanged.
+
+**SCHEDULE-033:** A scheduled-activity execution trace shall be strict immutable schema version 1 evidence containing the exact selected activity, its selected-at simulation time, and the linked completed actor-action simulation-step identity. Persistence shall verify the linked actor trace has the same world and resulting revision.
+
+**SCHEDULE-034:** SQLite schema version 4 shall add append-only scheduled-activity execution trace history and migrate V1, V2, and V3 transactionally without rewriting existing world, event, actor-action, or player-input records. Development reset shall clear the new history together with the existing timeline.
+
 ### System director eligibility
 
 **DIRECTOR-001:** The system shall invoke the System director only when an explicit configured hook becomes eligible.

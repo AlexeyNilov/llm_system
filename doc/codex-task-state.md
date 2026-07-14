@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Plan the first scheduled NPC execution boundary now that Greybridge creates one durable caretaker activity due at time zero.
+Implement one atomic due-caretaker scheduled execution with linked scheduling evidence.
 
 ## Verified baseline
 
@@ -35,11 +35,11 @@ Plan the first scheduled NPC execution boundary now that Greybridge creates one 
 
 ## Blockers and unresolved questions
 
-No blocker. Selection, claiming, consumption, recurrence, activity traces, environmental activity, System director hooks, and player-turn batching remain intentionally unresolved. The time-zero caretaker activity is now the concrete first scheduled-execution consumer.
+No blocker. TASK-050 is Ready. Full queue draining, recurrence, environmental activity, System director hooks, and player-turn batching remain intentionally unresolved.
 
 ## Exact next action
 
-Define how one due caretaker activity is selected, rechecked, consumed, and committed without entering player-turn batching or other scheduled variants.
+Commit and delegate `doc/tasks/TASK-050-one-due-caretaker-scheduled-execution.md`, then independently review it.
 
 ## Files to re-read before continuing
 
