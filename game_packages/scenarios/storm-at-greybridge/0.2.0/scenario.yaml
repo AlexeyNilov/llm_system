@@ -90,6 +90,8 @@ boolean_world_facts:
 initial_npc_activities:
   - eligible_at_seconds: 0
     npc_id: bridge-caretaker
+  - eligible_at_seconds: 0
+    npc_id: injured-courier
 object_use_bindings:
   - id: reinforce-greybridge
     mechanic_id: reinforce-structure

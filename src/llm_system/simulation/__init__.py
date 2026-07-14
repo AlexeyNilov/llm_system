@@ -121,6 +121,7 @@ from llm_system.simulation.state import (
 )
 from llm_system.simulation.traces import (
     CompletedActorActionStepTrace,
+    CourierScheduledActivityExecutionTrace,
     ScheduledActivityExecutionTrace,
 )
 from llm_system.simulation.validation import (
@@ -158,6 +159,7 @@ __all__ = [
     "ConnectionTarget",
     "ConnectionObserved",
     "CompletedActorActionStepTrace",
+    "CourierScheduledActivityExecutionTrace",
     "EventObserved",
     "EnvironmentalScheduledActivity",
     "FailedOutcome",

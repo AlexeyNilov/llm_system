@@ -2,8 +2,8 @@
 
 ## Current objective
 
-Deliver TASK-054: one courier scheduled decision through the shared one-activity
-authority boundary, with durable functional-generation evidence.
+Prepare the next bounded M5 outcome after the complete memory-free courier
+scheduler loop.
 
 ## Verified baseline
 
@@ -37,7 +37,7 @@ authority boundary, with durable functional-generation evidence.
 * TASK-051 is accepted at project version `0.49.0`. `coordinate_player_turn` attempts one due caretaker activity after a committed action and before a later input is interpreted. Settled turns return the final player perception and revision; stale or operational scheduled execution returns a player-safe pending result without leaking NPC-private evidence. Parent verification passes: focused player-turn/scheduled/API tests (49 passed), `make check` (525 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 * TASK-052 is accepted at project version `0.50.0`. The Streamlit page is now a thin free-form chat client for `/player-turn`; it validates strict player-safe response variants, maps stale input, retains text only for completed interpretations, and shows scheduled-only progress without retaining discarded text. Parent verification passes: focused player-page/API tests (54 passed), `make check` (509 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 * TASK-053 is accepted at project version `0.51.0`. `decide_injured_courier` receives only bounded courier context and an injected gateway, returns one strict supported proposal with functional-generation evidence, and maps failed generations to deterministic Wait 60. Parent verification passes: focused courier/gateway tests (30 passed), `make check` (520 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
-* TASK-054 is Ready. Its accepted design retains the caretaker V1 trace, adds a closed courier V2 trace linked to matching committed provenance, uses SQLite V5 as a non-rewriting compatibility migration, and runs the time-zero courier after caretaker through the existing player-turn scheduling boundary.
+* TASK-054 is accepted at project version `0.52.0`. `coordinate_due_npc_activity` executes only one first-due caretaker or courier activity. Courier policy evaluation receives the existing injected player-turn gateway outside the write transaction, then its exact policy result is atomically retained in a V2 trace whose context and proposal are verified against the linked action trace. SQLite V5 preserves V4 records without rewrite; Greybridge schedules caretaker then courier. Parent verification passed the focused 40-test suite, format, lint, mypy, full `make test` (525 passed), `uv lock --check`, and `git diff --check`.
 
 ## Blockers and unresolved questions
 
@@ -45,14 +45,14 @@ No blocker. Full queue draining, recurrence, environmental activity, System dire
 
 ## Exact next action
 
-Commit TASK-054 planning artifacts and delegate the Ready task to the configured
-fresh implementer; independently review its handoff before integration.
+Inspect the M5 narrator dependency and prepare the smallest behaviorally
+complete next task without promoting deferred mechanics.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
-3. `doc/tasks/TASK-054-courier-scheduled-execution.md`
-4. `doc/requirements.md`: `NPC-013` through `NPC-015`, `LLM-001` through `LLM-008`, `STEP-016` through `STEP-017`, and `SCHEDULE-029` through `SCHEDULE-038`
-5. `doc/decisions.md`: the four TASK-054 decision titles named in its context manifest
-6. `src/llm_system/application/scheduled_execution_coordinator.py`, `src/llm_system/application/player_turn_coordinator.py`, `src/llm_system/application/npc_decision.py`, `src/llm_system/simulation/traces.py`, and `src/llm_system/persistence/sqlite.py`
+3. `doc/roadmap.md`: M5
+4. `doc/requirements.md`: narrator and presentation requirements plus `LLM-001` through `LLM-008`
+5. `doc/decisions.md`: current LLM and player-visible boundary decisions
+6. Player-turn, API, perception, and player-page source/tests selected by the next task brief

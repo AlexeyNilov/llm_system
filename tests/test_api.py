@@ -508,7 +508,7 @@ def test_player_turn_pending_progress_exposes_only_committed_action_fields(
     store = SQLiteStore.open(tmp_path / "world.sqlite3")
     identities = _player_turn_identities()
     monkeypatch.setattr(
-        "llm_system.application.player_turn_coordinator.coordinate_due_caretaker_activity",
+        "llm_system.application.player_turn_coordinator.coordinate_due_npc_activity",
         lambda *args, **kwargs: OperationalScheduledActivityResult(
             result_type="operational_failure"
         ),
@@ -641,7 +641,7 @@ def test_player_turn_reports_pending_progress_without_interpreting_later_text(
         )
     )
     monkeypatch.setattr(
-        "llm_system.application.player_turn_coordinator.coordinate_due_caretaker_activity",
+        "llm_system.application.player_turn_coordinator.coordinate_due_npc_activity",
         lambda *args, **kwargs: OperationalScheduledActivityResult(
             result_type="operational_failure"
         ),

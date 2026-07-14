@@ -10,13 +10,21 @@ from llm_system.application.actor_action_step import (
 from llm_system.application.npc_decision import (
     NpcDecisionContext,
     decide_greybridge_caretaker,
+    decide_injured_courier,
 )
 from llm_system.application.npc_turn_coordinator import _require_caretaker
+from llm_system.courier_decision import CourierPolicyResult
+from llm_system.functional_generation import FunctionalModelGateway
+from llm_system.game_packages.entities import NpcCharacterDefinition
 from llm_system.game_packages.validation import ValidatedGamePackages
 from llm_system.persistence.errors import MissingWorldError
 from llm_system.persistence.sqlite import SQLiteStore
 from llm_system.simulation._types import _StrictContract
-from llm_system.simulation.actions import ActorActionSubmission, NpcPolicyActionSource
+from llm_system.simulation.actions import (
+    ActorActionProposal,
+    ActorActionSubmission,
+    NpcPolicyActionSource,
+)
 from llm_system.simulation.perception_engine import project_current_perception
 from llm_system.simulation.scheduling import (
     NpcScheduledActivity,
@@ -24,11 +32,16 @@ from llm_system.simulation.scheduling import (
     ScheduledActivityQueue,
     select_eligible_activities,
 )
-from llm_system.simulation.traces import ScheduledActivityExecutionTrace
+from llm_system.simulation.traces import (
+    CourierScheduledActivityExecutionTrace,
+    ScheduledActivityExecutionTrace,
+)
 from llm_system.simulation.validation import validate_world_state
 
 
 _CARETAKER_POLICY_ID = "caretaker-rule-policy"
+_COURIER_ID = "injured-courier"
+_COURIER_POLICY_ID = "courier-llm-policy"
 
 
 class UnsupportedScheduledActivityError(ValueError):
@@ -60,13 +73,14 @@ ScheduledActivityExecutionResult: TypeAlias = (
 )
 
 
-def coordinate_due_caretaker_activity(
+def coordinate_due_npc_activity(
     store: SQLiteStore,
     packages: ValidatedGamePackages,
+    gateway: FunctionalModelGateway,
     *,
     identity_factory: Callable[[], UUID],
 ) -> ScheduledActivityExecutionResult:
-    """Prepare one due caretaker policy decision, then consume it if still current."""
+    """Prepare one due NPC policy decision, then consume it if still current."""
     with store.unit_of_work() as unit:
         stored = unit.worlds.get()
         if stored is None:
@@ -81,21 +95,27 @@ def coordinate_due_caretaker_activity(
             raise UnsupportedScheduledActivityError(
                 "only due caretaker NPC activity is supported"
             )
-        caretaker = _require_caretaker(packages, activity.npc_id, _CARETAKER_POLICY_ID)
+        npc = _require_supported_npc(packages, activity)
         context = NpcDecisionContext(
             decision_context_id=identity_factory(),
-            npc_id=caretaker.id,
-            identity_summary=caretaker.identity_summary,
-            goals=caretaker.goals,
-            current_plan=caretaker.initial_plan,
-            perception=project_current_perception(world, caretaker.id),
+            npc_id=npc.id,
+            identity_summary=npc.identity_summary,
+            goals=npc.goals,
+            current_plan=npc.initial_plan,
+            perception=project_current_perception(world, npc.id),
         )
         observed_world_id = stored.world_id
         observed_revision = stored.revision
         selected_at_seconds = selection.selected_at_seconds
 
     try:
-        proposal = decide_greybridge_caretaker(context)
+        courier_result: CourierPolicyResult | None = None
+        proposal: ActorActionProposal
+        if npc.id == _COURIER_ID:
+            courier_result = decide_injured_courier(context, gateway)
+            proposal = courier_result.proposal
+        else:
+            proposal = decide_greybridge_caretaker(context)
 
         with store.unit_of_work() as unit:
             current = unit.worlds.get()
@@ -121,10 +141,10 @@ def coordinate_due_caretaker_activity(
                 decision_context_id=context.decision_context_id,
                 source=NpcPolicyActionSource(
                     source_type="npc_policy",
-                    npc_id=caretaker.id,
-                    policy_id=caretaker.decision_policy.policy_id,
+                    npc_id=npc.id,
+                    policy_id=npc.decision_policy.policy_id,
                 ),
-                actor_id=caretaker.id,
+                actor_id=npc.id,
                 proposal=proposal,
             )
             completed = execute_actor_action_step_in_unit(
@@ -135,15 +155,27 @@ def coordinate_due_caretaker_activity(
                 event_id=identity_factory(),
                 scheduled_queue=_queue_without(current.scheduled_queue, activity),
             )
-            unit.scheduled_activity_traces.append(
-                world_id=completed.world_id,
-                resulting_world_revision=completed.resulting_world_revision,
-                trace=ScheduledActivityExecutionTrace(
+            trace = (
+                CourierScheduledActivityExecutionTrace(
+                    trace_schema_version=2,
+                    activity=activity,
+                    selected_at_seconds=selected_at_seconds,
+                    decision_context_id=context.decision_context_id,
+                    simulation_step_id=submission.simulation_step_id,
+                    result=courier_result,
+                )
+                if courier_result is not None
+                else ScheduledActivityExecutionTrace(
                     trace_schema_version=1,
                     activity=activity,
                     selected_at_seconds=selected_at_seconds,
                     simulation_step_id=submission.simulation_step_id,
-                ),
+                )
+            )
+            unit.scheduled_activity_traces.append(
+                world_id=completed.world_id,
+                resulting_world_revision=completed.resulting_world_revision,
+                trace=trace,
             )
             unit.commit()
             return CompletedScheduledActivityResult(
@@ -151,6 +183,28 @@ def coordinate_due_caretaker_activity(
             )
     except Exception:
         return OperationalScheduledActivityResult(result_type="operational_failure")
+
+
+def _require_supported_npc(
+    packages: ValidatedGamePackages, activity: NpcScheduledActivity
+) -> NpcCharacterDefinition:
+    if activity.npc_id == "bridge-caretaker":
+        return _require_caretaker(packages, activity.npc_id, _CARETAKER_POLICY_ID)
+    if activity.npc_id != _COURIER_ID:
+        raise UnsupportedScheduledActivityError(
+            "only authored caretaker or courier activity is supported"
+        )
+    for entity in packages.scenario_package.definition.entity_collection.entities:
+        if (
+            entity.id == _COURIER_ID
+            and isinstance(entity, NpcCharacterDefinition)
+            and entity.decision_policy.policy_id == _COURIER_POLICY_ID
+            and entity.decision_policy.policy_type == "llm"
+        ):
+            return entity
+    raise UnsupportedScheduledActivityError(
+        "requested courier does not match authored policy"
+    )
 
 
 def _queue_without(

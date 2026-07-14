@@ -13,7 +13,7 @@ from llm_system.application.scheduled_execution_coordinator import (
     NoDueScheduledActivityResult,
     OperationalScheduledActivityResult,
     StaleScheduledActivityResult,
-    coordinate_due_caretaker_activity,
+    coordinate_due_npc_activity,
 )
 from llm_system.functional_generation import FunctionalModelGateway
 from llm_system.game_packages.validation import ValidatedGamePackages
@@ -96,8 +96,8 @@ def coordinate_player_turn(
     identity_factory: Callable[[], UUID],
 ) -> PlayerTurnResult:
     if _has_pending_player_scheduled_progress(store):
-        scheduled_result = coordinate_due_caretaker_activity(
-            store, packages, identity_factory=identity_factory
+        scheduled_result = coordinate_due_npc_activity(
+            store, packages, gateway, identity_factory=identity_factory
         )
         if isinstance(scheduled_result, CompletedScheduledActivityResult):
             return _scheduled_progress_completed_result(store, packages, player_id)
@@ -198,8 +198,8 @@ def coordinate_player_turn(
             ),
         )
         unit.commit()
-    scheduled_result = coordinate_due_caretaker_activity(
-        store, packages, identity_factory=identity_factory
+    scheduled_result = coordinate_due_npc_activity(
+        store, packages, gateway, identity_factory=identity_factory
     )
     if isinstance(
         scheduled_result,

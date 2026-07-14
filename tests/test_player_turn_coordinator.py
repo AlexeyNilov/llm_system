@@ -253,7 +253,7 @@ def test_action_turn_returns_pending_after_stale_scheduled_progress(
     store = SQLiteStore.open(tmp_path / "world.sqlite3")
     create_world(store, packages, world_id=WORLD_ID)
     monkeypatch.setattr(
-        "llm_system.application.player_turn_coordinator.coordinate_due_caretaker_activity",
+        "llm_system.application.player_turn_coordinator.coordinate_due_npc_activity",
         lambda *args, **kwargs: StaleScheduledActivityResult(result_type="stale"),
     )
 
@@ -314,7 +314,7 @@ def test_pending_activity_completes_before_interpreting_later_player_text(
         completed_action=prior_result.completed_action,
     )
     monkeypatch.setattr(
-        "llm_system.application.player_turn_coordinator.coordinate_due_caretaker_activity",
+        "llm_system.application.player_turn_coordinator.coordinate_due_npc_activity",
         lambda *args, **kwargs: completed,
     )
 

@@ -1,6 +1,7 @@
 import json
 import sqlite3
 from pathlib import Path
+from typing import cast
 from uuid import UUID
 
 import pytest
@@ -16,15 +17,36 @@ from llm_system.persistence import (
     UnsupportedSchemaVersionError,
     WorldRevisionMismatchError,
 )
+from llm_system.application import (
+    CourierPolicyOutput,
+    FunctionalGenerationAttempt,
+    FunctionalGenerationDisposition,
+    FunctionalGenerationResult,
+    FunctionalModelFailureKind,
+    FunctionalModelGateway,
+    coordinate_due_npc_activity,
+    create_world,
+)
+from llm_system.courier_decision import CourierPolicyResult
+from llm_system.game_packages import (
+    LoadedRulePackage,
+    LoadedScenarioPackage,
+    load_game_package,
+    validate_game_packages,
+)
+from llm_system.game_packages.validation import ValidatedGamePackages
 from llm_system.simulation import (
     ActorMovedEvent,
     ActorWaitedEvent,
     CharacterState,
     NpcScheduledActivity,
+    CourierScheduledActivityExecutionTrace,
     ScheduledActivityQueue,
+    WaitActionProposal,
     WorldState,
 )
 
+REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 WORLD_ID = UUID("10000000-0000-4000-8000-000000000001")
 MOVE_EVENT_ID = UUID("20000000-0000-4000-8000-000000000001")
 WAIT_EVENT_ID = UUID("20000000-0000-4000-8000-000000000002")
@@ -95,6 +117,23 @@ def _create_world(store: SQLiteStore) -> None:
         unit.commit()
 
 
+def _greybridge_packages() -> ValidatedGamePackages:
+    rule = load_game_package(
+        REPOSITORY_ROOT / "game_packages/rules/greybridge-rules/0.2.0"
+    )
+    scenario = load_game_package(
+        REPOSITORY_ROOT / "game_packages/scenarios/storm-at-greybridge/0.2.0"
+    )
+    assert isinstance(rule, LoadedRulePackage)
+    assert isinstance(scenario, LoadedScenarioPackage)
+    return validate_game_packages(rule, scenario)
+
+
+class _UnusedGateway:
+    def generate_functional(self, messages: object, output_model: object) -> object:
+        raise AssertionError("caretaker execution must not invoke the gateway")
+
+
 def test_bootstrap_reopen_and_reject_unsupported_schema_without_modification(
     tmp_path: Path,
 ) -> None:
@@ -102,17 +141,17 @@ def test_bootstrap_reopen_and_reject_unsupported_schema_without_modification(
     SQLiteStore.open(database)
 
     with sqlite3.connect(database) as connection:
-        assert connection.execute("PRAGMA user_version").fetchone() == (4,)
-        connection.execute("PRAGMA user_version = 5")
+        assert connection.execute("PRAGMA user_version").fetchone() == (5,)
+        connection.execute("PRAGMA user_version = 6")
 
     with pytest.raises(UnsupportedSchemaVersionError):
         SQLiteStore.open(database)
 
     with sqlite3.connect(database) as connection:
-        assert connection.execute("PRAGMA user_version").fetchone() == (5,)
+        assert connection.execute("PRAGMA user_version").fetchone() == (6,)
 
 
-def test_v1_world_and_event_migrate_to_v4_without_record_changes(
+def test_v1_world_and_event_migrate_to_v5_without_record_changes(
     tmp_path: Path,
 ) -> None:
     database = tmp_path / "world.sqlite3"
@@ -136,7 +175,7 @@ def test_v1_world_and_event_migrate_to_v4_without_record_changes(
     migrated = SQLiteStore.open(database)
 
     with sqlite3.connect(database) as connection:
-        assert connection.execute("PRAGMA user_version").fetchone() == (4,)
+        assert connection.execute("PRAGMA user_version").fetchone() == (5,)
         assert (
             connection.execute("SELECT * FROM current_world").fetchone() == world_before
         )
@@ -175,7 +214,7 @@ def test_v2_migrates_trace_histories_without_record_changes(
     SQLiteStore.open(database)
 
     with sqlite3.connect(database) as connection:
-        assert connection.execute("PRAGMA user_version").fetchone() == (4,)
+        assert connection.execute("PRAGMA user_version").fetchone() == (5,)
         assert (
             connection.execute("SELECT * FROM current_world").fetchone() == world_before
         )
@@ -205,13 +244,105 @@ def test_v3_migrates_scheduled_activity_history_without_record_changes(
     SQLiteStore.open(database)
 
     with sqlite3.connect(database) as connection:
-        assert connection.execute("PRAGMA user_version").fetchone() == (4,)
+        assert connection.execute("PRAGMA user_version").fetchone() == (5,)
         assert (
             connection.execute("SELECT * FROM current_world").fetchone() == world_before
         )
         assert connection.execute(
             "SELECT COUNT(*) FROM scheduled_activity_execution_traces"
         ).fetchone() == (0,)
+
+
+def test_v4_migrates_without_rewriting_scheduled_activity_records(
+    tmp_path: Path,
+) -> None:
+    database = tmp_path / "world.sqlite3"
+    store = SQLiteStore.open(database)
+    packages = _greybridge_packages()
+    create_world(store, packages, world_id=WORLD_ID)
+    identities = iter(
+        UUID(f"10000000-0000-4000-8000-{number:012d}") for number in range(10, 20)
+    )
+    completed = coordinate_due_npc_activity(
+        store,
+        packages,
+        cast(FunctionalModelGateway, _UnusedGateway()),
+        identity_factory=identities.__next__,
+    )
+    assert completed.result_type == "completed"
+    with sqlite3.connect(database) as connection:
+        scheduled_before = connection.execute(
+            "SELECT * FROM scheduled_activity_execution_traces"
+        ).fetchall()
+        connection.execute("PRAGMA user_version = 4")
+
+    SQLiteStore.open(database)
+
+    with sqlite3.connect(database) as connection:
+        assert connection.execute("PRAGMA user_version").fetchone() == (5,)
+        assert (
+            connection.execute(
+                "SELECT * FROM scheduled_activity_execution_traces"
+            ).fetchall()
+            == scheduled_before
+        )
+    with SQLiteStore.open(database).unit_of_work() as unit:
+        traces = unit.scheduled_activity_traces.list_for_world(WORLD_ID)
+        assert len(traces) == 1
+        assert traces[0].trace.trace_schema_version == 1
+
+
+def test_courier_trace_mismatch_with_linked_actor_trace_rolls_back_append(
+    tmp_path: Path,
+) -> None:
+    database = tmp_path / "world.sqlite3"
+    store = SQLiteStore.open(database)
+    packages = _greybridge_packages()
+    create_world(store, packages, world_id=WORLD_ID)
+    identities = iter(
+        UUID(f"20000000-0000-4000-8000-{number:012d}") for number in range(10, 25)
+    )
+    completed = coordinate_due_npc_activity(
+        store,
+        packages,
+        cast(FunctionalModelGateway, _UnusedGateway()),
+        identity_factory=identities.__next__,
+    )
+    assert completed.result_type == "completed"
+    bad_trace = CourierScheduledActivityExecutionTrace(
+        trace_schema_version=2,
+        activity=NpcScheduledActivity(
+            activity_type="npc",
+            activity_id=UUID("40000000-0000-4000-8000-000000000002"),
+            eligible_at_seconds=0,
+            insertion_sequence=1,
+            npc_id="injured-courier",
+        ),
+        selected_at_seconds=0,
+        decision_context_id=UUID("30000000-0000-4000-8000-000000000002"),
+        simulation_step_id=completed.completed_action.trace.simulation_step_id,
+        result=CourierPolicyResult(
+            proposal=WaitActionProposal(operation="wait", duration_seconds=60),
+            generation=FunctionalGenerationResult[CourierPolicyOutput](
+                disposition=FunctionalGenerationDisposition.FAILED,
+                initial_attempt=FunctionalGenerationAttempt(
+                    failure_kind=FunctionalModelFailureKind.SERVICE_ERROR
+                ),
+            ),
+        ),
+    )
+
+    with pytest.raises(StoredRecordDecodingError, match="courier trace"):
+        with store.unit_of_work() as unit:
+            unit.scheduled_activity_traces.append(
+                world_id=completed.completed_action.world_id,
+                resulting_world_revision=completed.completed_action.resulting_world_revision,
+                trace=bad_trace,
+            )
+            unit.commit()
+
+    with store.unit_of_work() as unit:
+        assert len(unit.scheduled_activity_traces.list_for_world(WORLD_ID)) == 1
 
 
 def test_create_is_singleton_and_uncommitted_exit_rolls_back(tmp_path: Path) -> None:

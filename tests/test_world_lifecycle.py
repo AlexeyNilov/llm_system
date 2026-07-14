@@ -118,6 +118,13 @@ def test_create_commits_and_resume_recovers_exact_active_world(tmp_path: Path) -
             insertion_sequence=0,
             npc_id="bridge-caretaker",
         ),
+        NpcScheduledActivity(
+            activity_type="npc",
+            activity_id=uuid5(WORLD_ID, "initial-npc-activity:1:injured-courier:0"),
+            eligible_at_seconds=0,
+            insertion_sequence=1,
+            npc_id="injured-courier",
+        ),
     )
     assert created.stored_world.state is created.validated_world.state
     assert created.validated_world.packages == _packages()
@@ -190,6 +197,15 @@ def test_development_reset_replaces_and_clears_the_complete_timeline(
             eligible_at_seconds=0,
             insertion_sequence=0,
             npc_id="bridge-caretaker",
+        ),
+        NpcScheduledActivity(
+            activity_type="npc",
+            activity_id=uuid5(
+                REPLACEMENT_WORLD_ID, "initial-npc-activity:1:injured-courier:0"
+            ),
+            eligible_at_seconds=0,
+            insertion_sequence=1,
+            npc_id="injured-courier",
         ),
     )
     reopened = SQLiteStore.open(database)

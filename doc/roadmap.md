@@ -80,7 +80,7 @@ M4 is complete. The singleton world survives restart, advances atomically throug
 | TASK-051: player-turn scheduled progress | Done; player turns now report committed action with pending scheduled progress honestly, settle one due caretaker activity before normal completion, and gate later input until scheduled progress settles at version `0.49.0`. |
 | TASK-052: free-form player chat page | Done; the Streamlit page now sends only free-form text through `/player-turn`, validates player-safe result variants, and does not retain text discarded for scheduled progress at version `0.50.0`. |
 | TASK-053: memory-free LLM courier policy | Done; bounded courier context now produces one strict executable proposal or deterministic Wait fallback with retained generation evidence, without execution or scheduling at version `0.51.0`. |
-| TASK-054: courier scheduled execution and evidence | Ready; execute one due courier activity through the shared arbiter path and persist its functional-generation evidence atomically. |
+| TASK-054: courier scheduled execution and evidence | Done; one-due NPC scheduling now executes caretaker or courier through the shared arbiter, records courier functional-generation evidence atomically in a linked V2 trace, and migrates SQLite to V5 at version `0.52.0`. |
 | Memory-free LLM courier policy | Local model gateway and actor runtime |
 | Narrator | Perception snapshots and local model gateway |
 

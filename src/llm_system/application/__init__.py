@@ -25,7 +25,7 @@ from llm_system.application.scheduled_execution_coordinator import (
     ScheduledActivityExecutionResult,
     StaleScheduledActivityResult,
     UnsupportedScheduledActivityError,
-    coordinate_due_caretaker_activity,
+    coordinate_due_npc_activity,
 )
 from llm_system.application.model_gateway import (
     FunctionalGenerationAttempt,
@@ -112,7 +112,7 @@ __all__ = [
     "decide_injured_courier",
     "coordinate_player_turn",
     "coordinate_caretaker_turn",
-    "coordinate_due_caretaker_activity",
+    "coordinate_due_npc_activity",
     "execute_actor_action_step",
     "execute_actor_action_step_in_unit",
     "interpret_player_input",

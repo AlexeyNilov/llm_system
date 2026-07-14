@@ -1,10 +1,11 @@
 from __future__ import annotations
 
+import json
 import sqlite3
 from collections.abc import Callable, Sequence
 from pathlib import Path
 from types import TracebackType
-from typing import Literal, Self
+from typing import Literal, Self, TypeAlias
 from uuid import UUID
 
 from pydantic import TypeAdapter, ValidationError
@@ -36,11 +37,12 @@ from llm_system.simulation.scheduling import ScheduledActivityQueue
 from llm_system.simulation.state import WorldState
 from llm_system.simulation.traces import (
     CompletedActorActionStepTrace,
+    CourierScheduledActivityExecutionTrace,
     ScheduledActivityExecutionTrace,
 )
 from llm_system.player_input_traces import ActionLinkedCompletion, PlayerInputStepTrace
 
-SQLITE_SCHEMA_VERSION = 4
+SQLITE_SCHEMA_VERSION = 5
 WORLD_PAYLOAD_SCHEMA_VERSION: Literal[1] = 1
 
 _CANONICAL_EVENT_ADAPTER: TypeAdapter[CanonicalEvent] = TypeAdapter(CanonicalEvent)
@@ -115,6 +117,10 @@ _SCHEMA_V2 = (*_SCHEMA_V1, _TRACE_SCHEMA_V2)
 _SCHEMA_V3 = (*_SCHEMA_V2, _PLAYER_INPUT_TRACE_SCHEMA_V3)
 _SCHEMA_V4 = (*_SCHEMA_V3, _SCHEDULED_ACTIVITY_TRACE_SCHEMA_V4)
 
+ScheduledActivityTrace: TypeAlias = (
+    ScheduledActivityExecutionTrace | CourierScheduledActivityExecutionTrace
+)
+
 
 class SQLiteStore:
     def __init__(self, path: Path) -> None:
@@ -126,7 +132,7 @@ class SQLiteStore:
         connection = sqlite3.connect(database_path, isolation_level=None)
         try:
             version = _schema_version(connection)
-            if version not in (0, 1, 2, 3, SQLITE_SCHEMA_VERSION):
+            if version not in (0, 1, 2, 3, 4, SQLITE_SCHEMA_VERSION):
                 raise UnsupportedSchemaVersionError(version)
             if version == 0:
                 existing_table = connection.execute(
@@ -172,6 +178,14 @@ class SQLiteStore:
                 connection.execute("BEGIN IMMEDIATE")
                 try:
                     connection.execute(_SCHEDULED_ACTIVITY_TRACE_SCHEMA_V4)
+                    connection.execute(f"PRAGMA user_version = {SQLITE_SCHEMA_VERSION}")
+                    connection.commit()
+                except BaseException:
+                    connection.rollback()
+                    raise
+            elif version == 4:
+                connection.execute("BEGIN IMMEDIATE")
+                try:
                     connection.execute(f"PRAGMA user_version = {SQLITE_SCHEMA_VERSION}")
                     connection.commit()
                 except BaseException:
@@ -590,7 +604,7 @@ class SQLiteScheduledActivityTraceRepository:
         *,
         world_id: UUID,
         resulting_world_revision: int,
-        trace: ScheduledActivityExecutionTrace,
+        trace: ScheduledActivityTrace,
     ) -> StoredScheduledActivityExecutionTrace:
         self._require_active()
         current = self._connection.execute(
@@ -610,7 +624,7 @@ class SQLiteScheduledActivityTraceRepository:
                 "scheduled activity trace must use the current resulting world revision"
             )
         linked = self._connection.execute(
-            """SELECT 1 FROM simulation_step_traces
+            """SELECT trace_json FROM simulation_step_traces
             WHERE world_id = ? AND resulting_world_revision = ? AND simulation_step_id = ?""",
             (str(world_id), resulting_world_revision, str(trace.simulation_step_id)),
         ).fetchone()
@@ -619,6 +633,24 @@ class SQLiteScheduledActivityTraceRepository:
             raise StoredRecordDecodingError(
                 "scheduled activity trace lacks matching actor-action trace"
             )
+        if isinstance(trace, CourierScheduledActivityExecutionTrace):
+            try:
+                actor_trace = CompletedActorActionStepTrace.model_validate_json(
+                    linked["trace_json"]
+                )
+            except ValidationError as error:
+                self._mark_failed()
+                raise StoredRecordDecodingError(
+                    "linked actor-action trace cannot be decoded"
+                ) from error
+            if (
+                actor_trace.decision_context_id != trace.decision_context_id
+                or actor_trace.submission.proposal != trace.result.proposal
+            ):
+                self._mark_failed()
+                raise StoredRecordDecodingError(
+                    "courier trace does not match linked actor-action trace"
+                )
         try:
             cursor = self._connection.execute(
                 """INSERT INTO scheduled_activity_execution_traces (
@@ -867,7 +899,19 @@ def _decode_scheduled_activity_trace(
     row: sqlite3.Row,
 ) -> StoredScheduledActivityExecutionTrace:
     try:
-        trace = ScheduledActivityExecutionTrace.model_validate_json(row["trace_json"])
+        trace: ScheduledActivityTrace
+        payload = json.loads(row["trace_json"])
+        trace_schema_version = payload.get("trace_schema_version")
+        if trace_schema_version == 1:
+            trace = ScheduledActivityExecutionTrace.model_validate_json(
+                row["trace_json"]
+            )
+        elif trace_schema_version == 2:
+            trace = CourierScheduledActivityExecutionTrace.model_validate_json(
+                row["trace_json"]
+            )
+        else:
+            raise ValueError("unsupported scheduled activity trace schema version")
         if (
             str(trace.activity.activity_id) != row["activity_id"]
             or str(trace.simulation_step_id) != row["simulation_step_id"]

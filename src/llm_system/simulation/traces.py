@@ -3,11 +3,12 @@ from uuid import UUID
 
 from pydantic import field_validator, model_validator
 
+from llm_system.courier_decision import CourierPolicyResult
 from llm_system.simulation._types import _StrictContract
 from llm_system.simulation.actions import ActorActionSubmission
 from llm_system.simulation.outcomes import Outcome
 from llm_system.simulation.perception import EventObserved, PerceptionSnapshot
-from llm_system.simulation.scheduling import ScheduledActivity
+from llm_system.simulation.scheduling import NpcScheduledActivity, ScheduledActivity
 from llm_system.simulation.state import NonNegativeSeconds
 
 
@@ -78,6 +79,30 @@ class ScheduledActivityExecutionTrace(_StrictContract):
 
     @model_validator(mode="after")
     def require_due_activity(self) -> Self:
+        if self.activity.eligible_at_seconds > self.selected_at_seconds:
+            raise ValueError("scheduled activity must be due at selection time")
+        return self
+
+
+class CourierScheduledActivityExecutionTrace(_StrictContract):
+    trace_schema_version: Literal[2]
+    activity: NpcScheduledActivity
+    selected_at_seconds: NonNegativeSeconds
+    decision_context_id: UUID
+    simulation_step_id: UUID
+    result: CourierPolicyResult
+
+    @field_validator("trace_schema_version", mode="before")
+    @classmethod
+    def trace_schema_version_must_be_an_integer_literal(cls, value: object) -> object:
+        if type(value) is not int:
+            raise ValueError("trace_schema_version must be an integer literal")
+        return value
+
+    @model_validator(mode="after")
+    def require_due_courier_activity(self) -> Self:
+        if self.activity.npc_id != "injured-courier":
+            raise ValueError("courier trace requires injured-courier activity")
         if self.activity.eligible_at_seconds > self.selected_at_seconds:
             raise ValueError("scheduled activity must be due at selection time")
         return self

@@ -10,6 +10,7 @@ from llm_system.simulation.scheduling import ScheduledActivityQueue
 from llm_system.simulation.state import WorldState
 from llm_system.simulation.traces import (
     CompletedActorActionStepTrace,
+    CourierScheduledActivityExecutionTrace,
     ScheduledActivityExecutionTrace,
 )
 from llm_system.player_input_traces import PlayerInputStepTrace
@@ -66,4 +67,4 @@ class StoredScheduledActivityExecutionTrace(_StrictContract):
     insertion_sequence: PositiveInsertionSequence
     world_id: UUID
     resulting_world_revision: NonNegativeRevision
-    trace: ScheduledActivityExecutionTrace
+    trace: ScheduledActivityExecutionTrace | CourierScheduledActivityExecutionTrace
