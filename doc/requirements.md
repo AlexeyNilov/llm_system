@@ -1182,6 +1182,16 @@ This helps ensure requirements are:
 
 **SCHEDULE-023:** Repeated selection with equal world and queue inputs shall produce equal results without mutating or replacing those inputs, generating identities, resolving package references, executing activities, consulting randomness, persisting data, or invoking an LLM.
 
+**SCHEDULE-024:** A scenario package may declare an ordered immutable catalog of initial one-shot NPC activity occurrences. Each declaration shall contain only a non-negative eligibility time and an authored NPC identity; it shall not contain runtime activity identity, insertion sequence, policy identity, callbacks, proposals, outcomes, recurrence, or arbitrary payload.
+
+**SCHEDULE-025:** Scenario-package validation shall require every initial NPC activity declaration to reference one authored NPC character. It shall not require that NPC's policy implementation to be available at package load or world creation.
+
+**SCHEDULE-026:** World creation and development reset shall deterministically materialize every validated initial NPC activity declaration into the persisted scheduled queue. The application shall derive one distinct runtime activity UUID from the caller-supplied world identity and stable declaration identity, and shall assign insertion sequence from authored declaration order.
+
+**SCHEDULE-027:** Initial queue materialization shall retain authored eligibility time and NPC identity exactly, produce no canonical event or step trace, and persist the resulting queue atomically with revision-zero world creation or destructive development reset.
+
+**SCHEDULE-028:** Initial activity declarations and materialization shall not select, execute, consume, reschedule, recur, invoke an LLM or policy, advance time, or alter the existing resume behavior.
+
 ### System director eligibility
 
 **DIRECTOR-001:** The system shall invoke the System director only when an explicit configured hook becomes eligible.

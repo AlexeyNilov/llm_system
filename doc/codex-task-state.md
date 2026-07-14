@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Plan the minimum scheduled-NPC activity lifecycle that can call the completed caretaker actor-turn coordinator without losing, duplicating, or indefinitely reselecting work.
+Implement package-authored initial NPC eligibility so new and reset Greybridge worlds have a real durable caretaker activity before scheduled execution is designed.
 
 ## Verified baseline
 
@@ -31,21 +31,22 @@ Plan the minimum scheduled-NPC activity lifecycle that can call the completed ca
 * `select_eligible_activities` is pure and deliberately non-executing; the initial stored queue is empty and package schemas do not yet author scheduled runtime occurrences.
 * The first executable actor-runtime seam is therefore one explicitly requested `bridge-caretaker` turn. Its policy/context phase remains non-mutating, while its coordinator rechecks the observed world revision before constructing a trusted NPC submission and calling the existing action-step composition.
 * TASK-048 is accepted at project version `0.46.0`. `coordinate_caretaker_turn` supports only the authored matching caretaker rule policy, returns a strict completed-or-stale result, and preserves the scheduled queue exactly. Parent verification passes: focused coordinator/policy/action-step tests (31 passed), `make check` (510 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
+* Scenario packages currently have no initial activity authoring, so every lifecycle-created queue is empty despite valid scheduler and actor-turn contracts.
 
 ## Blockers and unresolved questions
 
-No blocker. Scheduled activity claiming, consumption, recurrence, and activity-trace semantics remain intentionally unresolved. Scenario packages currently do not author runtime activity occurrences, so the next task must make one narrow lifecycle choice before execution can be delegated.
+No blocker. TASK-049 is Ready. Scheduled selection, claiming, consumption, recurrence, activity traces, environmental activity, System director hooks, and player-turn batching remain intentionally unresolved.
 
 ## Exact next action
 
-Inspect package authoring boundaries, current queue persistence, scheduler selection, and completed actor turns; then define the smallest durable NPC-activity lifecycle and its failure behavior.
+Commit and delegate `doc/tasks/TASK-049-package-authored-initial-npc-eligibility.md` to the configured implementer, then independently review its result.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
 3. `doc/roadmap.md`: M5
-4. `doc/requirements.md`: `TIME-005`, `NPC-001` through `NPC-007`, and `SCHEDULE-001` through `SCHEDULE-023`
-5. `doc/decisions.md`: “Serialize eligible activities deterministically”, “Compose the first coordinator before scheduled execution”, and “Start the actor runtime with one revision-safe caretaker turn”
-6. `src/llm_system/simulation/scheduling.py`, `application/npc_turn_coordinator.py`, and SQLite world repositories
-7. scheduling, persistence, and NPC-turn coordinator tests
+4. `doc/requirements.md`: `SCHEDULE-024` through `SCHEDULE-028`, `SCHEDULE-007` through `SCHEDULE-014`, and lifecycle requirements
+5. `doc/decisions.md`: “Author initial NPC eligibility in scenario packages” and “Materialize initial state without requiring future actor policies”
+6. scenario-package models/validation, world lifecycle, and scheduling contracts
+7. scenario-package, package-validation, world-lifecycle, and SQLite persistence tests

@@ -1491,3 +1491,29 @@ same action boundary as the player. A later scheduled-activity coordinator can
 call this service after it has explicitly defined claim, ordering, consumption,
 and trace behavior. LLM courier policy, memory, beliefs, narration, HTTP, and
 player-visible batching remain separate work.
+
+### 2026-07-14: Author initial NPC eligibility in scenario packages
+
+**Status:** Accepted
+
+**Context:** The scheduler and persistence already represent one-shot NPC
+activities, but every created Greybridge world has an empty queue. Hard-coding
+the caretaker's first due time in application code would make scenario behavior
+non-replaceable. Adding recurrence, generic schedule programs, or executable
+callbacks to YAML would expand authoring beyond a concrete first consumer.
+
+**Decision:** Add an ordered scenario-package catalog of initial one-shot NPC
+activity declarations. Each declaration names only an authored NPC and its
+eligibility time. World creation and development reset materialize them into
+runtime `NpcScheduledActivity` records, deriving each activity UUID from the
+caller-supplied world UUID and a stable declaration identity, and assigning
+insertion sequence from authored order. Greybridge declares one caretaker
+activity eligible at time zero. Package validation confirms only that each
+reference names an authored NPC; implementation availability remains an
+execution-time boundary.
+
+**Consequences:** New and reset worlds contain inspectable persistent NPC
+eligibility without executing it. Selection, claiming, consumption, retry,
+environmental activities, System director hooks, and player-turn batching stay
+separate decisions. The initial queue provides a real next consumer for the
+scheduled NPC execution coordinator.
