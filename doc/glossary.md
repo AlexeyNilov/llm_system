@@ -256,6 +256,12 @@ The process performed by the perception engine to determine which observations a
 
 The immutable ordered collection of observations currently available to one character at one simulation time. It is an actor-specific ID-linked projection, not a copy of canonical world state or unrestricted package content.
 
+### Presentation
+
+Player-facing rendering derived from committed player-safe information, such as
+narration or a System notification. Presentation cannot create canonical facts,
+submit actions, or change simulation state.
+
 ### Player
 
 The human participant who owns their own sensemaking and intent. The application interprets only what the player explicitly communicates and does not invent player motives.

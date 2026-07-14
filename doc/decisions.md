@@ -1636,3 +1636,30 @@ scheduling resolves only one of them per attempt.
 functional evidence and deterministic failure fallback become durable only with
 the validated action they informed. This adds no registry, background worker,
 retries, recurrence, queue draining, or non-NPC scheduling semantics.
+
+### 2026-07-14: Start narration with deterministic perception rendering
+
+**Status:** Accepted
+
+**Context:** The player page currently exposes raw observation identifiers,
+while the roadmap calls for a narrator. Letting a prose model freely describe a
+snapshot cannot reliably prevent it from inventing unobserved people, exits, or
+events; a prompt is not an authority boundary. Adding LLM generation evidence
+and a presentation-history store before a first player-visible description
+would also obscure the smaller missing capability.
+
+**Decision:** First add a pure deterministic narrator that converts only the
+player's current perception groups into prose using authored names for IDs
+already in that snapshot. Attach its result to existing player-turn response
+variants that already contain the matching perception, and render it in the
+Streamlit chat instead of raw observation IDs. Do not call a model, persist
+presentation, or narrate self-event feedback in this increment.
+
+LLM styling remains a later, separate task. It must use an accepted structured
+style plan and deterministic fact renderer; prompt-only free prose is not an
+adequate implementation of the no-new-facts boundary.
+
+**Consequences:** The player gets a safe world description now, while canonical
+truth, perception, System notifications, and presentation remain visibly
+separate. The later local-model narrator has a concrete rendering contract to
+style rather than a vague license to invent world content.

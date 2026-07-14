@@ -226,6 +226,20 @@ This helps ensure requirements are:
 
 **UI-006:** When the System interface presents an optional objective, it shall not treat that objective as accepted without a player decision.
 
+### Narration presentation
+
+**NARR-001:** The initial narrator shall deterministically render one player-current `PerceptionSnapshot` into non-blank presentation prose. It shall not invoke an LLM, mutate or persist simulation state, assign identities, resolve actions, or produce System-interface notifications.
+
+**NARR-002:** Initial narration shall be derived only from the supplied player snapshot and approved authored display names resolved for identifiers already present in that snapshot. It shall not receive canonical world state, unrestricted package definitions, another actor's private information, event history, player input, trusted action metadata, or hidden scheduler state.
+
+**NARR-003:** Initial narration shall mention only the observer's perceived current location, perceived co-located characters, perceived objects, and perceived outgoing connections, preserving the snapshot's observation order within each rendered group. It shall not invent unobserved entities, spatial relations, conditions, events, goals, outcomes, or mechanical facts.
+
+**NARR-004:** The player-turn HTTP adapter shall attach narration only to player-safe settled or committed responses that already contain the matching current perception. Thought-only, clarification, and unresolved scheduled-progress responses shall contain no narration. Narration failure shall not roll back, reinterpret, or misrepresent an already committed simulation result.
+
+**NARR-005:** The Streamlit player page shall render returned narration as the assistant's world description and shall not reconstruct narration from raw IDs or make a separate direct simulation request. Raw perception inspection remains outside the player experience.
+
+**NARR-006:** LLM-assisted narration is deferred until an accepted fact-preserving structured style contract can prevent generated prose from adding factual claims. A prompt-only prose call is not sufficient enforcement for `SPACE-006`.
+
 ### Spatial world model
 
 **SPACE-001:** The system shall represent traversable world topology as a graph of structured locations and explicit connections.

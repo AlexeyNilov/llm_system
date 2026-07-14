@@ -2,8 +2,8 @@
 
 ## Current objective
 
-Prepare the next bounded M5 outcome after the complete memory-free courier
-scheduler loop.
+Deliver TASK-055: deterministic player narration from bounded current
+perception through existing player-turn responses and the Streamlit chat.
 
 ## Verified baseline
 
@@ -38,21 +38,22 @@ scheduler loop.
 * TASK-052 is accepted at project version `0.50.0`. The Streamlit page is now a thin free-form chat client for `/player-turn`; it validates strict player-safe response variants, maps stale input, retains text only for completed interpretations, and shows scheduled-only progress without retaining discarded text. Parent verification passes: focused player-page/API tests (54 passed), `make check` (509 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 * TASK-053 is accepted at project version `0.51.0`. `decide_injured_courier` receives only bounded courier context and an injected gateway, returns one strict supported proposal with functional-generation evidence, and maps failed generations to deterministic Wait 60. Parent verification passes: focused courier/gateway tests (30 passed), `make check` (520 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 * TASK-054 is accepted at project version `0.52.0`. `coordinate_due_npc_activity` executes only one first-due caretaker or courier activity. Courier policy evaluation receives the existing injected player-turn gateway outside the write transaction, then its exact policy result is atomically retained in a V2 trace whose context and proposal are verified against the linked action trace. SQLite V5 preserves V4 records without rewrite; Greybridge schedules caretaker then courier. Parent verification passed the focused 40-test suite, format, lint, mypy, full `make test` (525 passed), `uv lock --check`, and `git diff --check`.
+* TASK-055 is Ready. It uses a pure deterministic narrator over player-current perception and restricted approved display-name enrichment; LLM prose styling remains deferred until a fact-preserving structured style contract is accepted.
 
 ## Blockers and unresolved questions
 
-No blocker. Full queue draining, recurrence, environmental activity, System director hooks, narration, and generic policy dispatch remain deferred.
+No blocker. Full queue draining, recurrence, environmental activity, System director hooks, LLM narration styling, and generic policy dispatch remain deferred.
 
 ## Exact next action
 
-Inspect the M5 narrator dependency and prepare the smallest behaviorally
-complete next task without promoting deferred mechanics.
+Commit TASK-055 planning artifacts and delegate the Ready task to the configured
+fresh implementer; independently review its handoff before integration.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
-3. `doc/roadmap.md`: M5
-4. `doc/requirements.md`: narrator and presentation requirements plus `LLM-001` through `LLM-008`
-5. `doc/decisions.md`: current LLM and player-visible boundary decisions
-6. Player-turn, API, perception, and player-page source/tests selected by the next task brief
+3. `doc/tasks/TASK-055-deterministic-player-narrator.md`
+4. `doc/requirements.md`: `NARR-001` through `NARR-006`, `UI-002` through `UI-005`, `SPACE-005` through `SPACE-006`, and `PERCEPTION-007` through `PERCEPTION-015`
+5. `doc/decisions.md`: “Start narration with deterministic perception rendering”
+6. `src/llm_system/narration.py`, `src/llm_system/api.py`, `src/llm_system/player_api.py`, and `src/llm_system/player_page.py`
