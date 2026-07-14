@@ -85,6 +85,55 @@ def test_validate_game_packages_returns_frozen_pair_preserving_valid_inputs() ->
         validated_packages.rule_package = rule_package
 
 
+def test_initial_npc_activities_require_authored_npc_references_only() -> None:
+    rule = _rule_content()
+    scenario = _scenario_content()
+    scenario["entity_collection"] = {
+        "entities": [
+            {
+                "entity_type": "player_character",
+                "id": "marin",
+                "name": "Marin",
+                "character_archetype_id": "scout",
+                "initial_location_id": "start",
+            },
+            {
+                "entity_type": "npc_character",
+                "id": "caretaker",
+                "name": "Caretaker",
+                "character_archetype_id": "scout",
+                "initial_location_id": "start",
+                "identity_summary": "Keeps watch.",
+                "goals": [{"id": "watch", "description": "Keep watch."}],
+                "decision_policy": {"policy_type": "rule", "policy_id": "routine"},
+            },
+        ]
+    }
+    scenario["initial_npc_activities"] = [
+        {"eligible_at_seconds": 0, "npc_id": "caretaker"}
+    ]
+
+    validate_game_packages(*_packages(rule, scenario))
+
+    scenario["initial_npc_activities"] = [
+        {"eligible_at_seconds": 0, "npc_id": "marin"},
+        {"eligible_at_seconds": 1, "npc_id": "missing"},
+    ]
+
+    issues = _issues(*_packages(rule, scenario))
+
+    assert [(issue.code, issue.path) for issue in issues] == [
+        (
+            ValidationIssueCode.UNKNOWN_REFERENCE,
+            "scenario.definition.initial_npc_activities[0].npc_id",
+        ),
+        (
+            ValidationIssueCode.UNKNOWN_REFERENCE,
+            "scenario.definition.initial_npc_activities[1].npc_id",
+        ),
+    ]
+
+
 def test_authored_use_validation_orders_new_namespaces_and_reference_issues() -> None:
     rule = _rule_content()
     rule["object_use_mechanics"] = [

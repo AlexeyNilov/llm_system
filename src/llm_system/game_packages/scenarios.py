@@ -1,6 +1,6 @@
-from typing import Literal
+from typing import Annotated, Literal
 
-from pydantic import BaseModel, ConfigDict, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 from llm_system.game_packages._types import NonBlankText, RecordId
 from llm_system.game_packages.entities import EntityCollectionDefinition
@@ -26,12 +26,18 @@ class ObjectUseBindingDefinition(_StrictScenarioDefinition):
     fact_value: bool
 
 
+class InitialNpcActivityDefinition(_StrictScenarioDefinition):
+    eligible_at_seconds: Annotated[int, Field(ge=0)]
+    npc_id: RecordId
+
+
 class ScenarioPackDefinition(BaseModel):
     schema_version: Literal[1]
     spatial_graph: SpatialGraphDefinition
     entity_collection: EntityCollectionDefinition
     boolean_world_facts: tuple[BooleanWorldFactDefinition, ...] = ()
     object_use_bindings: tuple[ObjectUseBindingDefinition, ...] = ()
+    initial_npc_activities: tuple[InitialNpcActivityDefinition, ...] = ()
 
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
@@ -42,7 +48,12 @@ class ScenarioPackDefinition(BaseModel):
             raise ValueError("schema_version must be an integer literal")
         return value
 
-    @field_validator("boolean_world_facts", "object_use_bindings", mode="before")
+    @field_validator(
+        "boolean_world_facts",
+        "object_use_bindings",
+        "initial_npc_activities",
+        mode="before",
+    )
     @classmethod
     def normalize_yaml_catalog_lists_to_tuples(cls, value: object) -> object:
         if type(value) is list:

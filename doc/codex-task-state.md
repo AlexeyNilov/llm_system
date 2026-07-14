@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Implement package-authored initial NPC eligibility so new and reset Greybridge worlds have a real durable caretaker activity before scheduled execution is designed.
+Plan the first scheduled NPC execution boundary now that Greybridge creates one durable caretaker activity due at time zero.
 
 ## Verified baseline
 
@@ -31,22 +31,22 @@ Implement package-authored initial NPC eligibility so new and reset Greybridge w
 * `select_eligible_activities` is pure and deliberately non-executing; the initial stored queue is empty and package schemas do not yet author scheduled runtime occurrences.
 * The first executable actor-runtime seam is therefore one explicitly requested `bridge-caretaker` turn. Its policy/context phase remains non-mutating, while its coordinator rechecks the observed world revision before constructing a trusted NPC submission and calling the existing action-step composition.
 * TASK-048 is accepted at project version `0.46.0`. `coordinate_caretaker_turn` supports only the authored matching caretaker rule policy, returns a strict completed-or-stale result, and preserves the scheduled queue exactly. Parent verification passes: focused coordinator/policy/action-step tests (31 passed), `make check` (510 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
-* Scenario packages currently have no initial activity authoring, so every lifecycle-created queue is empty despite valid scheduler and actor-turn contracts.
+* TASK-049 is accepted at project version `0.47.0`. Scenario packages strictly declare initial NPC eligibility; create and reset materialize Greybridge's time-zero caretaker queue entry with a UUID derived from the caller-supplied world ID and declaration position. Parent verification passes: focused package/lifecycle/persistence tests (53 passed), `make check` (512 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 
 ## Blockers and unresolved questions
 
-No blocker. TASK-049 is Ready. Scheduled selection, claiming, consumption, recurrence, activity traces, environmental activity, System director hooks, and player-turn batching remain intentionally unresolved.
+No blocker. Selection, claiming, consumption, recurrence, activity traces, environmental activity, System director hooks, and player-turn batching remain intentionally unresolved. The time-zero caretaker activity is now the concrete first scheduled-execution consumer.
 
 ## Exact next action
 
-Commit and delegate `doc/tasks/TASK-049-package-authored-initial-npc-eligibility.md` to the configured implementer, then independently review its result.
+Define how one due caretaker activity is selected, rechecked, consumed, and committed without entering player-turn batching or other scheduled variants.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
 3. `doc/roadmap.md`: M5
-4. `doc/requirements.md`: `SCHEDULE-024` through `SCHEDULE-028`, `SCHEDULE-007` through `SCHEDULE-014`, and lifecycle requirements
-5. `doc/decisions.md`: “Author initial NPC eligibility in scenario packages” and “Materialize initial state without requiring future actor policies”
-6. scenario-package models/validation, world lifecycle, and scheduling contracts
-7. scenario-package, package-validation, world-lifecycle, and SQLite persistence tests
+4. `doc/requirements.md`: `SCHEDULE-001` through `SCHEDULE-023`, `NPC-008` through `NPC-012`, and `TIME-005`
+5. `doc/decisions.md`: “Serialize eligible activities deterministically”, “Compose the first coordinator before scheduled execution”, and “Start the actor runtime with one revision-safe caretaker turn”
+6. `simulation/scheduling.py`, `application/npc_turn_coordinator.py`, `actor_action_step.py`, and SQLite world repository
+7. scheduling, NPC-turn, action-step, lifecycle, and persistence tests

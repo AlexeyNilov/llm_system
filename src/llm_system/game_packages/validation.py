@@ -426,6 +426,24 @@ def _validate_bindings(
         seen_pairs.add(pair)
 
 
+def _validate_initial_npc_activities(
+    scenario_package: LoadedScenarioPackage,
+    entities: Mapping[str, tuple[EntityDefinition, ...]],
+    issues: list[ValidationIssue],
+) -> None:
+    for position, activity in enumerate(
+        scenario_package.definition.initial_npc_activities
+    ):
+        records = entities.get(activity.npc_id, ())
+        if len(records) != 1 or not isinstance(records[0], NpcCharacterDefinition):
+            issues.append(
+                _issue(
+                    ValidationIssueCode.UNKNOWN_REFERENCE,
+                    f"scenario.definition.initial_npc_activities[{position}].npc_id",
+                )
+            )
+
+
 def validate_game_packages(
     rule_package: LoadedRulePackage, scenario_package: LoadedScenarioPackage
 ) -> ValidatedGamePackages:
@@ -520,6 +538,7 @@ def validate_game_packages(
         facts,
         issues,
     )
+    _validate_initial_npc_activities(scenario_package, entities, issues)
     _validate_reachability(
         scenario_package,
         locations,

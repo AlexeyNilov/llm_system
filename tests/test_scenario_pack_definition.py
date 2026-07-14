@@ -4,10 +4,46 @@ from pydantic import ValidationError
 from llm_system.game_packages import (
     BooleanWorldFactDefinition,
     EntityCollectionDefinition,
+    InitialNpcActivityDefinition,
     ObjectUseBindingDefinition,
     ScenarioPackDefinition,
     SpatialGraphDefinition,
 )
+
+
+def test_scenario_pack_parses_only_ordered_initial_npc_activity_declarations() -> None:
+    definition = ScenarioPackDefinition.model_validate(
+        {
+            "schema_version": 1,
+            "spatial_graph": {"locations": [], "connections": []},
+            "entity_collection": {"entities": []},
+            "initial_npc_activities": [
+                {"eligible_at_seconds": 0, "npc_id": "caretaker"},
+                {"eligible_at_seconds": 10, "npc_id": "courier"},
+            ],
+        }
+    )
+
+    assert definition.initial_npc_activities == (
+        InitialNpcActivityDefinition(eligible_at_seconds=0, npc_id="caretaker"),
+        InitialNpcActivityDefinition(eligible_at_seconds=10, npc_id="courier"),
+    )
+
+    for invalid_declaration in (
+        {"eligible_at_seconds": -1, "npc_id": "caretaker"},
+        {"eligible_at_seconds": 0, "npc_id": "caretaker", "activity_id": "x"},
+        {"eligible_at_seconds": 0, "npc_id": "caretaker", "insertion_sequence": 0},
+        {"eligible_at_seconds": 0, "npc_id": "caretaker", "policy_id": "rule"},
+    ):
+        with pytest.raises(ValidationError):
+            ScenarioPackDefinition.model_validate(
+                {
+                    "schema_version": 1,
+                    "spatial_graph": {"locations": [], "connections": []},
+                    "entity_collection": {"entities": []},
+                    "initial_npc_activities": [invalid_declaration],
+                }
+            )
 
 
 def test_scenario_pack_parses_strict_ordered_authored_use_catalogs() -> None:
@@ -73,6 +109,7 @@ def test_scenario_pack_parses_its_typed_nested_aggregates() -> None:
     assert definition.entity_collection.entities == ()
     assert definition.boolean_world_facts == ()
     assert definition.object_use_bindings == ()
+    assert definition.initial_npc_activities == ()
 
 
 def test_scenario_pack_exposes_existing_typed_aggregate_models() -> None:

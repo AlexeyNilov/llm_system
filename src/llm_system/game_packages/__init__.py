@@ -32,6 +32,7 @@ from llm_system.game_packages.rules import (
 )
 from llm_system.game_packages.scenarios import (
     BooleanWorldFactDefinition,
+    InitialNpcActivityDefinition,
     ObjectUseBindingDefinition,
     ScenarioPackDefinition,
 )
@@ -64,6 +65,7 @@ __all__ = [
     "EntityCollectionDefinition",
     "EntityDefinition",
     "GoalDefinition",
+    "InitialNpcActivityDefinition",
     "LocationDefinition",
     "LocationPlacementDefinition",
     "NpcCharacterDefinition",

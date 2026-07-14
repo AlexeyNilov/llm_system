@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import Self
-from uuid import UUID
+from uuid import UUID, uuid5
 
 from pydantic import BaseModel, ConfigDict, model_validator
 
@@ -21,7 +21,10 @@ from llm_system.game_packages.validation import (
 from llm_system.persistence.errors import MissingWorldError
 from llm_system.persistence.records import PackageReference, StoredWorld
 from llm_system.persistence.sqlite import SQLiteStore
-from llm_system.simulation.scheduling import ScheduledActivityQueue
+from llm_system.simulation.scheduling import (
+    NpcScheduledActivity,
+    ScheduledActivityQueue,
+)
 from llm_system.simulation.state import (
     BooleanWorldFactState,
     CharacterState,
@@ -112,7 +115,7 @@ def create_world(
             rule_package=_rule_package_reference(packages),
             scenario_package=_scenario_package_reference(packages),
             state=validated_world.state,
-            scheduled_queue=ScheduledActivityQueue(activities=()),
+            scheduled_queue=_initial_scheduled_queue(packages, world_id),
         )
         unit.commit()
     return ActiveWorld(
@@ -168,7 +171,7 @@ def reset_world_for_development(
             rule_package=_rule_package_reference(packages),
             scenario_package=_scenario_package_reference(packages),
             state=validated_world.state,
-            scheduled_queue=ScheduledActivityQueue(activities=()),
+            scheduled_queue=_initial_scheduled_queue(packages, world_id),
         )
         unit.commit()
     return ActiveWorld(
@@ -190,6 +193,32 @@ def _scenario_package_reference(packages: ValidatedGamePackages) -> PackageRefer
     return PackageReference(
         package_id=manifest.package_id,
         package_version=manifest.package_version,
+    )
+
+
+def _initial_scheduled_queue(
+    packages: ValidatedGamePackages, world_id: UUID
+) -> ScheduledActivityQueue:
+    return ScheduledActivityQueue(
+        activities=tuple(
+            NpcScheduledActivity(
+                activity_type="npc",
+                activity_id=uuid5(
+                    world_id,
+                    (
+                        "initial-npc-activity:"
+                        f"{position}:{declaration.npc_id}:"
+                        f"{declaration.eligible_at_seconds}"
+                    ),
+                ),
+                eligible_at_seconds=declaration.eligible_at_seconds,
+                insertion_sequence=position,
+                npc_id=declaration.npc_id,
+            )
+            for position, declaration in enumerate(
+                packages.scenario_package.definition.initial_npc_activities
+            )
+        )
     )
 
 

@@ -1,7 +1,7 @@
 import shutil
 import sqlite3
 from pathlib import Path
-from uuid import UUID
+from uuid import UUID, uuid5
 
 import pytest
 from pydantic import ValidationError
@@ -25,6 +25,7 @@ from llm_system.game_packages.validation import ValidatedGamePackages
 from llm_system.persistence import ExistingWorldError, MissingWorldError, SQLiteStore
 from llm_system.simulation import (
     ActorActionSubmission,
+    NpcScheduledActivity,
     ObjectAtLocation,
     ObjectPossessedByCharacter,
     PlayerInterpreterActionSource,
@@ -109,7 +110,15 @@ def test_create_commits_and_resume_recovers_exact_active_world(tmp_path: Path) -
     assert created == resumed
     assert created.stored_world.world_id == WORLD_ID
     assert created.stored_world.revision == 0
-    assert created.stored_world.scheduled_queue.activities == ()
+    assert created.stored_world.scheduled_queue.activities == (
+        NpcScheduledActivity(
+            activity_type="npc",
+            activity_id=uuid5(WORLD_ID, "initial-npc-activity:0:bridge-caretaker:0"),
+            eligible_at_seconds=0,
+            insertion_sequence=0,
+            npc_id="bridge-caretaker",
+        ),
+    )
     assert created.stored_world.state is created.validated_world.state
     assert created.validated_world.packages == _packages()
 
@@ -172,7 +181,17 @@ def test_development_reset_replaces_and_clears_the_complete_timeline(
 
     assert replacement.stored_world.world_id == REPLACEMENT_WORLD_ID
     assert replacement.stored_world.revision == 0
-    assert replacement.stored_world.scheduled_queue.activities == ()
+    assert replacement.stored_world.scheduled_queue.activities == (
+        NpcScheduledActivity(
+            activity_type="npc",
+            activity_id=uuid5(
+                REPLACEMENT_WORLD_ID, "initial-npc-activity:0:bridge-caretaker:0"
+            ),
+            eligible_at_seconds=0,
+            insertion_sequence=0,
+            npc_id="bridge-caretaker",
+        ),
+    )
     reopened = SQLiteStore.open(database)
     assert resume_world(reopened, PACKAGE_ROOT) == replacement
     with reopened.unit_of_work() as unit:
