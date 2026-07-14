@@ -73,7 +73,7 @@ M4 is complete. The singleton world survives restart, advances atomically throug
 | TASK-044: durable player-input step traces | Done; SQLite V3 strictly preserves thought-only, clarification, and actor-action-linked interpretation evidence at version `0.43.0` |
 | TASK-045: transactional free-form player-turn coordinator | Done; revision-safe free-form interpretation and single-commit action/no-action completion at version `0.44.0` |
 | TASK-046: free-form player turn API | Done; strict `/player-turn` adapter with bounded stale response and safe unavailable-gateway clarification at version `0.45.0` |
-| TASK-047: local gateway runtime configuration | Ready; all-or-none server bootstrap settings enable live local player interpretation |
+| TASK-047: local gateway runtime configuration | Done; all-or-none server bootstrap configuration injects the local functional gateway or preserves the unavailable-gateway clarification path; invalid configuration fails before app construction. |
 | Memory-free LLM courier policy | Local model gateway and actor runtime |
 | Narrator | Perception snapshots and local model gateway |
 

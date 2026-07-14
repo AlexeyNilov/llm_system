@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Plan explicit local functional-gateway runtime configuration for the working free-form player-turn API.
+Plan the smallest actor-runtime boundary needed to advance autonomous NPC proposals through the existing authoritative action path.
 
 ## Verified baseline
 
@@ -26,23 +26,24 @@ Plan explicit local functional-gateway runtime configuration for the working fre
 * TASK-045 is accepted at project version `0.44.0`.
 * `coordinate_player_turn` reads perception outside a write transaction, rejects stale interpretations without identities or writes, and atomically commits either a no-action trace or the action/world/events/actor-trace/input-trace set.
 * TASK-046 is accepted at project version `0.45.0`; `/player-turn` accepts only player text and maps coordinator results to player-safe HTTP responses.
-* Parent verification passes: API/coordinator 37-test suite, `make check` with 493 tests, `uv lock --check`, and `git diff --check`.
+* TASK-047 configures `HttpLocalModelGateway` only in `server.py`, from a complete all-or-none set of four explicit environment settings. Absent configuration retains the safe unavailable-gateway clarification path; partial, blank, or invalid values fail before app construction.
+* Parent verification for TASK-047 passes: focused server/API tests (40 passed), `make check` (503 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 
 ## Blockers and unresolved questions
 
-No blocker. The free-form API currently uses safe durable clarification when no gateway is injected; runtime configuration is the next practical path to live local interpretation.
+No blocker. The local player-interpreter path is runnable when configured. Autonomous policies can currently produce proposals but lack a bounded runtime that schedules and commits NPC action steps.
 
 ## Exact next action
 
-Inspect the local deployment README and server bootstrap, then plan explicit runtime gateway settings without adding configuration to the simulation kernel.
+Inspect the existing scheduled-activity contracts, policy boundary, and action coordinator, then plan a minimal deterministic actor runtime without promoting System director or memory scope.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
 3. `doc/roadmap.md`: M5
-4. `doc/requirements.md`: `API-001` through `API-009`, `PLAY-008` through `PLAY-013`, and `STEP-011` through `STEP-015`
-5. `doc/decisions.md`: first HTTP boundary and player-turn coordination decisions
-6. `src/llm_system/api.py`
-7. `src/llm_system/application/player_turn_coordinator.py`
-8. `tests/test_api.py` and `tests/test_player_turn_coordinator.py`
+4. `doc/requirements.md`: actor-action, scheduling, and policy requirements
+5. `doc/decisions.md`: deterministic scheduling and actor-policy decisions
+6. `src/llm_system/application/` action coordinators and policies
+7. `src/llm_system/simulation/` scheduling contracts and action dispatch
+8. related policy, scheduling, and action-step tests

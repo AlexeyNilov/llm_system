@@ -162,6 +162,22 @@ The domain guide and README are orientation surfaces, not competing specificatio
 
 ## Local LLMs
 
-Local model integration is intentionally outside the deterministic kernel. The planned gateway will use OpenAI-compatible local endpoints and strict structured outputs for functional roles. Current unit and integration checks do not contact those endpoints.
+Local model integration is intentionally outside the deterministic kernel. The
+runtime can configure an OpenAI-compatible local gateway for strict structured
+functional outputs when all four settings are supplied before starting the
+player page:
+
+```bash
+export LLM_SYSTEM_MODEL_BASE_URL=http://127.0.0.1:1234
+export LLM_SYSTEM_MODEL=your-local-model
+export LLM_SYSTEM_MODEL_TIMEOUT_SECONDS=30
+export LLM_SYSTEM_MODEL_MAX_TOKENS=512
+make player-page
+```
+
+Leave all four settings unset to retain the safe unavailable-gateway
+clarification path. Do not provide a partial set: blank, nonpositive, or
+non-numeric values stop bootstrap before the server opens. Current unit and
+integration checks do not contact local endpoints.
 
 Model-specific setup belongs in local configuration and infrastructure repositories rather than machine-specific paths in this README.
