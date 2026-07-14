@@ -15,6 +15,10 @@ from llm_system.narration import (
     NarrationCurrentLocationError,
     NarrationObserverError,
     PlayerNarration,
+    NarrationStylePlan,
+    NarrationStyleSection,
+    NarrationStyleVoice,
+    PlayerNarrationContext,
     UnknownObservedIdentifierNarrationError,
     build_player_narration_context,
     render_player_narration,
@@ -169,3 +173,30 @@ def test_renderer_rejects_event_observations() -> None:
 
     with pytest.raises(EventObservationNarrationError):
         build_player_narration_context(_packages(), snapshot)
+
+
+def test_renderer_uses_fixed_observational_templates_in_selected_order() -> None:
+    context = PlayerNarrationContext(
+        current_location_name="Greybridge Waystation",
+        co_located_character_names=("Injured Courier",),
+        visible_object_names=("Medicine",),
+        outgoing_connections=(),
+    )
+    plan = NarrationStylePlan(
+        voice=NarrationStyleVoice.OBSERVATIONAL,
+        section_order=(
+            NarrationStyleSection.CONNECTIONS,
+            NarrationStyleSection.OBJECTS,
+            NarrationStyleSection.LOCATION,
+            NarrationStyleSection.CHARACTERS,
+        ),
+    )
+
+    narration = render_player_narration(context, plan)
+
+    assert narration == PlayerNarration(
+        text=(
+            "Connections: none visible. Objects: Medicine. "
+            "Location: Greybridge Waystation. Characters: Injured Courier."
+        )
+    )

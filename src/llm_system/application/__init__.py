@@ -36,6 +36,11 @@ from llm_system.application.model_gateway import (
     HttpLocalModelGateway,
     ModelMessage,
 )
+from llm_system.application.narration_style import (
+    NarrationStyleOutput,
+    NarrationStyleResult,
+    select_narration_style,
+)
 from llm_system.application.player_interpreter import (
     InterpretedPlayerProposal,
     PlayerInterpretationResult,
@@ -88,6 +93,8 @@ __all__ = [
     "HttpLocalModelGateway",
     "InterpretedPlayerProposal",
     "ModelMessage",
+    "NarrationStyleOutput",
+    "NarrationStyleResult",
     "NpcDecisionContext",
     "NpcTurnResult",
     "NoDueScheduledActivityResult",
@@ -119,5 +126,6 @@ __all__ = [
     "reset_world_for_development",
     "ScheduledActivityExecutionResult",
     "resume_world",
+    "select_narration_style",
     "ThoughtOnlyCompletion",
 ]

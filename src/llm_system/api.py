@@ -18,6 +18,7 @@ from llm_system.application import (
     FunctionalModelFailureKind,
     FunctionalModelGateway,
     ModelMessage,
+    select_narration_style,
     StalePlayerTurnResult,
     ScheduledProgressCompletedPlayerTurnResult,
     ScheduledProgressPendingPlayerTurnResult,
@@ -244,7 +245,7 @@ def create_app(
         )
         if isinstance(result, StalePlayerTurnResult):
             return _error_response(409, "player-turn-stale")
-        return _player_turn_response(result, initial_packages)
+        return _player_turn_response(result, initial_packages, player_turn_gateway)
 
     return app
 
@@ -281,6 +282,7 @@ def _player_turn_response(
         | ScheduledProgressPendingPlayerTurnResult
     ),
     packages: ValidatedGamePackages,
+    gateway: FunctionalModelGateway,
 ) -> PlayerTurnResponse:
     if isinstance(result, ThoughtOnlyPlayerTurnResult):
         return ThoughtOnlyPlayerTurnResponse(
@@ -296,7 +298,7 @@ def _player_turn_response(
             world_id=result.world_id,
             resulting_world_revision=result.resulting_world_revision,
             current_perception=result.current_perception,
-            narration=_narration_for(packages, result.current_perception),
+            narration=_narration_for(packages, result.current_perception, gateway),
         )
     if isinstance(result, ScheduledProgressPendingPlayerTurnResult):
         return ScheduledProgressPendingPlayerTurnResponse(
@@ -314,7 +316,7 @@ def _player_turn_response(
             current_perception=trace.current_perception,
             self_event_feedback=trace.self_event_feedback,
             private_thought=result.private_thought,
-            narration=_narration_for(packages, trace.current_perception),
+            narration=_narration_for(packages, trace.current_perception, gateway),
         )
     return ActionCompletedPlayerTurnResponse(
         result_type="action_completed",
@@ -326,16 +328,19 @@ def _player_turn_response(
         current_perception=result.current_perception,
         self_event_feedback=trace.self_event_feedback,
         private_thought=result.private_thought,
-        narration=_narration_for(packages, result.current_perception),
+        narration=_narration_for(packages, result.current_perception, gateway),
     )
 
 
 def _narration_for(
-    packages: ValidatedGamePackages, perception: PerceptionSnapshot
+    packages: ValidatedGamePackages,
+    perception: PerceptionSnapshot,
+    gateway: FunctionalModelGateway,
 ) -> NonBlankText:
     try:
         context = build_player_narration_context(packages, perception)
-        return render_player_narration(context).text
+        style = select_narration_style(context, gateway)
+        return render_player_narration(context, style.plan).text
     except NarrationContextError:
         return SAFE_NARRATION
 

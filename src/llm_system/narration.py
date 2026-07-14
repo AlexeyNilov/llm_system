@@ -1,4 +1,5 @@
 from collections.abc import Iterable
+from enum import Enum
 
 from pydantic import BaseModel, ConfigDict
 
@@ -22,6 +23,25 @@ class PlayerNarration(BaseModel):
     model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
 
     text: NonBlankText
+
+
+class NarrationStyleVoice(str, Enum):
+    DIRECT = "direct"
+    OBSERVATIONAL = "observational"
+
+
+class NarrationStyleSection(str, Enum):
+    LOCATION = "location"
+    CHARACTERS = "characters"
+    OBJECTS = "objects"
+    CONNECTIONS = "connections"
+
+
+class NarrationStylePlan(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    voice: NarrationStyleVoice
+    section_order: tuple[NarrationStyleSection, ...]
 
 
 class PlayerNarrationContext(BaseModel):
@@ -142,23 +162,104 @@ def build_player_narration_context(
     )
 
 
-def render_player_narration(context: PlayerNarrationContext) -> PlayerNarration:
-    sentences = [f"You are at {context.current_location_name}."]
+def default_narration_style_plan(
+    context: PlayerNarrationContext,
+) -> NarrationStylePlan:
+    return NarrationStylePlan(
+        voice=NarrationStyleVoice.DIRECT,
+        section_order=_eligible_sections(context),
+    )
+
+
+def is_valid_narration_style_plan(
+    context: PlayerNarrationContext, plan: NarrationStylePlan
+) -> bool:
+    eligible_sections = _eligible_sections(context)
+    return (
+        len(plan.section_order) == len(eligible_sections)
+        and len(set(plan.section_order)) == len(plan.section_order)
+        and set(plan.section_order) == set(eligible_sections)
+    )
+
+
+def render_player_narration(
+    context: PlayerNarrationContext, plan: NarrationStylePlan | None = None
+) -> PlayerNarration:
+    effective_plan = plan or default_narration_style_plan(context)
+    if not is_valid_narration_style_plan(context, effective_plan):
+        raise ValueError("narration style plan must contain each eligible section once")
+    sentences = [
+        _render_section(context, effective_plan.voice, section)
+        for section in effective_plan.section_order
+    ]
+    return PlayerNarration(text=" ".join(sentences))
+
+
+def _eligible_sections(
+    context: PlayerNarrationContext,
+) -> tuple[NarrationStyleSection, ...]:
+    sections = [NarrationStyleSection.LOCATION]
     if context.co_located_character_names:
-        sentences.append(f"Nearby: {_join_names(context.co_located_character_names)}.")
+        sections.append(NarrationStyleSection.CHARACTERS)
     if context.visible_object_names:
-        sentences.append(
-            f"Visible objects: {_join_names(context.visible_object_names)}."
-        )
+        sections.append(NarrationStyleSection.OBJECTS)
+    sections.append(NarrationStyleSection.CONNECTIONS)
+    return tuple(sections)
+
+
+def _render_section(
+    context: PlayerNarrationContext,
+    voice: NarrationStyleVoice,
+    section: NarrationStyleSection,
+) -> str:
+    if section is NarrationStyleSection.LOCATION:
+        return _location_sentence(context, voice)
+    if section is NarrationStyleSection.CHARACTERS:
+        return _characters_sentence(context, voice)
+    if section is NarrationStyleSection.OBJECTS:
+        return _objects_sentence(context, voice)
+    return _connections_sentence(context, voice)
+
+
+def _location_sentence(
+    context: PlayerNarrationContext, voice: NarrationStyleVoice
+) -> str:
+    if voice is NarrationStyleVoice.DIRECT:
+        return f"You are at {context.current_location_name}."
+    return f"Location: {context.current_location_name}."
+
+
+def _characters_sentence(
+    context: PlayerNarrationContext, voice: NarrationStyleVoice
+) -> str:
+    names = _join_names(context.co_located_character_names)
+    if voice is NarrationStyleVoice.DIRECT:
+        return f"Nearby: {names}."
+    return f"Characters: {names}."
+
+
+def _objects_sentence(
+    context: PlayerNarrationContext, voice: NarrationStyleVoice
+) -> str:
+    names = _join_names(context.visible_object_names)
+    if voice is NarrationStyleVoice.DIRECT:
+        return f"Visible objects: {names}."
+    return f"Objects: {names}."
+
+
+def _connections_sentence(
+    context: PlayerNarrationContext, voice: NarrationStyleVoice
+) -> str:
     if context.outgoing_connections:
         exits = tuple(
             f"{connection.name} ({'available' if connection.is_available else 'unavailable'})"
             for connection in context.outgoing_connections
         )
-        sentences.append(f"Exits: {_join_names(exits)}.")
-    else:
-        sentences.append("There are no visible exits.")
-    return PlayerNarration(text=" ".join(sentences))
+        label = "Exits" if voice is NarrationStyleVoice.DIRECT else "Connections"
+        return f"{label}: {_join_names(exits)}."
+    if voice is NarrationStyleVoice.DIRECT:
+        return "There are no visible exits."
+    return "Connections: none visible."
 
 
 def _player(packages: ValidatedGamePackages) -> PlayerCharacterDefinition:

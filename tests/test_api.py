@@ -14,6 +14,8 @@ from llm_system.application import (
     FunctionalGenerationAttempt,
     FunctionalGenerationDisposition,
     FunctionalGenerationResult,
+    FunctionalModelFailureKind,
+    NarrationStyleOutput,
     OperationalScheduledActivityResult,
     PlayerInterpreterOutput,
 )
@@ -26,7 +28,11 @@ from llm_system.game_packages import (
     validate_game_packages,
 )
 from llm_system.game_packages.validation import ValidatedGamePackages
-from llm_system.narration import NarrationObserverError
+from llm_system.narration import (
+    NarrationObserverError,
+    NarrationStyleSection,
+    NarrationStyleVoice,
+)
 from llm_system.persistence import SQLiteStore
 from llm_system.simulation import (
     NpcScheduledActivity,
@@ -49,12 +55,32 @@ class FakeGateway(FunctionalModelGateway):
     def __init__(self, output: PlayerInterpreterOutput) -> None:
         self._output = output
         self.calls: list[tuple[ModelMessage, ...]] = []
+        self.output_models: list[type[BaseModel]] = []
 
     def generate_functional[ResultT: BaseModel](
         self, messages: tuple[ModelMessage, ...], output_model: type[ResultT]
     ) -> FunctionalGenerationResult[ResultT]:
         self.calls.append(messages)
-        del output_model
+        self.output_models.append(output_model)
+        if output_model is NarrationStyleOutput:
+            prompt_context = json.loads(messages[-1].content)
+            sections = [NarrationStyleSection.LOCATION]
+            if prompt_context["co_located_character_names"]:
+                sections.append(NarrationStyleSection.CHARACTERS)
+            if prompt_context["visible_object_names"]:
+                sections.append(NarrationStyleSection.OBJECTS)
+            sections.append(NarrationStyleSection.CONNECTIONS)
+            style = NarrationStyleOutput(
+                voice=NarrationStyleVoice.DIRECT, section_order=tuple(sections)
+            )
+            return FunctionalGenerationResult[ResultT](
+                disposition=FunctionalGenerationDisposition.ACCEPTED,
+                value=cast(ResultT, style),
+                initial_attempt=FunctionalGenerationAttempt(
+                    content=json.dumps(style.model_dump(mode="json")),
+                    finish_reason="stop",
+                ),
+            )
         return FunctionalGenerationResult[ResultT](
             disposition=FunctionalGenerationDisposition.ACCEPTED,
             value=cast(ResultT, self._output),
@@ -85,6 +111,22 @@ class StaleMakingGateway(FakeGateway):
             )
             unit.commit()
         return result
+
+
+class NarrationFailingGateway(FakeGateway):
+    def generate_functional[ResultT: BaseModel](
+        self, messages: tuple[ModelMessage, ...], output_model: type[ResultT]
+    ) -> FunctionalGenerationResult[ResultT]:
+        if output_model is NarrationStyleOutput:
+            self.calls.append(messages)
+            self.output_models.append(output_model)
+            return FunctionalGenerationResult[ResultT](
+                disposition=FunctionalGenerationDisposition.FAILED,
+                initial_attempt=FunctionalGenerationAttempt(
+                    failure_kind=FunctionalModelFailureKind.SERVICE_ERROR
+                ),
+            )
+        return super().generate_functional(messages, output_model)
 
 
 def _player_turn_identities() -> Iterator[UUID]:
@@ -501,7 +543,7 @@ def test_player_turn_action_completion_returns_final_player_state(
     assert response.json()["result_type"] == "action_completed"
     assert response.json()["resulting_world_revision"] == 2
     assert response.json()["current_perception"]["perceived_at_seconds"] == 61
-    assert len(gateway.calls) == 1
+    assert gateway.output_models.count(PlayerInterpreterOutput) == 1
 
 
 def test_player_turn_keeps_committed_result_when_narration_context_fails(
@@ -551,6 +593,43 @@ def test_player_turn_keeps_committed_result_when_narration_context_fails(
         world = unit.worlds.get()
         assert world is not None
         assert world.revision == 2
+
+
+def test_player_turn_keeps_committed_result_when_style_generation_fails(
+    tmp_path: Path,
+) -> None:
+    store = SQLiteStore.open(tmp_path / "world.sqlite3")
+    identities = _player_turn_identities()
+    gateway = NarrationFailingGateway(
+        PlayerInterpreterOutput(
+            result_type="interpreted",
+            private_thought="I will wait.",
+            proposal=WaitActionProposal(operation="wait", duration_seconds=1),
+            clarification=None,
+        )
+    )
+    client = TestClient(
+        create_app(
+            store=store,
+            package_root=PACKAGE_ROOT,
+            initial_packages=_packages(),
+            identity_factory=lambda: next(identities),
+            gateway=gateway,
+        )
+    )
+    assert client.post("/world").status_code == 200
+
+    response = client.post("/player-turn", json={"player_text": "I wait."})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["result_type"] == "action_completed"
+    assert body["resulting_world_revision"] == 2
+    assert body["narration"] == (
+        "You are at Greybridge Waystation. Nearby: Injured Courier, Bridge Caretaker. "
+        "Visible objects: Reinforcement Materials. Exits: Waystation to Span (available)."
+    )
+    assert gateway.output_models == [PlayerInterpreterOutput, NarrationStyleOutput]
 
 
 def test_player_turn_pending_progress_exposes_only_committed_action_fields(
@@ -675,7 +754,7 @@ def test_player_turn_settles_pending_progress_before_interpreting_later_text(
     assert body["result_type"] == "scheduled_progress_completed"
     assert body["resulting_world_revision"] == 4
     assert body["current_perception"]["perceived_at_seconds"] == 121
-    assert len(gateway.calls) == 1
+    assert gateway.output_models.count(PlayerInterpreterOutput) == 1
     with store.unit_of_work() as unit:
         assert len(unit.player_input_traces.list_for_world(WORLD_ID)) == 1
 
@@ -720,7 +799,7 @@ def test_player_turn_reports_pending_progress_without_interpreting_later_text(
 
     assert response.status_code == 200
     assert response.json() == {"result_type": "scheduled_progress_pending"}
-    assert len(gateway.calls) == 1
+    assert gateway.output_models.count(PlayerInterpreterOutput) == 1
     with store.unit_of_work() as unit:
         assert len(unit.player_input_traces.list_for_world(WORLD_ID)) == 1
 
