@@ -10,6 +10,7 @@ from pydantic import BaseModel, ConfigDict, Field
 from llm_system.application import (
     ActiveWorld,
     ActionCompletedPlayerTurnResult,
+    ActionProgressPendingPlayerTurnResult,
     ClarificationPlayerTurnResult,
     FunctionalGenerationAttempt,
     FunctionalGenerationDisposition,
@@ -18,6 +19,8 @@ from llm_system.application import (
     FunctionalModelGateway,
     ModelMessage,
     StalePlayerTurnResult,
+    ScheduledProgressCompletedPlayerTurnResult,
+    ScheduledProgressPendingPlayerTurnResult,
     ThoughtOnlyPlayerTurnResult,
     coordinate_player_turn,
     create_world,
@@ -85,10 +88,29 @@ class ActionCompletedPlayerTurnResponse(TurnResponse):
     private_thought: NonBlankText | None
 
 
+class ActionProgressPendingPlayerTurnResponse(TurnResponse):
+    result_type: Literal["action_progress_pending"]
+    private_thought: NonBlankText | None
+
+
+class ScheduledProgressCompletedPlayerTurnResponse(_StrictApiModel):
+    result_type: Literal["scheduled_progress_completed"]
+    world_id: UUID
+    resulting_world_revision: NonNegativeRevision
+    current_perception: PerceptionSnapshot
+
+
+class ScheduledProgressPendingPlayerTurnResponse(_StrictApiModel):
+    result_type: Literal["scheduled_progress_pending"]
+
+
 PlayerTurnResponse: TypeAlias = Annotated[
     ThoughtOnlyPlayerTurnResponse
     | ClarificationPlayerTurnResponse
-    | ActionCompletedPlayerTurnResponse,
+    | ActionCompletedPlayerTurnResponse
+    | ActionProgressPendingPlayerTurnResponse
+    | ScheduledProgressCompletedPlayerTurnResponse
+    | ScheduledProgressPendingPlayerTurnResponse,
     Field(discriminator="result_type"),
 ]
 
@@ -243,6 +265,9 @@ def _player_turn_response(
         ThoughtOnlyPlayerTurnResult
         | ClarificationPlayerTurnResult
         | ActionCompletedPlayerTurnResult
+        | ActionProgressPendingPlayerTurnResult
+        | ScheduledProgressCompletedPlayerTurnResult
+        | ScheduledProgressPendingPlayerTurnResult
     ),
 ) -> PlayerTurnResponse:
     if isinstance(result, ThoughtOnlyPlayerTurnResult):
@@ -253,15 +278,38 @@ def _player_turn_response(
         return ClarificationPlayerTurnResponse(
             result_type="clarification", clarification=result.clarification
         )
+    if isinstance(result, ScheduledProgressCompletedPlayerTurnResult):
+        return ScheduledProgressCompletedPlayerTurnResponse(
+            result_type="scheduled_progress_completed",
+            world_id=result.world_id,
+            resulting_world_revision=result.resulting_world_revision,
+            current_perception=result.current_perception,
+        )
+    if isinstance(result, ScheduledProgressPendingPlayerTurnResult):
+        return ScheduledProgressPendingPlayerTurnResponse(
+            result_type="scheduled_progress_pending"
+        )
     trace = result.completed_action.trace
+    if isinstance(result, ActionProgressPendingPlayerTurnResult):
+        return ActionProgressPendingPlayerTurnResponse(
+            result_type="action_progress_pending",
+            world_id=result.completed_action.world_id,
+            resulting_world_revision=result.completed_action.resulting_world_revision,
+            simulation_step_id=trace.simulation_step_id,
+            outcome_status=trace.outcome.status,
+            reason_code=trace.outcome.reason_code,
+            current_perception=trace.current_perception,
+            self_event_feedback=trace.self_event_feedback,
+            private_thought=result.private_thought,
+        )
     return ActionCompletedPlayerTurnResponse(
         result_type="action_completed",
         world_id=result.completed_action.world_id,
-        resulting_world_revision=result.completed_action.resulting_world_revision,
+        resulting_world_revision=result.resulting_world_revision,
         simulation_step_id=trace.simulation_step_id,
         outcome_status=trace.outcome.status,
         reason_code=trace.outcome.reason_code,
-        current_perception=trace.current_perception,
+        current_perception=result.current_perception,
         self_event_feedback=trace.self_event_feedback,
         private_thought=result.private_thought,
     )

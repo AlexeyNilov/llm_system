@@ -18,6 +18,7 @@ from llm_system.application.npc_turn_coordinator import (
 from llm_system.application.scheduled_execution_coordinator import (
     CompletedScheduledActivityResult,
     NoDueScheduledActivityResult,
+    OperationalScheduledActivityResult,
     ScheduledActivityExecutionResult,
     StaleScheduledActivityResult,
     UnsupportedScheduledActivityError,
@@ -39,9 +40,12 @@ from llm_system.application.player_interpreter import (
     interpret_player_input,
 )
 from llm_system.application.player_turn_coordinator import (
+    ActionProgressPendingPlayerTurnResult,
     ActionCompletedPlayerTurnResult,
     ClarificationPlayerTurnResult,
     PlayerTurnResult,
+    ScheduledProgressCompletedPlayerTurnResult,
+    ScheduledProgressPendingPlayerTurnResult,
     StalePlayerTurnResult,
     ThoughtOnlyPlayerTurnResult,
     coordinate_player_turn,
@@ -64,6 +68,7 @@ from llm_system.application.world_lifecycle import (
 __all__ = [
     "ActiveWorld",
     "ActionCompletedPlayerTurnResult",
+    "ActionProgressPendingPlayerTurnResult",
     "ActionLinkedCompletion",
     "ClarificationCompletion",
     "ClarificationPlayerTurnResult",
@@ -81,10 +86,13 @@ __all__ = [
     "NpcDecisionContext",
     "NpcTurnResult",
     "NoDueScheduledActivityResult",
+    "OperationalScheduledActivityResult",
     "PlayerInterpretationResult",
     "PlayerInputStepTrace",
     "PlayerInterpreterOutput",
     "PlayerTurnResult",
+    "ScheduledProgressCompletedPlayerTurnResult",
+    "ScheduledProgressPendingPlayerTurnResult",
     "StalePlayerTurnResult",
     "StaleNpcTurnResult",
     "StaleScheduledActivityResult",

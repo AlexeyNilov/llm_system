@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Implement player-safe pending and settled scheduled progress around free-form player turns.
+Plan the next bounded M5 outcome after player-turn scheduled progress.
 
 ## Verified baseline
 
@@ -33,21 +33,22 @@ Implement player-safe pending and settled scheduled progress around free-form pl
 * TASK-048 is accepted at project version `0.46.0`. `coordinate_caretaker_turn` supports only the authored matching caretaker rule policy, returns a strict completed-or-stale result, and preserves the scheduled queue exactly. Parent verification passes: focused coordinator/policy/action-step tests (31 passed), `make check` (510 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 * TASK-049 is accepted at project version `0.47.0`. Scenario packages strictly declare initial NPC eligibility; create and reset materialize Greybridge's time-zero caretaker queue entry with a UUID derived from the caller-supplied world ID and declaration position. Parent verification passes: focused package/lifecycle/persistence tests (53 passed), `make check` (512 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 * TASK-050 is accepted at project version `0.48.0`. `coordinate_due_caretaker_activity` selects only the first due activity, retains the policy-to-action decision-context identity, rechecks queue and revision, and atomically consumes a caretaker activity with normal action evidence plus one linked scheduled-activity trace. SQLite V4 migrates V1/V2/V3 and reset clears this history. Parent verification passes: `make check` (517 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
+* TASK-051 is accepted at project version `0.49.0`. `coordinate_player_turn` attempts one due caretaker activity after a committed action and before a later input is interpreted. Settled turns return the final player perception and revision; stale or operational scheduled execution returns a player-safe pending result without leaking NPC-private evidence. Parent verification passes: focused player-turn/scheduled/API tests (49 passed), `make check` (525 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 
 ## Blockers and unresolved questions
 
-No blocker. TASK-051 is Ready. Full queue draining, recurrence, environmental activity, System director hooks, narration, and UI presentation remain deferred.
+No blocker. Full queue draining, recurrence, environmental activity, System director hooks, narration, and UI presentation remain deferred.
 
 ## Exact next action
 
-Commit and delegate `doc/tasks/TASK-051-player-turn-scheduled-progress.md`, then independently review it.
+Inspect the M5 backlog and current user-facing path, then prepare the smallest task that makes the new free-form player-turn behavior usable without expanding scheduling semantics.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
 3. `doc/roadmap.md`: M5
-4. `doc/requirements.md`: `SCHEDULE-001` through `SCHEDULE-023`, `NPC-008` through `NPC-012`, and `TIME-005`
-5. `doc/decisions.md`: “Serialize eligible activities deterministically”, “Compose the first coordinator before scheduled execution”, and “Start the actor runtime with one revision-safe caretaker turn”
-6. `simulation/scheduling.py`, `application/npc_turn_coordinator.py`, `actor_action_step.py`, and SQLite world repository
-7. scheduling, NPC-turn, action-step, lifecycle, and persistence tests
+4. `doc/roadmap.md`: M5
+5. `doc/requirements.md`: `API-010` through `API-013` and `STEP-011` through `STEP-017`
+6. `doc/decisions.md`: “Report committed player action when scheduled progress is pending”
+7. `src/llm_system/application/player_turn_coordinator.py`, `src/llm_system/api.py`, and `tests/test_api.py`

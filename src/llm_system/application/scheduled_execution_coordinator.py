@@ -48,10 +48,15 @@ class StaleScheduledActivityResult(_StrictContract):
     result_type: Literal["stale"]
 
 
+class OperationalScheduledActivityResult(_StrictContract):
+    result_type: Literal["operational_failure"]
+
+
 ScheduledActivityExecutionResult: TypeAlias = (
     NoDueScheduledActivityResult
     | CompletedScheduledActivityResult
     | StaleScheduledActivityResult
+    | OperationalScheduledActivityResult
 )
 
 
@@ -89,60 +94,63 @@ def coordinate_due_caretaker_activity(
         observed_revision = stored.revision
         selected_at_seconds = selection.selected_at_seconds
 
-    proposal = decide_greybridge_caretaker(context)
+    try:
+        proposal = decide_greybridge_caretaker(context)
 
-    with store.unit_of_work() as unit:
-        current = unit.worlds.get()
-        if (
-            current is None
-            or current.world_id != observed_world_id
-            or current.revision != observed_revision
-        ):
-            return StaleScheduledActivityResult(result_type="stale")
-        current_world = validate_world_state(packages, current.state)
-        current_selection = select_eligible_activities(
-            current_world, current.scheduled_queue
-        )
-        if (
-            not current_selection.eligible_activities
-            or current_selection.eligible_activities[0] != activity
-        ):
-            return StaleScheduledActivityResult(result_type="stale")
+        with store.unit_of_work() as unit:
+            current = unit.worlds.get()
+            if (
+                current is None
+                or current.world_id != observed_world_id
+                or current.revision != observed_revision
+            ):
+                return StaleScheduledActivityResult(result_type="stale")
+            current_world = validate_world_state(packages, current.state)
+            current_selection = select_eligible_activities(
+                current_world, current.scheduled_queue
+            )
+            if (
+                not current_selection.eligible_activities
+                or current_selection.eligible_activities[0] != activity
+            ):
+                return StaleScheduledActivityResult(result_type="stale")
 
-        submission = ActorActionSubmission(
-            proposal_id=identity_factory(),
-            simulation_step_id=identity_factory(),
-            decision_context_id=context.decision_context_id,
-            source=NpcPolicyActionSource(
-                source_type="npc_policy",
-                npc_id=caretaker.id,
-                policy_id=caretaker.decision_policy.policy_id,
-            ),
-            actor_id=caretaker.id,
-            proposal=proposal,
-        )
-        completed = execute_actor_action_step_in_unit(
-            unit,
-            packages,
-            submission,
-            outcome_id=identity_factory(),
-            event_id=identity_factory(),
-            scheduled_queue=_queue_without(current.scheduled_queue, activity),
-        )
-        unit.scheduled_activity_traces.append(
-            world_id=completed.world_id,
-            resulting_world_revision=completed.resulting_world_revision,
-            trace=ScheduledActivityExecutionTrace(
-                trace_schema_version=1,
-                activity=activity,
-                selected_at_seconds=selected_at_seconds,
-                simulation_step_id=submission.simulation_step_id,
-            ),
-        )
-        unit.commit()
-        return CompletedScheduledActivityResult(
-            result_type="completed", completed_action=completed
-        )
+            submission = ActorActionSubmission(
+                proposal_id=identity_factory(),
+                simulation_step_id=identity_factory(),
+                decision_context_id=context.decision_context_id,
+                source=NpcPolicyActionSource(
+                    source_type="npc_policy",
+                    npc_id=caretaker.id,
+                    policy_id=caretaker.decision_policy.policy_id,
+                ),
+                actor_id=caretaker.id,
+                proposal=proposal,
+            )
+            completed = execute_actor_action_step_in_unit(
+                unit,
+                packages,
+                submission,
+                outcome_id=identity_factory(),
+                event_id=identity_factory(),
+                scheduled_queue=_queue_without(current.scheduled_queue, activity),
+            )
+            unit.scheduled_activity_traces.append(
+                world_id=completed.world_id,
+                resulting_world_revision=completed.resulting_world_revision,
+                trace=ScheduledActivityExecutionTrace(
+                    trace_schema_version=1,
+                    activity=activity,
+                    selected_at_seconds=selected_at_seconds,
+                    simulation_step_id=submission.simulation_step_id,
+                ),
+            )
+            unit.commit()
+            return CompletedScheduledActivityResult(
+                result_type="completed", completed_action=completed
+            )
+    except Exception:
+        return OperationalScheduledActivityResult(result_type="operational_failure")
 
 
 def _queue_without(

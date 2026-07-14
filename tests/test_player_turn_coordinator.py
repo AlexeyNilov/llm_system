@@ -8,11 +8,14 @@ from pydantic import BaseModel
 import pytest
 
 from llm_system.application import (
+    ActionCompletedPlayerTurnResult,
+    CompletedScheduledActivityResult,
     FunctionalGenerationAttempt,
     FunctionalGenerationDisposition,
     FunctionalGenerationResult,
     FunctionalModelFailureKind,
     PlayerInterpreterOutput,
+    StaleScheduledActivityResult,
     coordinate_player_turn,
     create_world,
 )
@@ -26,7 +29,12 @@ from llm_system.game_packages import (
 from llm_system.game_packages.validation import ValidatedGamePackages
 from llm_system.persistence import DuplicatePlayerInputIdentityError, SQLiteStore
 from llm_system.player_input_traces import ActionLinkedCompletion
-from llm_system.simulation import MoveActionProposal, WaitActionProposal
+from llm_system.simulation import (
+    MoveActionProposal,
+    NpcScheduledActivity,
+    ScheduledActivityQueue,
+    WaitActionProposal,
+)
 
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
@@ -174,11 +182,155 @@ def test_action_turn_commits_action_and_linked_input_trace_together(
         assert world is not None
         action_traces = unit.traces.list_for_world(WORLD_ID)
         input_traces = unit.player_input_traces.list_for_world(WORLD_ID)
-    assert world.revision == 1
-    assert len(action_traces) == len(input_traces) == 1
+    assert world.revision == 2
+    assert len(action_traces) == 2
+    assert len(input_traces) == 1
     completion = input_traces[0].trace.completion
     assert isinstance(completion, ActionLinkedCompletion)
-    assert completion.simulation_step_id == action_traces[0].trace.simulation_step_id
+    assert completion.simulation_step_id == next(
+        trace.trace.simulation_step_id
+        for trace in action_traces
+        if trace.trace.submission.actor_id == "player"
+    )
+
+
+def test_action_turn_settles_one_due_activity_before_returning_final_perception(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    packages = _packages()
+    store = SQLiteStore.open(tmp_path / "world.sqlite3")
+    create_world(store, packages, world_id=WORLD_ID)
+    activity = NpcScheduledActivity(
+        activity_type="npc",
+        activity_id=UUID("00000000-0000-4000-8000-000000000099"),
+        eligible_at_seconds=0,
+        insertion_sequence=0,
+        npc_id="bridge-caretaker",
+    )
+    with store.unit_of_work() as unit:
+        world = unit.worlds.get()
+        assert world is not None
+        unit.worlds.replace(
+            world_id=world.world_id,
+            expected_revision=world.revision,
+            state=world.state,
+            scheduled_queue=ScheduledActivityQueue(activities=(activity,)),
+        )
+        unit.commit()
+
+    monkeypatch.setattr(
+        "llm_system.application.scheduled_execution_coordinator.decide_greybridge_caretaker",
+        lambda context: WaitActionProposal(operation="wait", duration_seconds=60),
+    )
+    result = coordinate_player_turn(
+        store,
+        packages,
+        FakeGateway(
+            PlayerInterpreterOutput(
+                result_type="interpreted",
+                private_thought=None,
+                proposal=WaitActionProposal(operation="wait", duration_seconds=1),
+                clarification=None,
+            )
+        ),
+        player_text="I wait.",
+        player_id="player",
+        identity_factory=_identities().__next__,
+    )
+
+    assert result.result_type == "action_completed"
+    assert result.resulting_world_revision == 3
+    assert result.current_perception.perceived_at_seconds == 61
+    with store.unit_of_work() as unit:
+        assert len(unit.player_input_traces.list_for_world(WORLD_ID)) == 1
+        assert len(unit.scheduled_activity_traces.list_for_world(WORLD_ID)) == 1
+
+
+def test_action_turn_returns_pending_after_stale_scheduled_progress(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    packages = _packages()
+    store = SQLiteStore.open(tmp_path / "world.sqlite3")
+    create_world(store, packages, world_id=WORLD_ID)
+    monkeypatch.setattr(
+        "llm_system.application.player_turn_coordinator.coordinate_due_caretaker_activity",
+        lambda *args, **kwargs: StaleScheduledActivityResult(result_type="stale"),
+    )
+
+    result = coordinate_player_turn(
+        store,
+        packages,
+        FakeGateway(
+            PlayerInterpreterOutput(
+                result_type="interpreted",
+                private_thought="I wait.",
+                proposal=WaitActionProposal(operation="wait", duration_seconds=1),
+                clarification=None,
+            )
+        ),
+        player_text="I wait.",
+        player_id="player",
+        identity_factory=_identities().__next__,
+    )
+
+    assert result.result_type == "action_progress_pending"
+    assert result.completed_action.resulting_world_revision == 1
+    with store.unit_of_work() as unit:
+        assert len(unit.player_input_traces.list_for_world(WORLD_ID)) == 1
+
+
+def test_pending_activity_completes_before_interpreting_later_player_text(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    packages = _packages()
+    store = SQLiteStore.open(tmp_path / "world.sqlite3")
+    create_world(store, packages, world_id=WORLD_ID)
+    gateway = FakeGateway(
+        PlayerInterpreterOutput(
+            result_type="interpreted",
+            private_thought="unreached",
+            proposal=None,
+            clarification=None,
+        )
+    )
+    prior_result = coordinate_player_turn(
+        store,
+        packages,
+        FakeGateway(
+            PlayerInterpreterOutput(
+                result_type="interpreted",
+                private_thought=None,
+                proposal=WaitActionProposal(operation="wait", duration_seconds=1),
+                clarification=None,
+            )
+        ),
+        player_text="I wait.",
+        player_id="player",
+        identity_factory=_identities().__next__,
+    )
+    assert isinstance(prior_result, ActionCompletedPlayerTurnResult)
+    completed = CompletedScheduledActivityResult(
+        result_type="completed",
+        completed_action=prior_result.completed_action,
+    )
+    monkeypatch.setattr(
+        "llm_system.application.player_turn_coordinator.coordinate_due_caretaker_activity",
+        lambda *args, **kwargs: completed,
+    )
+
+    result = coordinate_player_turn(
+        store,
+        packages,
+        gateway,
+        player_text="discard this",
+        player_id="player",
+        identity_factory=lambda: (_ for _ in ()).throw(AssertionError("no identity")),
+    )
+
+    assert result.result_type == "scheduled_progress_completed"
+    assert gateway.calls == []
+    with store.unit_of_work() as unit:
+        assert len(unit.player_input_traces.list_for_world(WORLD_ID)) == 1
 
 
 def test_stale_turn_assigns_no_identity_or_player_input_trace(tmp_path: Path) -> None:
@@ -277,7 +429,7 @@ def test_accepted_clarification_is_durable_at_the_unchanged_revision(
     assert traces[0].trace.completion.completion_type == "clarification"
 
 
-def test_rejected_action_remains_an_atomic_completed_action_without_events(
+def test_rejected_action_remains_atomic_before_later_scheduled_progress(
     tmp_path: Path,
 ) -> None:
     packages = _packages()
@@ -310,9 +462,10 @@ def test_rejected_action_remains_an_atomic_completed_action_without_events(
         action_traces = unit.traces.list_for_world(WORLD_ID)
         input_traces = unit.player_input_traces.list_for_world(WORLD_ID)
         events = unit.events.list_for_world(WORLD_ID)
-    assert world.revision == 1
-    assert len(action_traces) == len(input_traces) == 1
-    assert events == ()
+    assert world.revision == 2
+    assert len(action_traces) == 2
+    assert len(input_traces) == 1
+    assert len(events) == 1
 
 
 def test_action_trace_conflict_rolls_back_actor_completion_and_world_replacement(

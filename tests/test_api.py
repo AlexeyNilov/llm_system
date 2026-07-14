@@ -14,6 +14,7 @@ from llm_system.application import (
     FunctionalGenerationAttempt,
     FunctionalGenerationDisposition,
     FunctionalGenerationResult,
+    OperationalScheduledActivityResult,
     PlayerInterpreterOutput,
 )
 from llm_system.api import create_app
@@ -26,7 +27,11 @@ from llm_system.game_packages import (
 )
 from llm_system.game_packages.validation import ValidatedGamePackages
 from llm_system.persistence import SQLiteStore
-from llm_system.simulation import WaitActionProposal
+from llm_system.simulation import (
+    NpcScheduledActivity,
+    ScheduledActivityQueue,
+    WaitActionProposal,
+)
 
 REPOSITORY_ROOT = Path(__file__).resolve().parents[1]
 PACKAGE_ROOT = REPOSITORY_ROOT / "game_packages"
@@ -42,11 +47,13 @@ REPLACEMENT_WORLD_ID = UUID("00000000-0000-4000-8000-000000000007")
 class FakeGateway(FunctionalModelGateway):
     def __init__(self, output: PlayerInterpreterOutput) -> None:
         self._output = output
+        self.calls: list[tuple[ModelMessage, ...]] = []
 
     def generate_functional[ResultT: BaseModel](
         self, messages: tuple[ModelMessage, ...], output_model: type[ResultT]
     ) -> FunctionalGenerationResult[ResultT]:
-        del messages, output_model
+        self.calls.append(messages)
+        del output_model
         return FunctionalGenerationResult[ResultT](
             disposition=FunctionalGenerationDisposition.ACCEPTED,
             value=cast(ResultT, self._output),
@@ -460,6 +467,209 @@ def test_player_turn_maps_each_committed_coordinator_result(
             "private_thought",
         }
         assert response.json()["outcome_status"] == "succeeded"
+
+
+def test_player_turn_action_completion_returns_final_player_state(
+    tmp_path: Path,
+) -> None:
+    store = SQLiteStore.open(tmp_path / "world.sqlite3")
+    identities = _player_turn_identities()
+    gateway = FakeGateway(
+        PlayerInterpreterOutput(
+            result_type="interpreted",
+            private_thought="I will wait.",
+            proposal=WaitActionProposal(operation="wait", duration_seconds=1),
+            clarification=None,
+        )
+    )
+    client = TestClient(
+        create_app(
+            store=store,
+            package_root=PACKAGE_ROOT,
+            initial_packages=_packages(),
+            identity_factory=lambda: next(identities),
+            gateway=gateway,
+        )
+    )
+    assert client.post("/world").status_code == 200
+
+    response = client.post("/player-turn", json={"player_text": "I wait."})
+
+    assert response.status_code == 200
+    assert response.json()["result_type"] == "action_completed"
+    assert response.json()["resulting_world_revision"] == 2
+    assert response.json()["current_perception"]["perceived_at_seconds"] == 61
+    assert len(gateway.calls) == 1
+
+
+def test_player_turn_pending_progress_exposes_only_committed_action_fields(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store = SQLiteStore.open(tmp_path / "world.sqlite3")
+    identities = _player_turn_identities()
+    monkeypatch.setattr(
+        "llm_system.application.player_turn_coordinator.coordinate_due_caretaker_activity",
+        lambda *args, **kwargs: OperationalScheduledActivityResult(
+            result_type="operational_failure"
+        ),
+    )
+    client = TestClient(
+        create_app(
+            store=store,
+            package_root=PACKAGE_ROOT,
+            initial_packages=_packages(),
+            identity_factory=lambda: next(identities),
+            gateway=FakeGateway(
+                PlayerInterpreterOutput(
+                    result_type="interpreted",
+                    private_thought="I will wait.",
+                    proposal=WaitActionProposal(operation="wait", duration_seconds=1),
+                    clarification=None,
+                )
+            ),
+        )
+    )
+    assert client.post("/world").status_code == 200
+
+    response = client.post("/player-turn", json={"player_text": "I wait."})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert set(body) == {
+        "result_type",
+        "world_id",
+        "resulting_world_revision",
+        "simulation_step_id",
+        "outcome_status",
+        "reason_code",
+        "current_perception",
+        "self_event_feedback",
+        "private_thought",
+    }
+    assert body["result_type"] == "action_progress_pending"
+    assert body["resulting_world_revision"] == 1
+    for scheduler_internal in (
+        "activity_id",
+        "npc_id",
+        "scheduled_queue",
+        "selected_at_seconds",
+        "scheduled_activity",
+    ):
+        assert scheduler_internal not in body
+
+
+def test_player_turn_settles_pending_progress_before_interpreting_later_text(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store = SQLiteStore.open(tmp_path / "world.sqlite3")
+    identities = _player_turn_identities()
+    gateway = FakeGateway(
+        PlayerInterpreterOutput(
+            result_type="interpreted",
+            private_thought="I will wait.",
+            proposal=WaitActionProposal(operation="wait", duration_seconds=1),
+            clarification=None,
+        )
+    )
+    client = TestClient(
+        create_app(
+            store=store,
+            package_root=PACKAGE_ROOT,
+            initial_packages=_packages(),
+            identity_factory=lambda: next(identities),
+            gateway=gateway,
+        )
+    )
+    assert client.post("/world").status_code == 200
+    assert (
+        client.post("/player-turn", json={"player_text": "I wait."}).json()[
+            "result_type"
+        ]
+        == "action_completed"
+    )
+    activity = NpcScheduledActivity(
+        activity_type="npc",
+        activity_id=UUID("00000000-0000-4000-8000-000000000099"),
+        eligible_at_seconds=0,
+        insertion_sequence=0,
+        npc_id="bridge-caretaker",
+    )
+    with store.unit_of_work() as unit:
+        world = unit.worlds.get()
+        assert world is not None
+        unit.worlds.replace(
+            world_id=world.world_id,
+            expected_revision=world.revision,
+            state=world.state,
+            scheduled_queue=ScheduledActivityQueue(activities=(activity,)),
+        )
+        unit.commit()
+    monkeypatch.setattr(
+        "llm_system.application.scheduled_execution_coordinator.decide_greybridge_caretaker",
+        lambda context: WaitActionProposal(operation="wait", duration_seconds=60),
+    )
+
+    response = client.post("/player-turn", json={"player_text": "discard this"})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert set(body) == {
+        "result_type",
+        "world_id",
+        "resulting_world_revision",
+        "current_perception",
+    }
+    assert body["result_type"] == "scheduled_progress_completed"
+    assert body["resulting_world_revision"] == 4
+    assert body["current_perception"]["perceived_at_seconds"] == 121
+    assert len(gateway.calls) == 1
+    with store.unit_of_work() as unit:
+        assert len(unit.player_input_traces.list_for_world(WORLD_ID)) == 1
+
+
+def test_player_turn_reports_pending_progress_without_interpreting_later_text(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store = SQLiteStore.open(tmp_path / "world.sqlite3")
+    identities = _player_turn_identities()
+    gateway = FakeGateway(
+        PlayerInterpreterOutput(
+            result_type="interpreted",
+            private_thought="I will wait.",
+            proposal=WaitActionProposal(operation="wait", duration_seconds=1),
+            clarification=None,
+        )
+    )
+    monkeypatch.setattr(
+        "llm_system.application.player_turn_coordinator.coordinate_due_caretaker_activity",
+        lambda *args, **kwargs: OperationalScheduledActivityResult(
+            result_type="operational_failure"
+        ),
+    )
+    client = TestClient(
+        create_app(
+            store=store,
+            package_root=PACKAGE_ROOT,
+            initial_packages=_packages(),
+            identity_factory=lambda: next(identities),
+            gateway=gateway,
+        )
+    )
+    assert client.post("/world").status_code == 200
+    assert (
+        client.post("/player-turn", json={"player_text": "I wait."}).json()[
+            "result_type"
+        ]
+        == "action_progress_pending"
+    )
+
+    response = client.post("/player-turn", json={"player_text": "discard this"})
+
+    assert response.status_code == 200
+    assert response.json() == {"result_type": "scheduled_progress_pending"}
+    assert len(gateway.calls) == 1
+    with store.unit_of_work() as unit:
+        assert len(unit.player_input_traces.list_for_world(WORLD_ID)) == 1
 
 
 def test_player_turn_stale_is_bounded_and_does_not_claim_completion(

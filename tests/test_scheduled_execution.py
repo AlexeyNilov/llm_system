@@ -246,3 +246,32 @@ def test_stale_due_selection_assigns_no_submission_identities_or_writes(
         assert world.scheduled_queue.activities == (_caretaker_activity(),)
         assert unit.traces.list_for_world(WORLD_ID) == ()
         assert unit.scheduled_activity_traces.list_for_world(WORLD_ID) == ()
+
+
+def test_operational_policy_failure_preserves_the_due_activity(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store = _store(
+        tmp_path, ScheduledActivityQueue(activities=(_caretaker_activity(),))
+    )
+
+    def fail_policy(context: object) -> object:
+        raise RuntimeError("unavailable")
+
+    monkeypatch.setattr(
+        "llm_system.application.scheduled_execution_coordinator.decide_greybridge_caretaker",
+        fail_policy,
+    )
+
+    result = coordinate_due_caretaker_activity(
+        store, _packages(), identity_factory=_identities().__next__
+    )
+
+    assert result.result_type == "operational_failure"
+    with store.unit_of_work() as unit:
+        world = unit.worlds.get()
+        assert world is not None
+        assert world.revision == 1
+        assert world.scheduled_queue.activities == (_caretaker_activity(),)
+        assert unit.traces.list_for_world(WORLD_ID) == ()
+        assert unit.scheduled_activity_traces.list_for_world(WORLD_ID) == ()

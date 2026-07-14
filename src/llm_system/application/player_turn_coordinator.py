@@ -8,6 +8,13 @@ from llm_system.application.actor_action_step import (
     execute_actor_action_step_in_unit,
 )
 from llm_system.application.player_interpreter import interpret_player_input
+from llm_system.application.scheduled_execution_coordinator import (
+    CompletedScheduledActivityResult,
+    NoDueScheduledActivityResult,
+    OperationalScheduledActivityResult,
+    StaleScheduledActivityResult,
+    coordinate_due_caretaker_activity,
+)
 from llm_system.functional_generation import FunctionalModelGateway
 from llm_system.game_packages.validation import ValidatedGamePackages
 from llm_system.persistence.errors import MissingWorldError
@@ -25,6 +32,7 @@ from llm_system.simulation.actions import (
     PlayerInterpreterActionSource,
 )
 from llm_system.simulation.perception_engine import project_current_perception
+from llm_system.simulation.perception import PerceptionSnapshot
 from llm_system.simulation.validation import validate_world_state
 
 
@@ -41,7 +49,26 @@ class ClarificationPlayerTurnResult(_StrictContract):
 class ActionCompletedPlayerTurnResult(_StrictContract):
     result_type: Literal["action_completed"]
     completed_action: CompletedActorActionStep
+    resulting_world_revision: int
+    current_perception: PerceptionSnapshot
     private_thought: str | None
+
+
+class ActionProgressPendingPlayerTurnResult(_StrictContract):
+    result_type: Literal["action_progress_pending"]
+    completed_action: CompletedActorActionStep
+    private_thought: str | None
+
+
+class ScheduledProgressCompletedPlayerTurnResult(_StrictContract):
+    result_type: Literal["scheduled_progress_completed"]
+    world_id: UUID
+    resulting_world_revision: int
+    current_perception: PerceptionSnapshot
+
+
+class ScheduledProgressPendingPlayerTurnResult(_StrictContract):
+    result_type: Literal["scheduled_progress_pending"]
 
 
 class StalePlayerTurnResult(_StrictContract):
@@ -52,6 +79,9 @@ PlayerTurnResult: TypeAlias = (
     ThoughtOnlyPlayerTurnResult
     | ClarificationPlayerTurnResult
     | ActionCompletedPlayerTurnResult
+    | ActionProgressPendingPlayerTurnResult
+    | ScheduledProgressCompletedPlayerTurnResult
+    | ScheduledProgressPendingPlayerTurnResult
     | StalePlayerTurnResult
 )
 
@@ -65,6 +95,21 @@ def coordinate_player_turn(
     player_id: str,
     identity_factory: Callable[[], UUID],
 ) -> PlayerTurnResult:
+    if _has_pending_player_scheduled_progress(store):
+        scheduled_result = coordinate_due_caretaker_activity(
+            store, packages, identity_factory=identity_factory
+        )
+        if isinstance(scheduled_result, CompletedScheduledActivityResult):
+            return _scheduled_progress_completed_result(store, packages, player_id)
+        if isinstance(
+            scheduled_result,
+            (StaleScheduledActivityResult, OperationalScheduledActivityResult),
+        ):
+            return ScheduledProgressPendingPlayerTurnResult(
+                result_type="scheduled_progress_pending"
+            )
+        assert isinstance(scheduled_result, NoDueScheduledActivityResult)
+
     with store.unit_of_work() as unit:
         stored = unit.worlds.get()
         if stored is None:
@@ -153,10 +198,59 @@ def coordinate_player_turn(
             ),
         )
         unit.commit()
+    scheduled_result = coordinate_due_caretaker_activity(
+        store, packages, identity_factory=identity_factory
+    )
+    if isinstance(
+        scheduled_result,
+        (NoDueScheduledActivityResult, CompletedScheduledActivityResult),
+    ):
+        final = _scheduled_progress_completed_result(store, packages, player_id)
         return ActionCompletedPlayerTurnResult(
             result_type="action_completed",
             completed_action=completed,
+            resulting_world_revision=final.resulting_world_revision,
+            current_perception=final.current_perception,
             private_thought=output.private_thought,
+        )
+    assert isinstance(
+        scheduled_result,
+        (StaleScheduledActivityResult, OperationalScheduledActivityResult),
+    )
+    return ActionProgressPendingPlayerTurnResult(
+        result_type="action_progress_pending",
+        completed_action=completed,
+        private_thought=output.private_thought,
+    )
+
+
+def _scheduled_progress_completed_result(
+    store: SQLiteStore,
+    packages: ValidatedGamePackages,
+    player_id: str,
+) -> ScheduledProgressCompletedPlayerTurnResult:
+    with store.unit_of_work() as unit:
+        stored = unit.worlds.get()
+        if stored is None:
+            raise MissingWorldError("the singleton world does not exist")
+        _require_compatible_packages(stored, packages)
+        world = validate_world_state(packages, stored.state)
+        return ScheduledProgressCompletedPlayerTurnResult(
+            result_type="scheduled_progress_completed",
+            world_id=stored.world_id,
+            resulting_world_revision=stored.revision,
+            current_perception=project_current_perception(world, player_id),
+        )
+
+
+def _has_pending_player_scheduled_progress(store: SQLiteStore) -> bool:
+    with store.unit_of_work() as unit:
+        stored = unit.worlds.get()
+        if stored is None:
+            raise MissingWorldError("the singleton world does not exist")
+        return any(
+            isinstance(record.trace.completion, ActionLinkedCompletion)
+            for record in unit.player_input_traces.list_for_world(stored.world_id)
         )
 
 
