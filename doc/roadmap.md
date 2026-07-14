@@ -82,7 +82,7 @@ M4 is complete. The singleton world survives restart, advances atomically throug
 | TASK-053: memory-free LLM courier policy | Done; bounded courier context now produces one strict executable proposal or deterministic Wait fallback with retained generation evidence, without execution or scheduling at version `0.51.0`. |
 | TASK-054: courier scheduled execution and evidence | Done; one-due NPC scheduling now executes caretaker or courier through the shared arbiter, records courier functional-generation evidence atomically in a linked V2 trace, and migrates SQLite to V5 at version `0.52.0`. |
 | TASK-055: deterministic player narrator | Done; player-turn responses now carry deterministic prose from a restricted snapshot-derived context, and the Streamlit chat renders it at version `0.53.0`. |
-| LLM narrator styling | Planned; deterministic narrator contract and local model gateway exist, but a fact-preserving structured style plan remains to be designed. |
+| TASK-056: typed LLM narrator style planning | Ready; local model selects only a validated enum-based style plan while deterministic templates retain ownership of every factual sentence. |
 
 ## M6: System direction and progression
 

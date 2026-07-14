@@ -238,7 +238,13 @@ This helps ensure requirements are:
 
 **NARR-005:** The Streamlit player page shall render returned narration as the assistant's world description and shall not reconstruct narration from raw IDs or make a separate direct simulation request. Raw perception inspection remains outside the player experience.
 
-**NARR-006:** LLM-assisted narration is deferred until an accepted fact-preserving structured style contract can prevent generated prose from adding factual claims. A prompt-only prose call is not sufficient enforcement for `SPACE-006`.
+**NARR-006:** LLM-assisted narration shall use an accepted fact-preserving structured style contract. A prompt-only prose call is not sufficient enforcement for `SPACE-006`.
+
+**NARR-007:** The LLM narrator may return only a strict `NarrationStylePlan`: one enumerated fact-neutral template family and an ordering of enumerated narration sections. It shall receive only `PlayerNarrationContext`, shall not return prose, names, identifiers, claims, or canonical operations, and shall not receive world state, events, player text, trusted metadata, or hidden scheduling state.
+
+**NARR-008:** The deterministic narrator shall validate an LLM style plan against its supplied context before rendering. It shall render the location and connection sections and every nonempty character or object section exactly once, using only fixed templates and the context's values. Invalid, incomplete, duplicate, unavailable, or failed style selection shall use the deterministic default plan; the model shall not omit, add, or alter factual content.
+
+**NARR-009:** LLM style selection shall occur only after a player-turn result with matching perception is committed. It is response-scoped presentation: it shall not mutate or persist simulation state, canonical events, action traces, input traces, or presentation history, and its failure shall preserve the existing safe narration fallback.
 
 ### Spatial world model
 

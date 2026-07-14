@@ -2,8 +2,8 @@
 
 ## Current objective
 
-Plan a fact-preserving structured style contract for the LLM narrator without
-allowing prose to add world facts.
+Deliver typed LLM narrator style planning without allowing prose to add world
+facts.
 
 ## Verified baseline
 
@@ -42,12 +42,12 @@ allowing prose to add world facts.
 
 ## Blockers and unresolved questions
 
-No blocker. Full queue draining, recurrence, environmental activity, System director hooks, LLM narration styling, and generic policy dispatch remain deferred.
+No blocker. Full queue draining, recurrence, environmental activity, System director hooks, durable presentation evidence, and generic policy dispatch remain deferred.
 
 ## Exact next action
 
-Inspect the deterministic narration contract and local gateway capabilities,
-then prepare the smallest fact-preserving LLM style-planning task.
+Commit and delegate Ready TASK-056 to the implementer, then independently
+review its fact-preserving boundary and verification evidence.
 
 ## Files to re-read before continuing
 

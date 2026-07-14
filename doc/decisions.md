@@ -1663,3 +1663,37 @@ adequate implementation of the no-new-facts boundary.
 truth, perception, System notifications, and presentation remain visibly
 separate. The later local-model narrator has a concrete rendering contract to
 style rather than a vague license to invent world content.
+
+### 2026-07-14: Restrict LLM narration to typed style planning
+
+**Status:** Accepted
+
+**Context:** The deterministic narrator now safely derives a player description
+from a restricted `PlayerNarrationContext`, but the presentation pipeline is
+intended to exercise local LLM integration. A model-generated prose response
+would still be an unbounded factual channel even when its prompt contains only
+perceived facts. Conversely, adding a durable presentation trace before the
+inspection milestone would expand persistence without a current consumer.
+
+**Decision:** The local model may select only a strict
+`NarrationStylePlan`: an enumerated fact-neutral template family and an order
+of enumerated narration sections. It receives only the restricted narration
+context and returns neither prose nor factual values. The deterministic
+narrator validates that the plan contains every context-eligible section
+exactly once, then renders all factual text with fixed templates and the
+context's existing values. Invalid schema output, semantic plan failure, or
+unavailable model uses a context-derived default plan.
+
+Style selection happens after the corresponding player-turn result commits and
+is response-scoped only. It does not affect simulation state, events, action or
+input traces, or persistence. The existing functional gateway supplies strict
+schema validation, one repair attempt, and disabled thinking; its evidence is
+not promoted into a trace because this non-authoritative presentation choice has
+no current inspection consumer. A later presentation-trace task must make that
+retention decision explicitly.
+
+**Consequences:** The project gains an end-to-end local LLM presentation seam
+without treating a prompt as factual enforcement or adding a stateful narrator.
+The deterministic default remains reproducible and safe when the model is
+unavailable or selects an unsuitable plan. Richer prose remains deliberately
+out of scope until it has a comparably enforceable fact representation.
