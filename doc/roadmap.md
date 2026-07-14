@@ -94,7 +94,7 @@ secondary developer tooling while preserving its explicit confirmation step.
 This is a UI hierarchy refinement and does not change the player-turn contract,
 product vision, or M6 scope.
 
-| TASK-057: demote development reset control | Ready; render the existing confirmed reset only in collapsed secondary developer tooling while keeping chat primary. |
+| TASK-057: demote development reset control | Done; the unchanged confirmation-gated reset now appears only in collapsed `Developer tools`, keeping free-form chat primary at version `0.55.0`. |
 
 ## M6: System direction and progression
 

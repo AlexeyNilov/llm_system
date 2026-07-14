@@ -238,7 +238,7 @@ def test_failed_page_turn_keeps_history_and_shows_the_failure(
     assert [error.value for error in app.error] == [visible_error]
 
 
-def test_missing_world_create_and_confirmation_gated_reset_clear_history() -> None:
+def test_reset_is_collapsed_developer_tool_and_confirmation_gated() -> None:
     api = FakePlayerApi(world_exists=False)
     app = AppTest.from_function(_test_page, args=(api,)).run()
     app.session_state[HISTORY_KEY] = [
@@ -252,6 +252,9 @@ def test_missing_world_create_and_confirmation_gated_reset_clear_history() -> No
     app.session_state[HISTORY_KEY] = [
         _history_entry("Earlier.", _player_turn_results()[0])
     ]
+    assert len(app.chat_input) == 1
+    assert [expander.label for expander in app.expander] == ["Developer tools"]
+    assert app.expander[0].proto.expanded is False
     app.checkbox[0].check().run()
     next(button for button in app.button if button.label == "Reset world").click().run()
     assert api.reset_calls == 1

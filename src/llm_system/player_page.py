@@ -172,20 +172,19 @@ def _render_response(response: PlayerTurnResponse) -> None:
 
 
 def _render_development_reset(api: PlayerApi) -> None:
-    st.divider()
-    st.subheader("Development reset")
-    confirmed = st.checkbox("Confirm destructive world reset", value=False)
-    if st.button("Reset world", disabled=not confirmed):
-        try:
-            with st.spinner("Resetting world..."):
-                api.reset_world()
-        except ApplicationApiError as error:
-            _show_api_error(error)
-        except SafeClientError as error:
-            _show_client_error(error)
-        else:
-            _clear_history()
-            st.rerun()
+    with st.expander("Developer tools"):
+        confirmed = st.checkbox("Confirm destructive world reset", value=False)
+        if st.button("Reset world", disabled=not confirmed):
+            try:
+                with st.spinner("Resetting world..."):
+                    api.reset_world()
+            except ApplicationApiError as error:
+                _show_api_error(error)
+            except SafeClientError as error:
+                _show_client_error(error)
+            else:
+                _clear_history()
+                st.rerun()
 
 
 def _history() -> tuple[PlayerTurnHistoryEntry, ...]:
