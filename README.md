@@ -23,18 +23,24 @@ The deterministic Python kernel is implemented and reviewed. It can:
 * create the singleton world from validated package-authored initial state,
   resume it from exact recorded package versions, and reset its complete
   development timeline atomically;
-* expose lifecycle operations and typed structured player turns through a
-  minimal FastAPI boundary with server-owned identities and provenance;
-* exercise that boundary through a deterministic Streamlit player page with
-  typed action controls and session-only committed-result history;
+* expose lifecycle operations and free-form player turns through a minimal
+  FastAPI boundary with server-owned identities and provenance;
+* interpret player text and make the injured courier's bounded action proposal
+  through a strict local functional-model gateway, with safe typed fallbacks;
+* execute one due caretaker or courier activity through the same atomic
+  coordinator and retain courier functional-generation evidence;
+* narrate returned player perception through deterministic prose, with the
+  local model restricted to an enum-based style plan; and
+* exercise the boundary through a Streamlit free-form chat page with
+  session-only committed-result history;
 * migrate SQLite V1 worlds directly to V2 append-only completed-step trace
   history;
 * partition scheduled activities deterministically; and
 * validate caller-injected recorded integer draws.
 
-Help resolution, scheduled-activity execution, player-text interpretation, NPC
-execution, the System director, narration, and the complete Greybridge scenario
-remain later work. See the [roadmap](doc/roadmap.md) for current delivery order.
+Help resolution, recurring and environmental activities, the System director,
+progression, and the complete Greybridge scenario remain later work. See the
+[roadmap](doc/roadmap.md) for current delivery order.
 
 ## Development setup
 
@@ -79,6 +85,32 @@ The target stores the development world in `.run/world.sqlite3` and stops the
 FastAPI child process when Streamlit exits. To use an API at another address,
 set `LLM_SYSTEM_API_URL` before running the target; in that case, stop the
 separately launched API yourself.
+
+## Play the M5 slice
+
+The player page needs a configured local OpenAI-compatible model: free-form
+player interpretation is intentionally unavailable without it. Configure all
+four values, then start the page:
+
+```bash
+export LLM_SYSTEM_MODEL_BASE_URL=http://127.0.0.1:1234
+export LLM_SYSTEM_MODEL=your-local-model
+export LLM_SYSTEM_MODEL_TIMEOUT_SECONDS=30
+export LLM_SYSTEM_MODEL_MAX_TOKENS=512
+make player-page
+```
+
+Open the displayed Streamlit URL, select **Create world**, then try short,
+concrete inputs such as `I observe the surroundings.`, `I wait.`, `I take the
+reinforcement materials.`, or `I move toward the span.` The chat reports when a
+committed player action leaves scheduled NPC progress pending; submit the next
+input to settle that progress before attempting another player action. The
+**Development reset** control deletes the local `.run/world.sqlite3` timeline
+and creates a fresh world.
+
+This is an M5 experimentation slice, not the completed Greybridge scenario:
+the System director, flood/environmental activity, checks, progression, and
+most scenario branches are deliberately not implemented yet.
 
 ## Architecture at a glance
 
