@@ -896,6 +896,14 @@ This helps ensure requirements are:
 
 **POLICY-006:** The system shall allow individual NPC configuration to override behavioral defaults inherited from an archetype.
 
+**POLICY-007:** The initial bounded NPC decision context shall contain an application-assigned decision-context identity, the NPC's authored identity summary, goals and current plan, and one perception snapshot for that NPC; it shall not contain canonical world state, another actor's private information, memories, beliefs, or trusted action-submission metadata.
+
+**POLICY-008:** An NPC decision context shall be strict and immutable, shall require at least one goal, and shall require its perception snapshot's observer identity to equal its NPC identity.
+
+**POLICY-009:** The Greybridge caretaker rule policy shall deterministically propose only from its bounded decision context, shall make no LLM call, and shall return an untrusted actor-action proposal payload rather than a trusted submission.
+
+**POLICY-010:** When the Greybridge caretaker context does not satisfy a recognized safe action rule, the policy shall return a deterministic 60-second Wait proposal without modifying its context or canonical world state.
+
 ### Initial vertical slice
 
 **SLICE-001:** The initial playable scenario shall contain three connected locations, one player, one rule-driven NPC, and one LLM-assisted NPC.

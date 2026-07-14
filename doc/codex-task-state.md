@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Plan the first actionable M5 increment: the rule-driven caretaker decision policy behind the existing proposal boundary.
+Execute and integrate TASK-041: the bounded NPC decision context and rule-driven Greybridge caretaker policy.
 
 ## Verified baseline
 
@@ -15,17 +15,16 @@ Plan the first actionable M5 increment: the rule-driven caretaker decision polic
 
 ## Blockers and unresolved questions
 
-No blocker to planning the rule-driven caretaker policy itself. Executing scheduled NPC activity through the coordinator remains a later M5 increment that needs the policy contract and actor runtime first. Free-form player interpretation, local model integration, narration, and the memory-free courier remain separate M5 tasks.
+No known blocker. Executing scheduled NPC activity through the coordinator remains a later M5 increment that needs this policy contract and an actor runtime first. Free-form player interpretation, local model integration, narration, and the memory-free courier remain separate M5 tasks.
 
 ## Exact next action
 
-Inspect the accepted NPC decision-policy definitions, actor cognition loop, current perception and proposal contracts, and Greybridge caretaker goals. Settle the smallest deterministic policy input/output and safe fallback boundary, prepare TASK-041, commit automatically when Ready, delegate, review, and integrate accepted work.
+Delegate the Ready TASK-041 to a fresh `implementer`, then independently review its diff and verification against the bounded context, pure proposal-only policy, deterministic priority sequence, and 60-second fallback.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
-3. `doc/roadmap.md`: M5
-4. `doc/high_level_design.md`: actor runtime, rule-based policy, and actor cognition loop
-5. NPC autonomy, policy, perception, action-proposal, and failure requirements and decisions
-6. Decision-policy package definitions, actor/perception/action contracts, Greybridge caretaker content, and relevant tests
+3. `doc/tasks/TASK-041-rule-driven-caretaker-policy.md`
+4. TASK-041's exact context manifest
+5. The implementation diff and handoff evidence

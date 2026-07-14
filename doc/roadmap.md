@@ -2,7 +2,7 @@
 
 ## Purpose
 
-Show the current delivery sequence, deferred scope, and readiness for delegation. Completed task details belong in `doc/tasks/` and Git history rather than this forward-looking index. Only work with a Ready task brief may be delegated.
+Show the current delivery sequence, deferred scope, and readiness for delegation. Completed task outcomes remain summarized here and detailed history remains in Git. `doc/tasks/` contains only active work contracts and the reusable template. Only work with a Ready task brief may be delegated.
 
 ## Current position
 
@@ -14,9 +14,10 @@ Show the current delivery sequence, deferred scope, and readiness for delegation
 | M3: Deterministic simulation kernel | Done | Pure Python validates worlds and deterministically resolves the supported minimal action set without an LLM or database |
 | M3.5: Review before persistence | Done | Accepted the kernel boundary and carried transaction ownership into M4 |
 | M3.6: Documentation and context architecture | Done | Separated human orientation from canonical contracts and routed bounded agent context by responsibility |
-| M4: Persistence and application boundary | Current | Persist one world and advance it through one atomic application-owned step |
+| M4: Persistence and application boundary | Done | Persist one world and advance it through one atomic application-owned step |
+| M5: Actor policies and local LLM integration | Current | Run deterministic and LLM-assisted actors through the shared proposal boundary |
 
-Completed task contracts and verification evidence remain under [`tasks/`](tasks/).
+Completed task outcomes remain in this roadmap; task contracts and detailed verification remain recoverable from Git history.
 
 ## Deferred from M3
 
@@ -59,7 +60,7 @@ M4 is complete. The singleton world survives restart, advances atomically throug
 
 | Planned task | Depends on |
 | --- | --- |
-| Rule-driven caretaker policy | Actor runtime contracts and Greybridge package |
+| [TASK-041](tasks/TASK-041-rule-driven-caretaker-policy.md): rule-driven caretaker policy | Ready; accepted NPC context and policy contracts plus Greybridge package |
 | Local model gateway | Structured-output preflight and Python foundation |
 | Player input interpreter | Local model gateway and action contracts |
 | Memory-free LLM courier policy | Local model gateway and actor runtime |
