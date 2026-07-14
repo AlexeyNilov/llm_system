@@ -8,7 +8,7 @@ This workflow applies to subagents in one Codex task, agents in separate chats, 
 
 ## Information hierarchy
 
-Do not automatically read/preload atrifacts.
+Do not automatically read/preload artifacts.
 Use each artifact for one kind of information:
 
 | Artifact | Purpose |
@@ -130,17 +130,22 @@ Use these statuses:
 4. **Review**: Implementation and task-local verification are complete.
 5. **Blocked**: A named external condition or unresolved design gap prevents progress.
 6. **Done**: Review findings are resolved, the integrator has accepted the result,
-   and the task brief has been removed.
+   and its task brief has been deleted from `doc/tasks/`.
 
 Only the architect or integrator promotes a task to Ready or Done. An execution agent may move a Ready task to In progress and then to Review or Blocked; it must never mark its own work Done.
 
-Task briefs are working artifacts, not permanent project history. Before removing
+Task briefs are working artifacts, not permanent project history. Before deleting
 an accepted brief, the integrator must record any durable outcome, deviation, or
 follow-up in its owning canonical artifact. The roadmap records the completed
-task identifier and outcome without linking to the removed file; Git history
-provides the detailed audit trail. Delete the task brief in the same integration
-commit that records the task as Done. Keep Planned, Ready, In progress, Review,
-and Blocked briefs until their work is completed or explicitly cancelled.
+task identifier and outcome without linking to a task file; Git history provides
+the detailed audit trail.
+
+Delete every completed task brief from `doc/tasks/` in the same integration
+commit that marks it Done. Do not archive, retain, or relabel completed briefs
+there. Keep only `TASK_TEMPLATE.md` and briefs that are Planned, Ready, In
+progress, Review, or Blocked. Delete explicitly cancelled briefs as well, after
+recording any durable cancellation rationale or follow-up in the owning canonical
+artifact.
 
 ## Writing a task brief
 
@@ -261,7 +266,8 @@ The integrator:
 3. checks compatibility with already integrated tasks;
 4. records task status and material deviations;
 5. updates architecture artifacts only for accepted changes; and
-6. removes the accepted task brief and any durable links to it; and
+6. deletes the accepted task brief from `doc/tasks/` and removes any durable
+   links to it; and
 7. performs semantic version bumps at meaningful implementation milestones.
 
 ## Handoff between chats
