@@ -1433,3 +1433,11 @@ The coordinator exposes no raw gateway evidence. Gateway failure remains the alr
 **Alternatives considered:** Hold one write transaction across the model call, retry the interpreted proposal automatically after a revision conflict, call the existing self-committing actor coordinator and append the input trace afterward, or combine coordinator, HTTP, Streamlit, and runtime-provider configuration in one task. These respectively serialize SQLite during provider latency, apply an interpretation to a different perception, lose atomic trace linkage, or make failure and authority boundaries unnecessarily difficult to verify.
 
 **Consequences:** Each completed free-form player input has one durable, revision-correct causal record; stale attempts are honestly rejected rather than reinterpreted silently. The extracted actor composition helper has one immediate consumer and preserves the existing public actor-action coordinator behavior. HTTP transport and model runtime configuration remain thin follow-ons rather than sources of simulation authority.
+
+### 2026-07-14: Add a thin free-form player-turn HTTP boundary
+
+**Status:** Accepted
+
+**Decision:** Add `POST /player-turn` beside the existing structured `/turn`. It accepts only strict non-blank player text and delegates to `coordinate_player_turn` for the configured sole player. Its discriminated player-safe response mirrors thought-only, clarification, or committed action evidence; stale maps to `409` with a bounded error body. `create_app` accepts an optional injected functional gateway. When absent, it supplies a typed unavailable gateway whose result follows the already accepted safe clarification path and is still durably traced. The endpoint neither reads local provider settings nor exposes raw generation evidence. The structured `/turn` remains unchanged.
+
+**Consequences:** Tests can inject deterministic functional gateways; the normal runtime remains safe before a separate local-provider configuration task. HTTP remains a presentation/trust boundary rather than a second simulation path.

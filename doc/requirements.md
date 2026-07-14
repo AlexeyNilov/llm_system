@@ -1070,6 +1070,10 @@ This helps ensure requirements are:
 
 **API-009:** The initial API shall not interpret free-form text, invoke an LLM or actor policy, narrate, execute scheduled activities, expose inspection history, authorize arbitrary actor identities, accept canonical state mutations, or implement production authentication.
 
+**API-010:** The free-form player-turn endpoint shall accept exactly one strict non-blank player-text field, bind it to the validated sole player, invoke only the transactional player-turn coordinator, and expose one strict player-safe thought-only, clarification, action-completed, or stale response. Clients shall not supply identities, proposals, provenance, revisions, model configuration, trace evidence, or canonical state.
+
+**API-011:** The endpoint shall return completed thought, clarification, rejected action, failed action, and succeeded action results only after the coordinator commits. A stale result shall map to `409` without claiming completion. If no functional gateway is configured, the application shall use the existing safe failed-generation clarification path rather than exposing provider configuration or failure details.
+
 ### Deterministic player page
 
 **PLAYERPAGE-001:** The initial Streamlit player page shall communicate only through the FastAPI HTTP boundary and shall not load packages, open SQLite, call simulation or persistence services, or construct trusted submission metadata.
