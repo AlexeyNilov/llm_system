@@ -102,17 +102,17 @@ def test_bootstrap_reopen_and_reject_unsupported_schema_without_modification(
     SQLiteStore.open(database)
 
     with sqlite3.connect(database) as connection:
-        assert connection.execute("PRAGMA user_version").fetchone() == (3,)
-        connection.execute("PRAGMA user_version = 4")
+        assert connection.execute("PRAGMA user_version").fetchone() == (4,)
+        connection.execute("PRAGMA user_version = 5")
 
     with pytest.raises(UnsupportedSchemaVersionError):
         SQLiteStore.open(database)
 
     with sqlite3.connect(database) as connection:
-        assert connection.execute("PRAGMA user_version").fetchone() == (4,)
+        assert connection.execute("PRAGMA user_version").fetchone() == (5,)
 
 
-def test_v1_world_and_event_migrate_to_v3_without_record_changes(
+def test_v1_world_and_event_migrate_to_v4_without_record_changes(
     tmp_path: Path,
 ) -> None:
     database = tmp_path / "world.sqlite3"
@@ -130,12 +130,13 @@ def test_v1_world_and_event_migrate_to_v3_without_record_changes(
         event_before = connection.execute("SELECT * FROM canonical_events").fetchone()
         connection.execute("DROP TABLE simulation_step_traces")
         connection.execute("DROP TABLE player_input_step_traces")
+        connection.execute("DROP TABLE scheduled_activity_execution_traces")
         connection.execute("PRAGMA user_version = 1")
 
     migrated = SQLiteStore.open(database)
 
     with sqlite3.connect(database) as connection:
-        assert connection.execute("PRAGMA user_version").fetchone() == (3,)
+        assert connection.execute("PRAGMA user_version").fetchone() == (4,)
         assert (
             connection.execute("SELECT * FROM current_world").fetchone() == world_before
         )
@@ -151,7 +152,7 @@ def test_v1_world_and_event_migrate_to_v3_without_record_changes(
         assert unit.traces.list_for_world(WORLD_ID) == ()
 
 
-def test_v2_migrates_only_player_input_history_table_without_record_changes(
+def test_v2_migrates_trace_histories_without_record_changes(
     tmp_path: Path,
 ) -> None:
     database = tmp_path / "world.sqlite3"
@@ -168,12 +169,13 @@ def test_v2_migrates_only_player_input_history_table_without_record_changes(
         world_before = connection.execute("SELECT * FROM current_world").fetchone()
         event_before = connection.execute("SELECT * FROM canonical_events").fetchone()
         connection.execute("DROP TABLE player_input_step_traces")
+        connection.execute("DROP TABLE scheduled_activity_execution_traces")
         connection.execute("PRAGMA user_version = 2")
 
     SQLiteStore.open(database)
 
     with sqlite3.connect(database) as connection:
-        assert connection.execute("PRAGMA user_version").fetchone() == (3,)
+        assert connection.execute("PRAGMA user_version").fetchone() == (4,)
         assert (
             connection.execute("SELECT * FROM current_world").fetchone() == world_before
         )
@@ -183,6 +185,32 @@ def test_v2_migrates_only_player_input_history_table_without_record_changes(
         )
         assert connection.execute(
             "SELECT COUNT(*) FROM simulation_step_traces"
+        ).fetchone() == (0,)
+        assert connection.execute(
+            "SELECT COUNT(*) FROM scheduled_activity_execution_traces"
+        ).fetchone() == (0,)
+
+
+def test_v3_migrates_scheduled_activity_history_without_record_changes(
+    tmp_path: Path,
+) -> None:
+    database = tmp_path / "world.sqlite3"
+    store = SQLiteStore.open(database)
+    _create_world(store)
+    with sqlite3.connect(database) as connection:
+        world_before = connection.execute("SELECT * FROM current_world").fetchone()
+        connection.execute("DROP TABLE scheduled_activity_execution_traces")
+        connection.execute("PRAGMA user_version = 3")
+
+    SQLiteStore.open(database)
+
+    with sqlite3.connect(database) as connection:
+        assert connection.execute("PRAGMA user_version").fetchone() == (4,)
+        assert (
+            connection.execute("SELECT * FROM current_world").fetchone() == world_before
+        )
+        assert connection.execute(
+            "SELECT COUNT(*) FROM scheduled_activity_execution_traces"
         ).fetchone() == (0,)
 
 

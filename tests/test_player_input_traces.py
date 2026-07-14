@@ -437,6 +437,7 @@ def test_v2_to_v3_migration_retains_real_actor_action_trace(tmp_path: Path) -> N
     completed = _complete_wait_step(store, world_id)
     with sqlite3.connect(database) as connection:
         connection.execute("DROP TABLE player_input_step_traces")
+        connection.execute("DROP TABLE scheduled_activity_execution_traces")
         connection.execute("PRAGMA user_version = 2")
     migrated = SQLiteStore.open(database)
     with migrated.unit_of_work() as unit:

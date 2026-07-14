@@ -7,6 +7,8 @@ from llm_system.simulation._types import _StrictContract
 from llm_system.simulation.actions import ActorActionSubmission
 from llm_system.simulation.outcomes import Outcome
 from llm_system.simulation.perception import EventObserved, PerceptionSnapshot
+from llm_system.simulation.scheduling import ScheduledActivity
+from llm_system.simulation.state import NonNegativeSeconds
 
 
 class CompletedActorActionStepTrace(_StrictContract):
@@ -58,4 +60,24 @@ class CompletedActorActionStepTrace(_StrictContract):
                 raise ValueError(
                     "self-event feedback time must match committed outcome time"
                 )
+        return self
+
+
+class ScheduledActivityExecutionTrace(_StrictContract):
+    trace_schema_version: Literal[1]
+    activity: ScheduledActivity
+    selected_at_seconds: NonNegativeSeconds
+    simulation_step_id: UUID
+
+    @field_validator("trace_schema_version", mode="before")
+    @classmethod
+    def trace_schema_version_must_be_an_integer_literal(cls, value: object) -> object:
+        if type(value) is not int:
+            raise ValueError("trace_schema_version must be an integer literal")
+        return value
+
+    @model_validator(mode="after")
+    def require_due_activity(self) -> Self:
+        if self.activity.eligible_at_seconds > self.selected_at_seconds:
+            raise ValueError("scheduled activity must be due at selection time")
         return self

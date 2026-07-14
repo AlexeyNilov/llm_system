@@ -28,15 +28,19 @@ from llm_system.persistence.records import (
     StoredCanonicalEvent,
     StoredActorActionStepTrace,
     StoredPlayerInputStepTrace,
+    StoredScheduledActivityExecutionTrace,
     StoredWorld,
 )
 from llm_system.simulation.events import CanonicalEvent
 from llm_system.simulation.scheduling import ScheduledActivityQueue
 from llm_system.simulation.state import WorldState
-from llm_system.simulation.traces import CompletedActorActionStepTrace
+from llm_system.simulation.traces import (
+    CompletedActorActionStepTrace,
+    ScheduledActivityExecutionTrace,
+)
 from llm_system.player_input_traces import ActionLinkedCompletion, PlayerInputStepTrace
 
-SQLITE_SCHEMA_VERSION = 3
+SQLITE_SCHEMA_VERSION = 4
 WORLD_PAYLOAD_SCHEMA_VERSION: Literal[1] = 1
 
 _CANONICAL_EVENT_ADAPTER: TypeAdapter[CanonicalEvent] = TypeAdapter(CanonicalEvent)
@@ -96,8 +100,20 @@ CREATE TABLE player_input_step_traces (
 )
 """
 
+_SCHEDULED_ACTIVITY_TRACE_SCHEMA_V4 = """
+CREATE TABLE scheduled_activity_execution_traces (
+    insertion_sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+    world_id TEXT NOT NULL,
+    resulting_world_revision INTEGER NOT NULL CHECK (resulting_world_revision >= 0),
+    activity_id TEXT NOT NULL UNIQUE,
+    simulation_step_id TEXT NOT NULL UNIQUE,
+    trace_json TEXT NOT NULL
+)
+"""
+
 _SCHEMA_V2 = (*_SCHEMA_V1, _TRACE_SCHEMA_V2)
 _SCHEMA_V3 = (*_SCHEMA_V2, _PLAYER_INPUT_TRACE_SCHEMA_V3)
+_SCHEMA_V4 = (*_SCHEMA_V3, _SCHEDULED_ACTIVITY_TRACE_SCHEMA_V4)
 
 
 class SQLiteStore:
@@ -110,7 +126,7 @@ class SQLiteStore:
         connection = sqlite3.connect(database_path, isolation_level=None)
         try:
             version = _schema_version(connection)
-            if version not in (0, 1, 2, SQLITE_SCHEMA_VERSION):
+            if version not in (0, 1, 2, 3, SQLITE_SCHEMA_VERSION):
                 raise UnsupportedSchemaVersionError(version)
             if version == 0:
                 existing_table = connection.execute(
@@ -124,7 +140,7 @@ class SQLiteStore:
                     raise UnsupportedSchemaVersionError(version)
                 connection.execute("BEGIN IMMEDIATE")
                 try:
-                    for statement in _SCHEMA_V3:
+                    for statement in _SCHEMA_V4:
                         connection.execute(statement)
                     connection.execute(f"PRAGMA user_version = {SQLITE_SCHEMA_VERSION}")
                     connection.commit()
@@ -136,6 +152,7 @@ class SQLiteStore:
                 try:
                     connection.execute(_TRACE_SCHEMA_V2)
                     connection.execute(_PLAYER_INPUT_TRACE_SCHEMA_V3)
+                    connection.execute(_SCHEDULED_ACTIVITY_TRACE_SCHEMA_V4)
                     connection.execute(f"PRAGMA user_version = {SQLITE_SCHEMA_VERSION}")
                     connection.commit()
                 except BaseException:
@@ -145,6 +162,16 @@ class SQLiteStore:
                 connection.execute("BEGIN IMMEDIATE")
                 try:
                     connection.execute(_PLAYER_INPUT_TRACE_SCHEMA_V3)
+                    connection.execute(_SCHEDULED_ACTIVITY_TRACE_SCHEMA_V4)
+                    connection.execute(f"PRAGMA user_version = {SQLITE_SCHEMA_VERSION}")
+                    connection.commit()
+                except BaseException:
+                    connection.rollback()
+                    raise
+            elif version == 3:
+                connection.execute("BEGIN IMMEDIATE")
+                try:
+                    connection.execute(_SCHEDULED_ACTIVITY_TRACE_SCHEMA_V4)
                     connection.execute(f"PRAGMA user_version = {SQLITE_SCHEMA_VERSION}")
                     connection.commit()
                 except BaseException:
@@ -168,6 +195,7 @@ class SQLiteUnitOfWork:
         self.events: SQLiteEventRepository
         self.traces: SQLiteTraceRepository
         self.player_input_traces: SQLitePlayerInputTraceRepository
+        self.scheduled_activity_traces: SQLiteScheduledActivityTraceRepository
 
     def __enter__(self) -> Self:
         if self._connection is not None:
@@ -186,6 +214,9 @@ class SQLiteUnitOfWork:
             connection, self._mark_failed, self._require_active_transaction
         )
         self.player_input_traces = SQLitePlayerInputTraceRepository(
+            connection, self._mark_failed, self._require_active_transaction
+        )
+        self.scheduled_activity_traces = SQLiteScheduledActivityTraceRepository(
             connection, self._mark_failed, self._require_active_transaction
         )
         return self
@@ -221,6 +252,7 @@ class SQLiteUnitOfWork:
             self._mark_failed()
             raise MissingWorldError("the singleton world does not exist")
         try:
+            connection.execute("DELETE FROM scheduled_activity_execution_traces")
             connection.execute("DELETE FROM simulation_step_traces")
             connection.execute("DELETE FROM player_input_step_traces")
             connection.execute("DELETE FROM canonical_events")
@@ -542,6 +574,97 @@ class SQLiteTraceRepository:
             raise
 
 
+class SQLiteScheduledActivityTraceRepository:
+    def __init__(
+        self,
+        connection: sqlite3.Connection,
+        mark_failed: Callable[[], None],
+        require_active: Callable[[], None],
+    ) -> None:
+        self._connection = connection
+        self._mark_failed = mark_failed
+        self._require_active = require_active
+
+    def append(
+        self,
+        *,
+        world_id: UUID,
+        resulting_world_revision: int,
+        trace: ScheduledActivityExecutionTrace,
+    ) -> StoredScheduledActivityExecutionTrace:
+        self._require_active()
+        current = self._connection.execute(
+            "SELECT world_id, revision FROM current_world WHERE singleton = 1"
+        ).fetchone()
+        if current is None:
+            self._mark_failed()
+            raise MissingWorldError("the singleton world does not exist")
+        if current["world_id"] != str(world_id):
+            self._mark_failed()
+            raise WorldIdentityMismatchError(
+                "scheduled activity trace world does not match current world"
+            )
+        if current["revision"] != resulting_world_revision:
+            self._mark_failed()
+            raise WorldRevisionMismatchError(
+                "scheduled activity trace must use the current resulting world revision"
+            )
+        linked = self._connection.execute(
+            """SELECT 1 FROM simulation_step_traces
+            WHERE world_id = ? AND resulting_world_revision = ? AND simulation_step_id = ?""",
+            (str(world_id), resulting_world_revision, str(trace.simulation_step_id)),
+        ).fetchone()
+        if linked is None:
+            self._mark_failed()
+            raise StoredRecordDecodingError(
+                "scheduled activity trace lacks matching actor-action trace"
+            )
+        try:
+            cursor = self._connection.execute(
+                """INSERT INTO scheduled_activity_execution_traces (
+                    world_id, resulting_world_revision, activity_id,
+                    simulation_step_id, trace_json
+                ) VALUES (?, ?, ?, ?, ?)""",
+                (
+                    str(world_id),
+                    resulting_world_revision,
+                    str(trace.activity.activity_id),
+                    str(trace.simulation_step_id),
+                    trace.model_dump_json(),
+                ),
+            )
+        except sqlite3.IntegrityError as error:
+            self._mark_failed()
+            raise StoredRecordDecodingError(
+                "scheduled activity trace identity already exists"
+            ) from error
+        insertion_sequence = cursor.lastrowid
+        assert insertion_sequence is not None
+        return StoredScheduledActivityExecutionTrace(
+            insertion_sequence=insertion_sequence,
+            world_id=world_id,
+            resulting_world_revision=resulting_world_revision,
+            trace=trace,
+        )
+
+    def list_for_world(
+        self, world_id: UUID
+    ) -> tuple[StoredScheduledActivityExecutionTrace, ...]:
+        self._require_active()
+        rows = self._connection.execute(
+            """SELECT insertion_sequence, world_id, resulting_world_revision,
+                      activity_id, simulation_step_id, trace_json
+               FROM scheduled_activity_execution_traces
+               WHERE world_id = ? ORDER BY insertion_sequence""",
+            (str(world_id),),
+        ).fetchall()
+        try:
+            return tuple(_decode_scheduled_activity_trace(row) for row in rows)
+        except StoredRecordDecodingError:
+            self._mark_failed()
+            raise
+
+
 class SQLitePlayerInputTraceRepository:
     def __init__(
         self,
@@ -738,3 +861,25 @@ def _decode_player_input_trace(row: sqlite3.Row) -> StoredPlayerInputStepTrace:
         )
     except (TypeError, ValueError, ValidationError) as error:
         raise StoredRecordDecodingError("invalid stored player-input trace") from error
+
+
+def _decode_scheduled_activity_trace(
+    row: sqlite3.Row,
+) -> StoredScheduledActivityExecutionTrace:
+    try:
+        trace = ScheduledActivityExecutionTrace.model_validate_json(row["trace_json"])
+        if (
+            str(trace.activity.activity_id) != row["activity_id"]
+            or str(trace.simulation_step_id) != row["simulation_step_id"]
+        ):
+            raise ValueError("explicit trace metadata does not match trace payload")
+        return StoredScheduledActivityExecutionTrace(
+            insertion_sequence=row["insertion_sequence"],
+            world_id=UUID(row["world_id"]),
+            resulting_world_revision=row["resulting_world_revision"],
+            trace=trace,
+        )
+    except (TypeError, ValueError, ValidationError) as error:
+        raise StoredRecordDecodingError(
+            "invalid stored scheduled activity trace"
+        ) from error

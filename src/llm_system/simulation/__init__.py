@@ -119,7 +119,10 @@ from llm_system.simulation.state import (
     ObjectState,
     WorldState,
 )
-from llm_system.simulation.traces import CompletedActorActionStepTrace
+from llm_system.simulation.traces import (
+    CompletedActorActionStepTrace,
+    ScheduledActivityExecutionTrace,
+)
 from llm_system.simulation.validation import (
     ValidatedWorldState,
     WorldStateValidationError,
@@ -194,6 +197,7 @@ __all__ = [
     "RandomDrawPurpose",
     "RandomSourceContractError",
     "ScheduledActivity",
+    "ScheduledActivityExecutionTrace",
     "ScheduledActivityQueue",
     "ScheduledActivitySelection",
     "SpeakActionProposal",

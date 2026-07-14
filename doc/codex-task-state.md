@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Implement one atomic due-caretaker scheduled execution with linked scheduling evidence.
+Plan the player-turn batching boundary so time-advancing player actions process due caretaker activity before returning player-facing completion.
 
 ## Verified baseline
 
@@ -32,14 +32,15 @@ Implement one atomic due-caretaker scheduled execution with linked scheduling ev
 * The first executable actor-runtime seam is therefore one explicitly requested `bridge-caretaker` turn. Its policy/context phase remains non-mutating, while its coordinator rechecks the observed world revision before constructing a trusted NPC submission and calling the existing action-step composition.
 * TASK-048 is accepted at project version `0.46.0`. `coordinate_caretaker_turn` supports only the authored matching caretaker rule policy, returns a strict completed-or-stale result, and preserves the scheduled queue exactly. Parent verification passes: focused coordinator/policy/action-step tests (31 passed), `make check` (510 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 * TASK-049 is accepted at project version `0.47.0`. Scenario packages strictly declare initial NPC eligibility; create and reset materialize Greybridge's time-zero caretaker queue entry with a UUID derived from the caller-supplied world ID and declaration position. Parent verification passes: focused package/lifecycle/persistence tests (53 passed), `make check` (512 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
+* TASK-050 is accepted at project version `0.48.0`. `coordinate_due_caretaker_activity` selects only the first due activity, retains the policy-to-action decision-context identity, rechecks queue and revision, and atomically consumes a caretaker activity with normal action evidence plus one linked scheduled-activity trace. SQLite V4 migrates V1/V2/V3 and reset clears this history. Parent verification passes: `make check` (517 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 
 ## Blockers and unresolved questions
 
-No blocker. TASK-050 is Ready. Full queue draining, recurrence, environmental activity, System director hooks, and player-turn batching remain intentionally unresolved.
+No blocker. Full queue draining, recurrence, environmental activity, System director hooks, and player-turn batching remain intentionally unresolved. The next user-visible requirement is processing the due caretaker activity after a time-advancing player action and before completion is presented.
 
 ## Exact next action
 
-Commit and delegate `doc/tasks/TASK-050-one-due-caretaker-scheduled-execution.md`, then independently review it.
+Inspect player-turn coordinator/API response ownership and the new scheduled-execution result, then define one bounded player-plus-due-caretaker completion contract.
 
 ## Files to re-read before continuing
 

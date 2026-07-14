@@ -18,6 +18,7 @@ from llm_system.simulation.perception_engine import (
     project_current_perception,
     project_self_event_feedback,
 )
+from llm_system.simulation.scheduling import ScheduledActivityQueue
 from llm_system.simulation.traces import CompletedActorActionStepTrace
 from llm_system.simulation.validation import validate_world_state
 
@@ -79,6 +80,7 @@ def execute_actor_action_step_in_unit(
     *,
     outcome_id: UUID,
     event_id: UUID,
+    scheduled_queue: ScheduledActivityQueue | None = None,
 ) -> CompletedActorActionStep:
     stored = unit.worlds.get()
     if stored is None:
@@ -110,7 +112,9 @@ def execute_actor_action_step_in_unit(
         world_id=stored.world_id,
         expected_revision=stored.revision,
         state=committed.world.state,
-        scheduled_queue=stored.scheduled_queue,
+        scheduled_queue=(
+            stored.scheduled_queue if scheduled_queue is None else scheduled_queue
+        ),
     )
     unit.events.append(
         world_id=stored.world_id,

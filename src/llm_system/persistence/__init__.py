@@ -17,6 +17,7 @@ from llm_system.persistence.records import (
     PackageReference,
     StoredActorActionStepTrace,
     StoredPlayerInputStepTrace,
+    StoredScheduledActivityExecutionTrace,
     StoredCanonicalEvent,
     StoredWorld,
 )
@@ -36,6 +37,7 @@ __all__ = [
     "StoredCanonicalEvent",
     "StoredActorActionStepTrace",
     "StoredPlayerInputStepTrace",
+    "StoredScheduledActivityExecutionTrace",
     "StoredRecordDecodingError",
     "StoredWorld",
     "UnitOfWorkFailedError",
