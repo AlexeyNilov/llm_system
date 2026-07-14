@@ -9,6 +9,7 @@ from llm_system.simulation.events import CanonicalEvent
 from llm_system.simulation.scheduling import ScheduledActivityQueue
 from llm_system.simulation.state import WorldState
 from llm_system.simulation.traces import CompletedActorActionStepTrace
+from llm_system.player_input_traces import PlayerInputStepTrace
 
 NonNegativeRevision = Annotated[int, Field(ge=0)]
 PositiveInsertionSequence = Annotated[int, Field(gt=0)]
@@ -48,3 +49,11 @@ class StoredActorActionStepTrace(_StrictContract):
     world_id: UUID
     resulting_world_revision: NonNegativeRevision
     trace: CompletedActorActionStepTrace
+
+
+class StoredPlayerInputStepTrace(_StrictContract):
+    insertion_sequence: PositiveInsertionSequence
+    world_id: UUID
+    observed_world_revision: NonNegativeRevision
+    resulting_world_revision: NonNegativeRevision
+    trace: PlayerInputStepTrace

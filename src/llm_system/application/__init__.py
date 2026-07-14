@@ -22,6 +22,12 @@ from llm_system.application.player_interpreter import (
     PlayerInterpreterOutput,
     interpret_player_input,
 )
+from llm_system.player_input_traces import (
+    ActionLinkedCompletion,
+    ClarificationCompletion,
+    PlayerInputStepTrace,
+    ThoughtOnlyCompletion,
+)
 from llm_system.application.world_lifecycle import (
     ActiveWorld,
     WorldPackageKindError,
@@ -33,6 +39,8 @@ from llm_system.application.world_lifecycle import (
 
 __all__ = [
     "ActiveWorld",
+    "ActionLinkedCompletion",
+    "ClarificationCompletion",
     "CompletedActorActionStep",
     "FunctionalGenerationAttempt",
     "FunctionalGenerationDisposition",
@@ -44,6 +52,7 @@ __all__ = [
     "ModelMessage",
     "NpcDecisionContext",
     "PlayerInterpretationResult",
+    "PlayerInputStepTrace",
     "PlayerInterpreterOutput",
     "WorldPackageKindError",
     "WorldPackageMismatchError",
@@ -54,4 +63,5 @@ __all__ = [
     "interpret_player_input",
     "reset_world_for_development",
     "resume_world",
+    "ThoughtOnlyCompletion",
 ]

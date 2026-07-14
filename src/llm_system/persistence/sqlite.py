@@ -11,6 +11,7 @@ from pydantic import TypeAdapter, ValidationError
 
 from llm_system.persistence.errors import (
     DuplicateEventIdentityError,
+    DuplicatePlayerInputIdentityError,
     DuplicateSimulationStepIdentityError,
     ExistingWorldError,
     MissingWorldError,
@@ -26,14 +27,16 @@ from llm_system.persistence.records import (
     PackageReference,
     StoredCanonicalEvent,
     StoredActorActionStepTrace,
+    StoredPlayerInputStepTrace,
     StoredWorld,
 )
 from llm_system.simulation.events import CanonicalEvent
 from llm_system.simulation.scheduling import ScheduledActivityQueue
 from llm_system.simulation.state import WorldState
 from llm_system.simulation.traces import CompletedActorActionStepTrace
+from llm_system.player_input_traces import ActionLinkedCompletion, PlayerInputStepTrace
 
-SQLITE_SCHEMA_VERSION = 2
+SQLITE_SCHEMA_VERSION = 3
 WORLD_PAYLOAD_SCHEMA_VERSION: Literal[1] = 1
 
 _CANONICAL_EVENT_ADAPTER: TypeAdapter[CanonicalEvent] = TypeAdapter(CanonicalEvent)
@@ -79,7 +82,22 @@ CREATE TABLE simulation_step_traces (
 )
 """
 
+_PLAYER_INPUT_TRACE_SCHEMA_V3 = """
+CREATE TABLE player_input_step_traces (
+    insertion_sequence INTEGER PRIMARY KEY AUTOINCREMENT,
+    world_id TEXT NOT NULL,
+    observed_world_revision INTEGER NOT NULL CHECK (observed_world_revision >= 0),
+    resulting_world_revision INTEGER NOT NULL CHECK (resulting_world_revision >= 0),
+    player_input_id TEXT NOT NULL UNIQUE,
+    completion_kind TEXT NOT NULL CHECK (completion_kind IN ('thought_only', 'clarification', 'action_linked')),
+    action_simulation_step_id TEXT,
+    trace_json TEXT NOT NULL,
+    CHECK ((completion_kind IN ('thought_only', 'clarification') AND action_simulation_step_id IS NULL AND observed_world_revision = resulting_world_revision) OR (completion_kind = 'action_linked' AND action_simulation_step_id IS NOT NULL AND resulting_world_revision = observed_world_revision + 1))
+)
+"""
+
 _SCHEMA_V2 = (*_SCHEMA_V1, _TRACE_SCHEMA_V2)
+_SCHEMA_V3 = (*_SCHEMA_V2, _PLAYER_INPUT_TRACE_SCHEMA_V3)
 
 
 class SQLiteStore:
@@ -92,7 +110,7 @@ class SQLiteStore:
         connection = sqlite3.connect(database_path, isolation_level=None)
         try:
             version = _schema_version(connection)
-            if version not in (0, 1, SQLITE_SCHEMA_VERSION):
+            if version not in (0, 1, 2, SQLITE_SCHEMA_VERSION):
                 raise UnsupportedSchemaVersionError(version)
             if version == 0:
                 existing_table = connection.execute(
@@ -106,7 +124,7 @@ class SQLiteStore:
                     raise UnsupportedSchemaVersionError(version)
                 connection.execute("BEGIN IMMEDIATE")
                 try:
-                    for statement in _SCHEMA_V2:
+                    for statement in _SCHEMA_V3:
                         connection.execute(statement)
                     connection.execute(f"PRAGMA user_version = {SQLITE_SCHEMA_VERSION}")
                     connection.commit()
@@ -117,6 +135,16 @@ class SQLiteStore:
                 connection.execute("BEGIN IMMEDIATE")
                 try:
                     connection.execute(_TRACE_SCHEMA_V2)
+                    connection.execute(_PLAYER_INPUT_TRACE_SCHEMA_V3)
+                    connection.execute(f"PRAGMA user_version = {SQLITE_SCHEMA_VERSION}")
+                    connection.commit()
+                except BaseException:
+                    connection.rollback()
+                    raise
+            elif version == 2:
+                connection.execute("BEGIN IMMEDIATE")
+                try:
+                    connection.execute(_PLAYER_INPUT_TRACE_SCHEMA_V3)
                     connection.execute(f"PRAGMA user_version = {SQLITE_SCHEMA_VERSION}")
                     connection.commit()
                 except BaseException:
@@ -139,6 +167,7 @@ class SQLiteUnitOfWork:
         self.worlds: SQLiteWorldRepository
         self.events: SQLiteEventRepository
         self.traces: SQLiteTraceRepository
+        self.player_input_traces: SQLitePlayerInputTraceRepository
 
     def __enter__(self) -> Self:
         if self._connection is not None:
@@ -154,6 +183,9 @@ class SQLiteUnitOfWork:
             connection, self._mark_failed, self._require_active_transaction
         )
         self.traces = SQLiteTraceRepository(
+            connection, self._mark_failed, self._require_active_transaction
+        )
+        self.player_input_traces = SQLitePlayerInputTraceRepository(
             connection, self._mark_failed, self._require_active_transaction
         )
         return self
@@ -190,6 +222,7 @@ class SQLiteUnitOfWork:
             raise MissingWorldError("the singleton world does not exist")
         try:
             connection.execute("DELETE FROM simulation_step_traces")
+            connection.execute("DELETE FROM player_input_step_traces")
             connection.execute("DELETE FROM canonical_events")
             connection.execute("DELETE FROM current_world WHERE singleton = 1")
         except sqlite3.DatabaseError:
@@ -509,6 +542,106 @@ class SQLiteTraceRepository:
             raise
 
 
+class SQLitePlayerInputTraceRepository:
+    def __init__(
+        self,
+        connection: sqlite3.Connection,
+        mark_failed: Callable[[], None],
+        require_active: Callable[[], None],
+    ) -> None:
+        self._connection = connection
+        self._mark_failed = mark_failed
+        self._require_active = require_active
+
+    def append(
+        self,
+        *,
+        world_id: UUID,
+        observed_world_revision: int,
+        resulting_world_revision: int,
+        trace: PlayerInputStepTrace,
+    ) -> StoredPlayerInputStepTrace:
+        self._require_active()
+        current = self._connection.execute(
+            "SELECT world_id, revision FROM current_world WHERE singleton = 1"
+        ).fetchone()
+        if current is None:
+            self._mark_failed()
+            raise MissingWorldError("the singleton world does not exist")
+        if current["world_id"] != str(world_id):
+            self._mark_failed()
+            raise WorldIdentityMismatchError(
+                "player-input trace world does not match current world"
+            )
+        if current["revision"] != resulting_world_revision:
+            self._mark_failed()
+            raise WorldRevisionMismatchError(
+                "player-input trace must use the current resulting world revision"
+            )
+        action_step_id: UUID | None = None
+        if isinstance(trace.completion, ActionLinkedCompletion):
+            action_step_id = trace.completion.simulation_step_id
+            linked = self._connection.execute(
+                """SELECT 1 FROM simulation_step_traces
+                WHERE world_id = ? AND resulting_world_revision = ? AND simulation_step_id = ?""",
+                (str(world_id), resulting_world_revision, str(action_step_id)),
+            ).fetchone()
+            if linked is None:
+                self._mark_failed()
+                raise StoredRecordDecodingError(
+                    "action-linked trace lacks matching actor-action trace"
+                )
+        try:
+            cursor = self._connection.execute(
+                """INSERT INTO player_input_step_traces (
+                    world_id, observed_world_revision, resulting_world_revision,
+                    player_input_id, completion_kind, action_simulation_step_id, trace_json
+                ) VALUES (?, ?, ?, ?, ?, ?, ?)""",
+                (
+                    str(world_id),
+                    observed_world_revision,
+                    resulting_world_revision,
+                    str(trace.player_input_id),
+                    trace.completion.completion_type,
+                    str(action_step_id) if action_step_id is not None else None,
+                    trace.model_dump_json(),
+                ),
+            )
+        except sqlite3.IntegrityError as error:
+            self._mark_failed()
+            if "player_input_step_traces.player_input_id" in str(error):
+                raise DuplicatePlayerInputIdentityError(
+                    "player-input identity already exists"
+                ) from error
+            raise WorldRevisionMismatchError(
+                "player-input trace metadata is incoherent"
+            ) from error
+        sequence = cursor.lastrowid
+        assert sequence is not None
+        return StoredPlayerInputStepTrace(
+            insertion_sequence=sequence,
+            world_id=world_id,
+            observed_world_revision=observed_world_revision,
+            resulting_world_revision=resulting_world_revision,
+            trace=trace,
+        )
+
+    def list_for_world(self, world_id: UUID) -> tuple[StoredPlayerInputStepTrace, ...]:
+        self._require_active()
+        rows = self._connection.execute(
+            """SELECT insertion_sequence, world_id, observed_world_revision,
+                      resulting_world_revision, player_input_id, completion_kind,
+                      action_simulation_step_id, trace_json
+               FROM player_input_step_traces WHERE world_id = ? ORDER BY insertion_sequence""",
+            (str(world_id),),
+        ).fetchall()
+        try:
+            return tuple(_decode_player_input_trace(row) for row in rows)
+        except StoredRecordDecodingError:
+            self._mark_failed()
+            raise
+
+
 def _schema_version(connection: sqlite3.Connection) -> int:
     row = connection.execute("PRAGMA user_version").fetchone()
     assert row is not None
@@ -578,3 +711,30 @@ def _decode_trace(row: sqlite3.Row) -> StoredActorActionStepTrace:
         )
     except (TypeError, ValueError, ValidationError) as error:
         raise StoredRecordDecodingError("invalid stored actor-action trace") from error
+
+
+def _decode_player_input_trace(row: sqlite3.Row) -> StoredPlayerInputStepTrace:
+    try:
+        trace = PlayerInputStepTrace.model_validate_json(row["trace_json"])
+        action_step_id = (
+            str(trace.completion.simulation_step_id)
+            if isinstance(trace.completion, ActionLinkedCompletion)
+            else None
+        )
+        if (
+            str(trace.player_input_id) != row["player_input_id"]
+            or trace.completion.completion_type != row["completion_kind"]
+            or action_step_id != row["action_simulation_step_id"]
+        ):
+            raise ValueError(
+                "explicit player-input metadata does not match trace payload"
+            )
+        return StoredPlayerInputStepTrace(
+            insertion_sequence=row["insertion_sequence"],
+            world_id=UUID(row["world_id"]),
+            observed_world_revision=row["observed_world_revision"],
+            resulting_world_revision=row["resulting_world_revision"],
+            trace=trace,
+        )
+    except (TypeError, ValueError, ValidationError) as error:
+        raise StoredRecordDecodingError("invalid stored player-input trace") from error

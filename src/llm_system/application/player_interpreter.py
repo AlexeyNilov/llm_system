@@ -1,34 +1,19 @@
 import json
-from typing import Annotated, Literal, Self
 
-from pydantic import BaseModel, ConfigDict, Field, TypeAdapter, model_validator
+from pydantic import TypeAdapter
 
-from llm_system.application.model_gateway import (
+from llm_system.functional_generation import (
     FunctionalGenerationDisposition,
-    FunctionalGenerationResult,
     FunctionalModelGateway,
     ModelMessage,
 )
-from llm_system.simulation.actions import (
-    MoveActionProposal,
-    NonBlankText,
-    ObserveActionProposal,
-    SpeakActionProposal,
-    TakeActionProposal,
-    UseActionProposal,
-    WaitActionProposal,
+from llm_system.player_interpretation import (
+    InterpretedPlayerProposal,
+    PlayerInterpretationResult,
+    PlayerInterpreterOutput,
 )
+from llm_system.simulation.actions import NonBlankText
 from llm_system.simulation.perception import PerceptionSnapshot
-
-InterpretedPlayerProposal = Annotated[
-    ObserveActionProposal
-    | MoveActionProposal
-    | SpeakActionProposal
-    | TakeActionProposal
-    | UseActionProposal
-    | WaitActionProposal,
-    Field(discriminator="operation"),
-]
 
 _SYSTEM_INSTRUCTION = (
     "Interpret one non-blank player input using only the supplied current perception. "
@@ -44,55 +29,12 @@ _SAFE_CLARIFICATION_TEXT = (
 )
 _NON_BLANK_TEXT_ADAPTER = TypeAdapter(NonBlankText)
 
-
-class PlayerInterpreterOutput(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
-
-    result_type: Literal["interpreted", "clarification"]
-    private_thought: NonBlankText | None
-    proposal: InterpretedPlayerProposal | None
-    clarification: NonBlankText | None
-
-    @model_validator(mode="after")
-    def validate_coherence(self) -> Self:
-        if self.result_type == "interpreted":
-            if self.private_thought is None and self.proposal is None:
-                raise ValueError(
-                    "interpreted output requires a private thought or proposal"
-                )
-            if self.clarification is not None:
-                raise ValueError("interpreted output forbids clarification")
-            return self
-
-        if self.private_thought is not None or self.proposal is not None:
-            raise ValueError("clarification output forbids thought and proposal")
-        if self.clarification is None:
-            raise ValueError("clarification output requires clarification")
-        return self
-
-
-class PlayerInterpretationResult(BaseModel):
-    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
-
-    player_text: NonBlankText
-    perception: PerceptionSnapshot
-    output: PlayerInterpreterOutput
-    generation: FunctionalGenerationResult[PlayerInterpreterOutput]
-
-    @model_validator(mode="after")
-    def validate_coherence(self) -> Self:
-        if self.generation.disposition is FunctionalGenerationDisposition.ACCEPTED:
-            if self.generation.value != self.output:
-                raise ValueError(
-                    "accepted generation value must equal the final output"
-                )
-            return self
-
-        if self.generation.value is not None or self.output != _fallback_output():
-            raise ValueError(
-                "failed generation requires no value and the fixed fallback output"
-            )
-        return self
+__all__ = [
+    "InterpretedPlayerProposal",
+    "PlayerInterpretationResult",
+    "PlayerInterpreterOutput",
+    "interpret_player_input",
+]
 
 
 def interpret_player_input(

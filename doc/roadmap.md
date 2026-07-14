@@ -70,7 +70,7 @@ M4 is complete. The singleton world survives restart, advances atomically throug
 | TASK-041: rule-driven caretaker policy | Done; strict bounded NPC context plus a pure deterministic seek, take, return, reinforce, or Wait proposal policy at version `0.40.0` |
 | TASK-042: local functional model gateway | Done; synchronous fakeable `httpx2` boundary with thinking disabled, strict content-only validation, one repair, and typed attempt evidence at version `0.41.0` |
 | TASK-043: player input interpreter | Done; bounded text-plus-perception interpretation into thought, one executable proposal, or safe clarification with generation evidence at version `0.42.0` |
-| TASK-044: durable player-input step traces | Ready; strict thought-only, clarification, and actor-action-linked evidence plus SQLite V3 persistence before free-form API integration |
+| TASK-044: durable player-input step traces | Done; SQLite V3 strictly preserves thought-only, clarification, and actor-action-linked interpretation evidence at version `0.43.0` |
 | Free-form player turn API | Durable player-input step traces, player interpreter, current perception, and atomic actor-action coordinator |
 | Memory-free LLM courier policy | Local model gateway and actor runtime |
 | Narrator | Perception snapshots and local model gateway |

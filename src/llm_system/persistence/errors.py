@@ -46,5 +46,9 @@ class DuplicateSimulationStepIdentityError(PersistenceError):
     pass
 
 
+class DuplicatePlayerInputIdentityError(PersistenceError):
+    pass
+
+
 class UnitOfWorkFailedError(PersistenceError):
     pass
