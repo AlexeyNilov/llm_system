@@ -188,10 +188,11 @@ def test_player_page_shows_each_completed_input_and_only_returned_facts() -> Non
     assert "Clarification: What do you mean by cross?" in rendered
     assert "Outcome status: failed" in rendered
     assert "Reason code: destination-blocked" in rendered
-    assert "Player perception:" in rendered
+    assert "The waystation is quiet." in rendered
     assert "Self-event feedback:" in rendered
     assert all("proposal" not in value.lower() for value in rendered)
     assert all("trace" not in value.lower() for value in rendered)
+    assert all("observer_id" not in value.lower() for value in rendered)
 
 
 def test_scheduled_progress_discards_uninterpreted_text_but_displays_status() -> None:
@@ -425,6 +426,7 @@ def _player_turn_bodies() -> tuple[dict[str, object], ...]:
             "observations": [],
         },
         "self_event_feedback": [],
+        "narration": "The waystation is quiet.",
     }
     return (
         {"result_type": "thought_only", "private_thought": "I should listen."},
@@ -440,6 +442,7 @@ def _player_turn_bodies() -> tuple[dict[str, object], ...]:
             "world_id": completed["world_id"],
             "resulting_world_revision": 4,
             "current_perception": completed["current_perception"],
+            "narration": completed["narration"],
         },
         {"result_type": "scheduled_progress_pending"},
     )

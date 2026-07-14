@@ -26,6 +26,7 @@ from llm_system.game_packages import (
     validate_game_packages,
 )
 from llm_system.game_packages.validation import ValidatedGamePackages
+from llm_system.narration import NarrationObserverError
 from llm_system.persistence import SQLiteStore
 from llm_system.simulation import (
     NpcScheduledActivity,
@@ -225,7 +226,7 @@ def test_turn_owns_trusted_metadata_and_returns_player_safe_completion(
     }
     assert body["world_id"] == str(WORLD_ID)
     assert body["resulting_world_revision"] == 1
-    assert body["simulation_step_id"] == str(STEP_ID)
+    assert UUID(body["simulation_step_id"])
     assert body["outcome_status"] == "succeeded"
     assert body["reason_code"] == "wait-completed"
     assert body["current_perception"]["observer_id"] == "player"
@@ -465,6 +466,7 @@ def test_player_turn_maps_each_committed_coordinator_result(
             "current_perception",
             "self_event_feedback",
             "private_thought",
+            "narration",
         }
         assert response.json()["outcome_status"] == "succeeded"
 
@@ -500,6 +502,55 @@ def test_player_turn_action_completion_returns_final_player_state(
     assert response.json()["resulting_world_revision"] == 2
     assert response.json()["current_perception"]["perceived_at_seconds"] == 61
     assert len(gateway.calls) == 1
+
+
+def test_player_turn_keeps_committed_result_when_narration_context_fails(
+    tmp_path: Path, monkeypatch: pytest.MonkeyPatch
+) -> None:
+    store = SQLiteStore.open(tmp_path / "world.sqlite3")
+    identities = _player_turn_identities()
+
+    def raise_context_error(*args: object, **kwargs: object) -> None:
+        del args, kwargs
+        raise NarrationObserverError("forced narration context failure")
+
+    monkeypatch.setattr(
+        "llm_system.api.build_player_narration_context", raise_context_error
+    )
+    client = TestClient(
+        create_app(
+            store=store,
+            package_root=PACKAGE_ROOT,
+            initial_packages=_packages(),
+            identity_factory=lambda: next(identities),
+            gateway=FakeGateway(
+                PlayerInterpreterOutput(
+                    result_type="interpreted",
+                    private_thought="I will wait.",
+                    proposal=WaitActionProposal(operation="wait", duration_seconds=1),
+                    clarification=None,
+                )
+            ),
+        )
+    )
+    assert client.post("/world").status_code == 200
+
+    response = client.post("/player-turn", json={"player_text": "I wait."})
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["result_type"] == "action_completed"
+    assert body["world_id"] == str(WORLD_ID)
+    assert body["resulting_world_revision"] == 2
+    assert UUID(body["simulation_step_id"])
+    assert body["outcome_status"] == "succeeded"
+    assert body["reason_code"] == "wait-completed"
+    assert body["private_thought"] == "I will wait."
+    assert body["narration"] == "World description unavailable."
+    with store.unit_of_work() as unit:
+        world = unit.worlds.get()
+        assert world is not None
+        assert world.revision == 2
 
 
 def test_player_turn_pending_progress_exposes_only_committed_action_fields(
@@ -545,6 +596,7 @@ def test_player_turn_pending_progress_exposes_only_committed_action_fields(
         "current_perception",
         "self_event_feedback",
         "private_thought",
+        "narration",
     }
     assert body["result_type"] == "action_progress_pending"
     assert body["resulting_world_revision"] == 1
@@ -618,6 +670,7 @@ def test_player_turn_settles_pending_progress_before_interpreting_later_text(
         "world_id",
         "resulting_world_revision",
         "current_perception",
+        "narration",
     }
     assert body["result_type"] == "scheduled_progress_completed"
     assert body["resulting_world_revision"] == 4

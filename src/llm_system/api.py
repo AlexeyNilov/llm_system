@@ -30,6 +30,11 @@ from llm_system.application import (
 )
 from llm_system.game_packages.entities import PlayerCharacterDefinition
 from llm_system.game_packages.validation import ValidatedGamePackages
+from llm_system.narration import (
+    NarrationContextError,
+    build_player_narration_context,
+    render_player_narration,
+)
 from llm_system.persistence import ExistingWorldError, MissingWorldError, SQLiteStore
 from llm_system.persistence.records import NonNegativeRevision, PackageReference
 from llm_system.simulation.actions import (
@@ -86,11 +91,13 @@ class ClarificationPlayerTurnResponse(_StrictApiModel):
 class ActionCompletedPlayerTurnResponse(TurnResponse):
     result_type: Literal["action_completed"]
     private_thought: NonBlankText | None
+    narration: NonBlankText
 
 
 class ActionProgressPendingPlayerTurnResponse(TurnResponse):
     result_type: Literal["action_progress_pending"]
     private_thought: NonBlankText | None
+    narration: NonBlankText
 
 
 class ScheduledProgressCompletedPlayerTurnResponse(_StrictApiModel):
@@ -98,10 +105,14 @@ class ScheduledProgressCompletedPlayerTurnResponse(_StrictApiModel):
     world_id: UUID
     resulting_world_revision: NonNegativeRevision
     current_perception: PerceptionSnapshot
+    narration: NonBlankText
 
 
 class ScheduledProgressPendingPlayerTurnResponse(_StrictApiModel):
     result_type: Literal["scheduled_progress_pending"]
+
+
+SAFE_NARRATION: NonBlankText = "World description unavailable."
 
 
 PlayerTurnResponse: TypeAlias = Annotated[
@@ -233,7 +244,7 @@ def create_app(
         )
         if isinstance(result, StalePlayerTurnResult):
             return _error_response(409, "player-turn-stale")
-        return _player_turn_response(result)
+        return _player_turn_response(result, initial_packages)
 
     return app
 
@@ -269,6 +280,7 @@ def _player_turn_response(
         | ScheduledProgressCompletedPlayerTurnResult
         | ScheduledProgressPendingPlayerTurnResult
     ),
+    packages: ValidatedGamePackages,
 ) -> PlayerTurnResponse:
     if isinstance(result, ThoughtOnlyPlayerTurnResult):
         return ThoughtOnlyPlayerTurnResponse(
@@ -284,6 +296,7 @@ def _player_turn_response(
             world_id=result.world_id,
             resulting_world_revision=result.resulting_world_revision,
             current_perception=result.current_perception,
+            narration=_narration_for(packages, result.current_perception),
         )
     if isinstance(result, ScheduledProgressPendingPlayerTurnResult):
         return ScheduledProgressPendingPlayerTurnResponse(
@@ -301,6 +314,7 @@ def _player_turn_response(
             current_perception=trace.current_perception,
             self_event_feedback=trace.self_event_feedback,
             private_thought=result.private_thought,
+            narration=_narration_for(packages, trace.current_perception),
         )
     return ActionCompletedPlayerTurnResponse(
         result_type="action_completed",
@@ -312,7 +326,18 @@ def _player_turn_response(
         current_perception=result.current_perception,
         self_event_feedback=trace.self_event_feedback,
         private_thought=result.private_thought,
+        narration=_narration_for(packages, result.current_perception),
     )
+
+
+def _narration_for(
+    packages: ValidatedGamePackages, perception: PerceptionSnapshot
+) -> NonBlankText:
+    try:
+        context = build_player_narration_context(packages, perception)
+        return render_player_narration(context).text
+    except NarrationContextError:
+        return SAFE_NARRATION
 
 
 def _error_response(

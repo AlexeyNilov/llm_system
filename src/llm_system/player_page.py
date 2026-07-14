@@ -31,14 +31,6 @@ from llm_system.simulation.events import (
     ObjectTakenEvent,
     ObjectUsedEvent,
 )
-from llm_system.simulation.perception import (
-    CharacterObserved,
-    ConnectionObserved,
-    LocationObserved,
-    Observation,
-    ObjectObserved,
-    PerceptionSnapshot,
-)
 
 API_URL_ENVIRONMENT_VARIABLE = "LLM_SYSTEM_API_URL"
 DEFAULT_API_URL = "http://127.0.0.1:8000"
@@ -83,24 +75,6 @@ def main() -> None:
         render_player_page(api)
     finally:
         api.close()
-
-
-def format_observation(observation: Observation) -> str:
-    if isinstance(observation, LocationObserved):
-        return f"Location: {observation.location_id}"
-    if isinstance(observation, ConnectionObserved):
-        availability = "available" if observation.is_available else "unavailable"
-        return f"Connection: {observation.connection_id} ({availability})"
-    if isinstance(observation, CharacterObserved):
-        return f"Character: {observation.character_id}"
-    if isinstance(observation, ObjectObserved):
-        placement = observation.placement
-        if placement.placement_type == "location":
-            placement_text = f"location {placement.location_id}"
-        else:
-            placement_text = f"possessed by {placement.character_id}"
-        return f"Object: {observation.object_id} ({placement_text})"
-    return _format_event(observation.event)
 
 
 def _render_create_world(api: PlayerApi) -> None:
@@ -178,7 +152,7 @@ def _render_response(response: PlayerTurnResponse) -> None:
         st.text(f"Clarification: {response.clarification}")
     elif isinstance(response, ScheduledProgressCompletedPlayerTurnResponse):
         st.text("Scheduled progress completed.")
-        _render_perception(response.current_perception)
+        st.text(response.narration)
     elif isinstance(response, ScheduledProgressPendingPlayerTurnResponse):
         st.text("Scheduled progress remains pending.")
     else:
@@ -191,16 +165,10 @@ def _render_response(response: PlayerTurnResponse) -> None:
             st.text(f"Thought: {response.private_thought}")
         st.text(f"Outcome status: {response.outcome_status}")
         st.text(f"Reason code: {response.reason_code}")
-        _render_perception(response.current_perception)
+        st.text(response.narration)
         st.text("Self-event feedback:")
         for feedback in response.self_event_feedback:
             st.text(f"- {_format_event(feedback.event)}")
-
-
-def _render_perception(perception: PerceptionSnapshot) -> None:
-    st.text("Player perception:")
-    for observation in perception.observations:
-        st.text(f"- {format_observation(observation)}")
 
 
 def _render_development_reset(api: PlayerApi) -> None:
