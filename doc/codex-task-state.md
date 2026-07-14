@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Deliver the player-facing free-form chat path over the accepted `/player-turn` API.
+Plan the memory-free LLM courier policy as the next M5 actor capability.
 
 ## Verified baseline
 
@@ -34,7 +34,7 @@ Deliver the player-facing free-form chat path over the accepted `/player-turn` A
 * TASK-049 is accepted at project version `0.47.0`. Scenario packages strictly declare initial NPC eligibility; create and reset materialize Greybridge's time-zero caretaker queue entry with a UUID derived from the caller-supplied world ID and declaration position. Parent verification passes: focused package/lifecycle/persistence tests (53 passed), `make check` (512 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 * TASK-050 is accepted at project version `0.48.0`. `coordinate_due_caretaker_activity` selects only the first due activity, retains the policy-to-action decision-context identity, rechecks queue and revision, and atomically consumes a caretaker activity with normal action evidence plus one linked scheduled-activity trace. SQLite V4 migrates V1/V2/V3 and reset clears this history. Parent verification passes: `make check` (517 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 * TASK-051 is accepted at project version `0.49.0`. `coordinate_player_turn` attempts one due caretaker activity after a committed action and before a later input is interpreted. Settled turns return the final player perception and revision; stale or operational scheduled execution returns a player-safe pending result without leaking NPC-private evidence. Parent verification passes: focused player-turn/scheduled/API tests (49 passed), `make check` (525 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
-* TASK-052 is Ready. It replaces the player page's typed proposal forms with a thin free-form chat client for the accepted player-turn API. The page must preserve the API's distinction between completed input and scheduled progress that deliberately discarded a later input.
+* TASK-052 is accepted at project version `0.50.0`. The Streamlit page is now a thin free-form chat client for `/player-turn`; it validates strict player-safe response variants, maps stale input, retains text only for completed interpretations, and shows scheduled-only progress without retaining discarded text. Parent verification passes: focused player-page/API tests (54 passed), `make check` (509 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 
 ## Blockers and unresolved questions
 
@@ -42,13 +42,14 @@ No blocker. Full queue draining, recurrence, environmental activity, System dire
 
 ## Exact next action
 
-Commit and delegate TASK-052, then independently review the player-safe chat presentation and history behavior.
+Inspect the authored courier policy references and actor-runtime seams, then prepare the smallest memory-free LLM courier policy task for M5.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
 3. `doc/roadmap.md`: M5
-4. `doc/requirements.md`: `API-010` through `API-013`, `PLAYERPAGE-001` through `PLAYERPAGE-008`, and `STEP-016` through `STEP-017`
-5. `doc/decisions.md`: “Replace structured player forms with the free-form player-turn chat boundary”
-6. `src/llm_system/player_page.py`, `src/llm_system/player_api.py`, `src/llm_system/api.py`, and `tests/test_player_page.py`
+4. `doc/roadmap.md`: M5
+5. `doc/requirements.md`: `NPC-001` through `NPC-012`, `LLM-001` through `LLM-017`, and `STEP-001` through `STEP-017`
+6. `doc/decisions.md`: “Start actor policies with one pure caretaker decision”, “Make local functional calls provider-neutral and schema-strict”, and “Execute the first due caretaker activity through the existing atomic action step”
+7. `game_packages/scenarios/storm-at-greybridge/0.2.0`, `src/llm_system/application/npc_decision.py`, `src/llm_system/application/scheduled_execution_coordinator.py`, and their tests

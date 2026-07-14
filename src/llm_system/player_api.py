@@ -1,10 +1,13 @@
 from typing import Literal, Protocol, cast
 
 import httpx2
-from pydantic import ValidationError
+from pydantic import TypeAdapter, ValidationError
 
-from llm_system.api import ApplicationErrorResponse, LifecycleResponse, TurnResponse
-from llm_system.simulation.actions import ActorActionProposal
+from llm_system.api import (
+    ApplicationErrorResponse,
+    LifecycleResponse,
+    PlayerTurnResponse,
+)
 
 
 class PlayerApi(Protocol):
@@ -14,7 +17,7 @@ class PlayerApi(Protocol):
 
     def reset_world(self) -> LifecycleResponse: ...
 
-    def take_turn(self, proposal: ActorActionProposal) -> TurnResponse: ...
+    def take_player_turn(self, player_text: str) -> PlayerTurnResponse: ...
 
 
 class PlayerApiError(Exception):
@@ -70,19 +73,19 @@ class HttpPlayerApi:
     def reset_world(self) -> LifecycleResponse:
         return self._request("POST", "/development/reset", LifecycleResponse)
 
-    def take_turn(self, proposal: ActorActionProposal) -> TurnResponse:
+    def take_player_turn(self, player_text: str) -> PlayerTurnResponse:
         return self._request(
             "POST",
-            "/turn",
-            TurnResponse,
-            json={"proposal": proposal.model_dump(mode="json")},
+            "/player-turn",
+            _PLAYER_TURN_RESPONSE_ADAPTER,
+            json={"player_text": player_text},
         )
 
-    def _request[ResponseModel: LifecycleResponse | TurnResponse](
+    def _request[ResponseModel: LifecycleResponse | PlayerTurnResponse](
         self,
         method: Literal["GET", "POST"],
         path: str,
-        response_model: type[ResponseModel],
+        response_model: type[ResponseModel] | TypeAdapter[ResponseModel],
         *,
         json: object | None = None,
     ) -> ResponseModel:
@@ -105,9 +108,10 @@ class HttpPlayerApi:
 
         if response.status_code == 200:
             try:
+                if isinstance(response_model, TypeAdapter):
+                    return response_model.validate_json(response.content)
                 return cast(
-                    ResponseModel,
-                    response_model.model_validate_json(response.content),
+                    ResponseModel, response_model.model_validate_json(response.content)
                 )
             except (ValidationError, ValueError) as error:
                 raise SafeClientError("malformed-response") from error
@@ -117,6 +121,8 @@ class HttpPlayerApi:
             404: "world-not-found",
             409: "world-already-exists",
         }
+        if path == "/player-turn":
+            mapped_codes[409] = "player-turn-stale"
         expected_code = mapped_codes.get(response.status_code)
         if expected_code is not None:
             try:
@@ -131,3 +137,8 @@ class HttpPlayerApi:
                     code=application_error.code,
                 )
         raise SafeClientError("unexpected-response")
+
+
+_PLAYER_TURN_RESPONSE_ADAPTER: TypeAdapter[PlayerTurnResponse] = TypeAdapter(
+    PlayerTurnResponse
+)
