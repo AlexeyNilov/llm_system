@@ -34,7 +34,7 @@ The application must keep unavailable behavior explicit. Greybridge is not yet a
 
 | Planned task | Status | Depends on | Outcome |
 | --- | --- | --- | --- |
-| [TASK-035](tasks/TASK-035-review-kernel-before-persistence.md): integrated architecture, documentation-IA, and test-value review | Done | Completed M3 kernel | Accepted the kernel as ready for M4; carry full-chain testing into the real coordinator boundary, preserve one transaction owner, and keep documentation/test cleanup non-blocking. |
+| TASK-035: integrated architecture, documentation-IA, and test-value review | Done | Completed M3 kernel | Accepted the kernel as ready for M4; carry full-chain testing into the real coordinator boundary, preserve one transaction owner, and keep documentation/test cleanup non-blocking. |
 
 ## M4: Persistence and application boundary
 
@@ -42,12 +42,12 @@ The application must keep unavailable behavior explicit. Greybridge is not yet a
 
 | Planned task | Depends on |
 | --- | --- |
-| [TASK-036](tasks/TASK-036-sqlite-world-and-event-persistence.md): SQLite world and canonical-event persistence | Done; depended on completed M3.5 review and M3.6 context-routing rules |
-| [TASK-037](tasks/TASK-037-atomic-actor-action-step.md): atomic actor-action coordinator and minimal durable trace | Done; composed the deterministic authority chain and atomically committed SQLite V2 world, event, and completed-trace history |
+| TASK-036: SQLite world and canonical-event persistence | Done; depended on completed M3.5 review and M3.6 context-routing rules |
+| TASK-037: atomic actor-action coordinator and minimal durable trace | Done; composed the deterministic authority chain and atomically committed SQLite V2 world, event, and completed-trace history |
 | Scheduled-activity execution through the atomic coordinator | Deferred beyond M4; waits for accepted environmental, NPC-policy, and System-director execution semantics |
-| [TASK-038](tasks/TASK-038-world-lifecycle.md): deterministic world creation, exact-package resume, and destructive development reset | Done; derives and validates revision-0 state, resumes only recorded package versions, and atomically replaces the complete development timeline |
-| [TASK-039](tasks/TASK-039-fastapi-application-boundary.md): minimal FastAPI lifecycle and structured player-turn boundary | Done; server-owns trusted identities and provenance, exposes only player-safe results, and preserves lifecycle/turn atomicity |
-| [TASK-040](tasks/TASK-040-deterministic-streamlit-player-page.md): deterministic structured-action Streamlit player page | Done; thin HTTP client with all typed proposal forms, validated committed-result presentation, and session-only history |
+| TASK-038: deterministic world creation, exact-package resume, and destructive development reset | Done; derives and validates revision-0 state, resumes only recorded package versions, and atomically replaces the complete development timeline |
+| TASK-039: minimal FastAPI lifecycle and structured player-turn boundary | Done; server-owns trusted identities and provenance, exposes only player-safe results, and preserves lifecycle/turn atomicity |
+| TASK-040: deterministic structured-action Streamlit player page | Done; thin HTTP client with all typed proposal forms, validated committed-result presentation, and session-only history |
 
 The first M4 task brief is the pilot for the M3.6 context rules. It must record its pre-code documentation budget, exclude human-orientation and historical artifacts by default, and provide context-used evidence in its handoff. Review should adjust the soft budget only from measured task evidence.
 

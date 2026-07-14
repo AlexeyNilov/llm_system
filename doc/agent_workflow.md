@@ -24,7 +24,7 @@ Use each artifact for one kind of information:
 | `doc/initial_scenario.md` | Accepted initial playable content |
 | `doc/ideas.md` | Postponed possibilities, not approved scope |
 | `doc/roadmap.md` | Dependency order, milestones, and task readiness |
-| `doc/tasks/TASK-*.md` | Bounded work contracts and handoff records |
+| `doc/tasks/TASK-*.md` | Temporary contracts and handoff records for active work; removed after integration |
 | `doc/reviews/` | Independent evidence and recommendations, subject to integrator disposition |
 | `doc/codex-task-state.md` | Compact continuation state for the architect or integrator chat |
 | Chat history | Temporary discussion only; never the sole source of a requirement |
@@ -129,9 +129,18 @@ Use these statuses:
 3. **In progress**: One agent owns the task in one branch or worktree.
 4. **Review**: Implementation and task-local verification are complete.
 5. **Blocked**: A named external condition or unresolved design gap prevents progress.
-6. **Done**: Review findings are resolved and the integrator has accepted the result.
+6. **Done**: Review findings are resolved, the integrator has accepted the result,
+   and the task brief has been removed.
 
 Only the architect or integrator promotes a task to Ready or Done. An execution agent may move a Ready task to In progress and then to Review or Blocked; it must never mark its own work Done.
+
+Task briefs are working artifacts, not permanent project history. Before removing
+an accepted brief, the integrator must record any durable outcome, deviation, or
+follow-up in its owning canonical artifact. The roadmap records the completed
+task identifier and outcome without linking to the removed file; Git history
+provides the detailed audit trail. Delete the task brief in the same integration
+commit that records the task as Done. Keep Planned, Ready, In progress, Review,
+and Blocked briefs until their work is completed or explicitly cancelled.
 
 ## Writing a task brief
 
@@ -252,7 +261,8 @@ The integrator:
 3. checks compatibility with already integrated tasks;
 4. records task status and material deviations;
 5. updates architecture artifacts only for accepted changes; and
-6. performs semantic version bumps at meaningful implementation milestones.
+6. removes the accepted task brief and any durable links to it; and
+7. performs semantic version bumps at meaningful implementation milestones.
 
 ## Handoff between chats
 
