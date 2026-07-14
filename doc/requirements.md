@@ -1074,6 +1074,8 @@ This helps ensure requirements are:
 
 **API-011:** The endpoint shall return completed thought, clarification, rejected action, failed action, and succeeded action results only after the coordinator commits. A stale result shall map to `409` without claiming completion. If no functional gateway is configured, the application shall use the existing safe failed-generation clarification path rather than exposing provider configuration or failure details.
 
+**API-012:** Runtime bootstrap may configure the local functional gateway only from complete explicit environment settings for base URL, model, positive timeout seconds, and positive completion-token limit. Absent settings shall preserve the safe unavailable-gateway path; partial or invalid settings shall fail bootstrap without opening a server.
+
 ### Deterministic player page
 
 **PLAYERPAGE-001:** The initial Streamlit player page shall communicate only through the FastAPI HTTP boundary and shall not load packages, open SQLite, call simulation or persistence services, or construct trusted submission metadata.

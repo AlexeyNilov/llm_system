@@ -1441,3 +1441,9 @@ The coordinator exposes no raw gateway evidence. Gateway failure remains the alr
 **Decision:** Add `POST /player-turn` beside the existing structured `/turn`. It accepts only strict non-blank player text and delegates to `coordinate_player_turn` for the configured sole player. Its discriminated player-safe response mirrors thought-only, clarification, or committed action evidence; stale maps to `409` with a bounded error body. `create_app` accepts an optional injected functional gateway. When absent, it supplies a typed unavailable gateway whose result follows the already accepted safe clarification path and is still durably traced. The endpoint neither reads local provider settings nor exposes raw generation evidence. The structured `/turn` remains unchanged.
 
 **Consequences:** Tests can inject deterministic functional gateways; the normal runtime remains safe before a separate local-provider configuration task. HTTP remains a presentation/trust boundary rather than a second simulation path.
+
+### 2026-07-14: Configure the local gateway only at runtime bootstrap
+
+**Status:** Accepted
+
+**Decision:** `server.py` may read four all-or-none environment settings—`LLM_SYSTEM_MODEL_BASE_URL`, `LLM_SYSTEM_MODEL`, `LLM_SYSTEM_MODEL_TIMEOUT_SECONDS`, and `LLM_SYSTEM_MODEL_MAX_TOKENS`—and construct `HttpLocalModelGateway` only from a complete valid set. With none present it passes no gateway and retains safe durable clarification; partial or invalid configuration raises during bootstrap. No environment access enters the gateway, API, coordinator, persistence, or simulation modules.
