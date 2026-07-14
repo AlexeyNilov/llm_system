@@ -1587,3 +1587,27 @@ interpretation, scheduling, and persistence. Player-visible history stays
 honest when the server deliberately discards a later input to settle scheduled
 work first. The legacy structured `/turn` endpoint remains available for
 development and existing API coverage but is no longer used by the player page.
+
+### 2026-07-14: Make the initial courier policy memory-free and generation-evidenced
+
+**Status:** Accepted
+
+**Decision:** Implement the injured courier's `courier-llm-policy` as a pure
+application service over `NpcDecisionContext` and the existing injected
+functional gateway. Its deterministic prompt serializes only the courier's
+identity summary, ordered goals, optional current plan, and exact
+actor-matching perception. The strict output contains exactly one executable
+proposal from Observe, Move, Speak, Take, Use, or Wait; Help remains excluded
+because its resolver is unavailable. The policy result retains the ordered
+functional-generation result and the effective proposal. When the gateway does
+not accept valid output, it returns a deterministic 60-second Wait fallback.
+
+The policy assigns no trusted identities and has no state, time, persistence,
+scheduling, HTTP, UI, memory, belief, or narration effects. A later execution
+task owns eligibility, revision recheck, trusted provenance, persistence of
+functional evidence, and consumption of a courier activity.
+
+**Consequences:** The first LLM-assisted NPC can be evaluated and tested as a
+bounded decision producer without treating the model as authoritative or
+coupling policy work to queue semantics. The result gives the later coordinator
+the exact generation evidence it needs rather than discarding the LLM boundary.

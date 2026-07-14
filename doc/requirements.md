@@ -76,6 +76,12 @@ This helps ensure requirements are:
 
 **NPC-012:** The initial actor-turn coordinator shall not select, claim, consume, add, reschedule, or persist scheduled activities; invoke an LLM; retrieve or revise memories or beliefs; expose HTTP/UI behavior; or narrate outcomes.
 
+**NPC-013:** The initial memory-free courier policy shall accept only one matching `NpcDecisionContext` and an injected `FunctionalModelGateway`. Its model context shall contain only the courier identity summary, goals, current plan, and exact courier perception; it shall not include canonical world state, other actors' private information, memory, prior conversation, trusted metadata, outcomes, or narration.
+
+**NPC-014:** The courier policy shall request one strict proposal from the supported Observe, Move, Speak, Take, Use, or Wait proposal union. A valid accepted output is returned with its ordered functional-generation evidence; any failed generation maps to an application-owned 60-second Wait proposal without accepting generated prose or provider detail.
+
+**NPC-015:** The courier policy shall be pure: it shall not assign runtime identities, create submissions, resolve actions, advance time, mutate or persist state, schedule work, or expose HTTP/UI behavior. Its result shall remain sufficient for a later application coordinator to retain the functional-generation evidence alongside a trusted action step.
+
 ### System director and simulation authority
 
 **AUTH-001:** The simulation arbiter shall be the only component authorized to apply transitions to canonical world state.
