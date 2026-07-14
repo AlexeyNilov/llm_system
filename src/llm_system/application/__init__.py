@@ -5,8 +5,11 @@ from llm_system.application.actor_action_step import (
     execute_actor_action_step_in_unit,
 )
 from llm_system.application.npc_decision import (
+    CourierPolicyOutput,
+    CourierPolicyResult,
     NpcDecisionContext,
     decide_greybridge_caretaker,
+    decide_injured_courier,
 )
 from llm_system.application.npc_turn_coordinator import (
     CompletedNpcTurnResult,
@@ -75,6 +78,8 @@ __all__ = [
     "CompletedActorActionStep",
     "CompletedNpcTurnResult",
     "CompletedScheduledActivityResult",
+    "CourierPolicyOutput",
+    "CourierPolicyResult",
     "FunctionalGenerationAttempt",
     "FunctionalGenerationDisposition",
     "FunctionalGenerationResult",
@@ -104,6 +109,7 @@ __all__ = [
     "build_initial_world",
     "create_world",
     "decide_greybridge_caretaker",
+    "decide_injured_courier",
     "coordinate_player_turn",
     "coordinate_caretaker_turn",
     "coordinate_due_caretaker_activity",

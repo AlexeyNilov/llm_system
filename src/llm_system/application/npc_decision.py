@@ -1,8 +1,15 @@
-from typing import Self
+import json
+from typing import Annotated, Self
 from uuid import UUID
 
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
+from llm_system.functional_generation import (
+    FunctionalGenerationDisposition,
+    FunctionalGenerationResult,
+    FunctionalModelGateway,
+    ModelMessage,
+)
 from llm_system.game_packages._types import NonBlankText
 from llm_system.game_packages.entities import GoalDefinition
 from llm_system.simulation._types import AuthoredId
@@ -10,6 +17,8 @@ from llm_system.simulation.actions import (
     ActorActionProposal,
     LocationTarget,
     MoveActionProposal,
+    ObserveActionProposal,
+    SpeakActionProposal,
     TakeActionProposal,
     UseActionProposal,
     WaitActionProposal,
@@ -23,11 +32,61 @@ from llm_system.simulation.perception import (
 from llm_system.simulation.state import ObjectAtLocation, ObjectPossessedByCharacter
 
 _CARETAKER_ID = "bridge-caretaker"
+_COURIER_ID = "injured-courier"
 _MATERIALS_ID = "reinforcement-materials"
 _SPAN_ID = "greybridge-span"
 _WAYSTATION_ID = "greybridge-waystation"
 _TO_SPAN_CONNECTION_ID = "waystation-to-span"
 _TO_WAYSTATION_CONNECTION_ID = "span-to-waystation"
+
+_COURIER_SYSTEM_INSTRUCTION = (
+    "Choose exactly one action proposal for the injured courier using only the "
+    "supplied identity, goals, current plan, and current perception. Use only "
+    "these schema-supported operations: observe, move, speak, take, use, wait. "
+    "Do not invent hidden facts, memories, prior conversation, trusted metadata, "
+    "outcomes, or narration. Return no prose."
+)
+
+CourierProposal = Annotated[
+    ObserveActionProposal
+    | MoveActionProposal
+    | SpeakActionProposal
+    | TakeActionProposal
+    | UseActionProposal
+    | WaitActionProposal,
+    Field(discriminator="operation"),
+]
+
+
+class CourierPolicyOutput(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    proposal: CourierProposal
+
+
+class CourierPolicyResult(BaseModel):
+    model_config = ConfigDict(extra="forbid", frozen=True, strict=True)
+
+    proposal: CourierProposal
+    generation: FunctionalGenerationResult[CourierPolicyOutput]
+
+    @model_validator(mode="after")
+    def validate_coherence(self) -> Self:
+        if self.generation.disposition is FunctionalGenerationDisposition.ACCEPTED:
+            if (
+                self.generation.value is None
+                or self.generation.value.proposal != self.proposal
+            ):
+                raise ValueError(
+                    "accepted generation value must equal the final proposal"
+                )
+            return self
+        fallback = WaitActionProposal(operation="wait", duration_seconds=60)
+        if self.generation.value is not None or self.proposal != fallback:
+            raise ValueError(
+                "failed generation requires no value and a fixed fallback proposal"
+            )
+        return self
 
 
 class NpcDecisionContext(BaseModel):
@@ -45,6 +104,39 @@ class NpcDecisionContext(BaseModel):
         if self.perception.observer_id != self.npc_id:
             raise ValueError("perception observer must match NPC identity")
         return self
+
+
+def decide_injured_courier(
+    context: NpcDecisionContext,
+    gateway: FunctionalModelGateway,
+) -> CourierPolicyResult:
+    if context.npc_id != _COURIER_ID:
+        raise ValueError("courier policy requires injured-courier")
+
+    prompt_context = json.dumps(
+        {
+            "current_perception": context.perception.model_dump(mode="json"),
+            "current_plan": context.current_plan,
+            "goals": [goal.model_dump(mode="json") for goal in context.goals],
+            "identity_summary": context.identity_summary,
+        },
+        sort_keys=True,
+        separators=(",", ":"),
+    )
+    generation = gateway.generate_functional(
+        (
+            ModelMessage(role="system", content=_COURIER_SYSTEM_INSTRUCTION),
+            ModelMessage(role="user", content=prompt_context),
+        ),
+        CourierPolicyOutput,
+    )
+    if generation.disposition is FunctionalGenerationDisposition.ACCEPTED:
+        output = generation.value
+        assert output is not None
+        proposal = output.proposal
+    else:
+        proposal = WaitActionProposal(operation="wait", duration_seconds=60)
+    return CourierPolicyResult(proposal=proposal, generation=generation)
 
 
 def decide_greybridge_caretaker(

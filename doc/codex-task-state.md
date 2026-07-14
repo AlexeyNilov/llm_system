@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Implement the bounded memory-free LLM courier decision policy before scheduling its execution.
+Plan courier scheduled execution through the existing one-activity authority boundary.
 
 ## Verified baseline
 
@@ -35,7 +35,7 @@ Implement the bounded memory-free LLM courier decision policy before scheduling 
 * TASK-050 is accepted at project version `0.48.0`. `coordinate_due_caretaker_activity` selects only the first due activity, retains the policy-to-action decision-context identity, rechecks queue and revision, and atomically consumes a caretaker activity with normal action evidence plus one linked scheduled-activity trace. SQLite V4 migrates V1/V2/V3 and reset clears this history. Parent verification passes: `make check` (517 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 * TASK-051 is accepted at project version `0.49.0`. `coordinate_player_turn` attempts one due caretaker activity after a committed action and before a later input is interpreted. Settled turns return the final player perception and revision; stale or operational scheduled execution returns a player-safe pending result without leaking NPC-private evidence. Parent verification passes: focused player-turn/scheduled/API tests (49 passed), `make check` (525 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 * TASK-052 is accepted at project version `0.50.0`. The Streamlit page is now a thin free-form chat client for `/player-turn`; it validates strict player-safe response variants, maps stale input, retains text only for completed interpretations, and shows scheduled-only progress without retaining discarded text. Parent verification passes: focused player-page/API tests (54 passed), `make check` (509 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
-* TASK-053 is Ready. It adds only the courier's bounded pure LLM decision policy and returned generation evidence; scheduled eligibility and trusted execution remain the next separate actor-runtime task.
+* TASK-053 is accepted at project version `0.51.0`. `decide_injured_courier` receives only bounded courier context and an injected gateway, returns one strict supported proposal with functional-generation evidence, and maps failed generations to deterministic Wait 60. Parent verification passes: focused courier/gateway tests (30 passed), `make check` (520 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
 
 ## Blockers and unresolved questions
 
@@ -43,7 +43,7 @@ No blocker. Full queue draining, recurrence, environmental activity, System dire
 
 ## Exact next action
 
-Commit and delegate TASK-053, then independently review its information boundary, strict proposal union, fallback, and generation evidence.
+Inspect courier activity and scheduled-execution seams, then prepare the smallest task that schedules and executes one courier turn with trusted provenance and retained generation evidence.
 
 ## Files to re-read before continuing
 
