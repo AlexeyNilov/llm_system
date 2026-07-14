@@ -1560,3 +1560,30 @@ updated perception.
 **Consequences:** Player action evidence stays atomic while post-action progress
 remains honest under failures. This introduces no background worker, retries,
 queue drain, or exposure of NPC private evidence.
+
+### 2026-07-14: Replace structured player forms with the free-form player-turn chat boundary
+
+**Status:** Accepted
+
+**Decision:** Replace the initial deterministic proposal-form interaction on the
+Streamlit player page with one free-form chat input backed only by `POST
+/player-turn`. The HTTP client validates the strict discriminated player-turn
+response union and maps the bounded stale-input error. The page records and
+renders only returned player-safe facts: private thought, clarification,
+committed action evidence where present, current player perception, and
+scheduled-progress status. It retains a submitted player text in session-only
+presentation history only if the corresponding response completed interpretation
+of that input. When scheduled progress completes or remains pending before a
+later input is interpreted, the page shows that result but discards the locally
+submitted text.
+
+The chat presentation remains deterministic structured text. It does not add a
+narrator, System notifications, streaming output, client-side simulation, or
+alternate direct application path.
+
+**Consequences:** The existing free-form player coordinator becomes the sole
+player-facing action path, while the server remains authoritative for
+interpretation, scheduling, and persistence. Player-visible history stays
+honest when the server deliberately discards a later input to settle scheduled
+work first. The legacy structured `/turn` endpoint remains available for
+development and existing API coverage but is no longer used by the player page.

@@ -1098,15 +1098,15 @@ This helps ensure requirements are:
 
 **PLAYERPAGE-002:** The page shall accept an API base URL through explicit local configuration, use a bounded request timeout, validate successful and mapped-error bodies against the API contracts, and distinguish unavailable transport, malformed response, mapped application failure, and durable domain outcome.
 
-**PLAYERPAGE-003:** When no world exists, the page shall offer world creation. When a world exists, it shall show only returned lifecycle metadata and offer the seven supported typed action-proposal forms. Development reset shall be a separate explicitly confirmed control.
+**PLAYERPAGE-003:** When no world exists, the page shall offer world creation. When a world exists, it shall show only returned lifecycle metadata and one free-form player-turn input. Development reset shall be a separate explicitly confirmed control.
 
-**PLAYERPAGE-004:** The page shall map form input deterministically to exactly one `ActorActionProposal` and shall reject incomplete local input without sending a request. It shall not accept free-form thoughts, infer an operation, actor, target, motive, or trusted identity, or claim unsupported mechanics.
+**PLAYERPAGE-004:** The page shall send one non-blank free-form player input only through the strict player-turn API contract. It shall not construct or infer an action proposal, actor, target, motive, trusted identity, or unreturned consequence.
 
-**PLAYERPAGE-005:** The page shall present a completed turn only from the validated committed API response, showing outcome status and reason, current player perception, and self-event feedback as deterministic structured text. It shall not invent narration, System notifications, canonical state, hidden actors, or unreturned consequences.
+**PLAYERPAGE-005:** The page shall present player-turn results only from validated player-safe API responses. It shall distinguish thought-only, clarification, settled action, committed action with progress pending, scheduled progress completed, and scheduled progress pending using deterministic structured text; it shall show outcome status and reason, player perception, and self-event feedback only when that response contains them. It shall not invent narration, System notifications, canonical state, hidden actors, or unreturned consequences.
 
-**PLAYERPAGE-006:** Player-page history shall be presentation-only Streamlit session state in committed response order. It shall clear after successful world creation or reset and shall never be treated as canonical history or sent back as action context.
+**PLAYERPAGE-006:** Player-page history shall be presentation-only Streamlit session state in validated player-turn response order. It shall retain submitted text only when the API response represents completion of that input; a scheduled-progress response that did not interpret the submitted text shall not retain that text. History shall clear after successful world creation or reset and shall never be treated as canonical history or sent back as action context.
 
-**PLAYERPAGE-007:** Transport, validation, and application failures shall remain visibly distinct from completed rejected or failed domain outcomes. A failed request shall not append turn history, advance displayed lifecycle metadata, or claim an action completed.
+**PLAYERPAGE-007:** Transport, validation, stale-input, and application failures shall remain visibly distinct from completed rejected or failed domain outcomes. A failed request shall not append turn history, advance displayed lifecycle metadata, or claim an action completed.
 
 **PLAYERPAGE-008:** The first page shall not start or configure an ASGI server, implement production deployment or authentication, expose inspection data, invoke an LLM, execute NPC or System activity, or add an alternate direct application path.
 
