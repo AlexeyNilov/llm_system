@@ -195,6 +195,11 @@ The diagram shows logical responsibilities, not required deployment boundaries. 
 * Runs the configured rule-based, scripted, LLM-assisted, or hybrid policy.
 * Produces structured intentions and action proposals only.
 * Records observations and, after the vertical slice, manages validated belief or appraisal updates separately from canonical state.
+* Initially supports an explicitly requested Greybridge caretaker turn: context
+  assembly and its pure policy remain non-mutating, while a separate
+  application coordinator rechecks the observed world revision and passes the
+  resulting trusted NPC submission through the existing actor-action step.
+  It does not yet claim or consume scheduled work.
 
 ### System director
 

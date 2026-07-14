@@ -1447,3 +1447,47 @@ The coordinator exposes no raw gateway evidence. Gateway failure remains the alr
 **Status:** Accepted
 
 **Decision:** `server.py` may read four all-or-none environment settings—`LLM_SYSTEM_MODEL_BASE_URL`, `LLM_SYSTEM_MODEL`, `LLM_SYSTEM_MODEL_TIMEOUT_SECONDS`, and `LLM_SYSTEM_MODEL_MAX_TOKENS`—and construct `HttpLocalModelGateway` only from a complete valid set. With none present it passes no gateway and retains safe durable clarification; partial or invalid configuration raises during bootstrap. No environment access enters the gateway, API, coordinator, persistence, or simulation modules.
+
+### 2026-07-14: Start the actor runtime with one revision-safe caretaker turn
+
+**Status:** Accepted
+
+**Context:** The Greybridge caretaker can already form an untrusted proposal
+from bounded perception, and the actor-action coordinator can persist any
+trusted NPC submission. Neither component says how an application obtains the
+right authored NPC context, binds policy provenance, or avoids applying a
+proposal after another turn changes the world. Combining this with scheduled
+activity claiming would also require unresolved semantics for consuming,
+rescheduling, retrying, and tracing all activity variants.
+
+**Decision:** Add one application actor-turn coordinator for an explicitly
+requested `bridge-caretaker` turn. It reads and validates the stored world,
+derives only the caretaker's bounded decision context and perception, and runs
+the existing pure caretaker policy outside a SQLite write unit of work. It then
+reopens a unit of work and requires the same world identity and revision. A
+changed world returns a typed stale-decision result with no trusted action
+identities or writes. Otherwise the coordinator assigns proposal,
+simulation-step, decision-context, outcome, and event identities, constructs
+the matching `NpcPolicyActionSource`, delegates to the extracted in-unit
+actor-action composition, and commits once. The public result is either that
+durably completed actor-action step or stale.
+
+This first coordinator supports only the authoritatively matching caretaker
+rule policy. It neither invokes an LLM nor builds a generic policy registry,
+and it does not select, claim, remove, add, retry, or reschedule scheduled
+activities.
+
+**Alternatives considered:** Execute the policy inside the simulation kernel,
+let it create a trusted submission, use the existing self-committing action
+step without revision recheck, or implement the full scheduled loop first.
+Those alternatives respectively violate application and trust boundaries,
+permit a policy to claim authority, apply a proposal against stale perception,
+or conflate a concrete actor-runtime seam with still-undefined activity
+lifecycle semantics.
+
+**Consequences:** The first autonomous NPC path proves bounded cognition,
+trusted provenance, arbiter validation, and durable completion through the
+same action boundary as the player. A later scheduled-activity coordinator can
+call this service after it has explicitly defined claim, ordering, consumption,
+and trace behavior. LLM courier policy, memory, beliefs, narration, HTTP, and
+player-visible batching remain separate work.

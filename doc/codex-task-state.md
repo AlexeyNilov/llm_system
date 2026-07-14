@@ -2,7 +2,7 @@
 
 ## Current objective
 
-Plan the smallest actor-runtime boundary needed to advance autonomous NPC proposals through the existing authoritative action path.
+Implement and integrate the first revision-safe Greybridge caretaker actor turn, then use it as the concrete prerequisite for scheduled NPC execution.
 
 ## Verified baseline
 
@@ -28,22 +28,23 @@ Plan the smallest actor-runtime boundary needed to advance autonomous NPC propos
 * TASK-046 is accepted at project version `0.45.0`; `/player-turn` accepts only player text and maps coordinator results to player-safe HTTP responses.
 * TASK-047 configures `HttpLocalModelGateway` only in `server.py`, from a complete all-or-none set of four explicit environment settings. Absent configuration retains the safe unavailable-gateway clarification path; partial, blank, or invalid values fail before app construction.
 * Parent verification for TASK-047 passes: focused server/API tests (40 passed), `make check` (503 passed), format, lint, mypy, `uv lock --check`, and `git diff --check`.
+* `select_eligible_activities` is pure and deliberately non-executing; the initial stored queue is empty and package schemas do not yet author scheduled runtime occurrences.
+* The first executable actor-runtime seam is therefore one explicitly requested `bridge-caretaker` turn. Its policy/context phase remains non-mutating, while its coordinator rechecks the observed world revision before constructing a trusted NPC submission and calling the existing action-step composition.
 
 ## Blockers and unresolved questions
 
-No blocker. The local player-interpreter path is runnable when configured. Autonomous policies can currently produce proposals but lack a bounded runtime that schedules and commits NPC action steps.
+No blocker. TASK-048 is Ready. Scheduled activity claiming, consumption, recurrence, and activity-trace semantics remain intentionally unresolved after this bounded actor-turn task.
 
 ## Exact next action
 
-Inspect the existing scheduled-activity contracts, policy boundary, and action coordinator, then plan a minimal deterministic actor runtime without promoting System director or memory scope.
+Commit and delegate `doc/tasks/TASK-048-revision-safe-caretaker-actor-turn.md` to the configured implementer, then independently review its result.
 
 ## Files to re-read before continuing
 
 1. `AGENTS.md`
 2. `doc/agent_roles/architect.md`
 3. `doc/roadmap.md`: M5
-4. `doc/requirements.md`: actor-action, scheduling, and policy requirements
-5. `doc/decisions.md`: deterministic scheduling and actor-policy decisions
-6. `src/llm_system/application/` action coordinators and policies
-7. `src/llm_system/simulation/` scheduling contracts and action dispatch
-8. related policy, scheduling, and action-step tests
+4. `doc/requirements.md`: `NPC-008` through `NPC-012`, `POLICY-007` through `POLICY-010`, and `STEP-001` through `STEP-010`
+5. `doc/decisions.md`: “Start actor policies with one pure caretaker decision” and “Start the actor runtime with one revision-safe caretaker turn”
+6. `src/llm_system/application/npc_decision.py` and `actor_action_step.py`
+7. `tests/test_caretaker_policy.py`, `tests/test_actor_action_step.py`, and `tests/test_player_turn_coordinator.py`

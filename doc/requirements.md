@@ -66,6 +66,16 @@ This helps ensure requirements are:
 
 **NPC-007:** When an NPC action or its consequences are outside the player's perception, the system shall not reveal them directly to the player.
 
+**NPC-008:** The initial actor-turn coordinator shall construct one bounded `NpcDecisionContext` for an explicitly requested authored NPC from that NPC's package identity summary, goals, current plan, and current actor-specific perception. It shall not pass canonical world state, another actor's private information, memories, beliefs, or trusted submission metadata to the decision policy.
+
+**NPC-009:** The first executable actor turn shall support only the authored Greybridge caretaker's matching rule policy. A missing, non-NPC, mismatched, or otherwise unsupported NPC/policy request shall fail without invoking a policy, creating trusted action metadata, or changing persistence.
+
+**NPC-010:** The actor-turn coordinator shall obtain the policy proposal outside a SQLite write unit of work, then recheck the exact world identity and revision before creating trusted action metadata or writing. If the world changed, it shall return a typed stale-decision result and leave world, event, and trace history unchanged.
+
+**NPC-011:** For an unchanged world revision, the actor-turn coordinator shall application-assign proposal, simulation-step, decision-context, outcome, and event identities; create the matching `NpcPolicyActionSource`; and invoke the existing actor-action coordinator path in one unit of work. It shall return completion only after the action step commits.
+
+**NPC-012:** The initial actor-turn coordinator shall not select, claim, consume, add, reschedule, or persist scheduled activities; invoke an LLM; retrieve or revise memories or beliefs; expose HTTP/UI behavior; or narrate outcomes.
+
 ### System director and simulation authority
 
 **AUTH-001:** The simulation arbiter shall be the only component authorized to apply transitions to canonical world state.
