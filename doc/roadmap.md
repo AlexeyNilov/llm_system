@@ -61,7 +61,7 @@ M4 is complete. The singleton world survives restart, advances atomically throug
 | Planned task | Depends on |
 | --- | --- |
 | TASK-041: rule-driven caretaker policy | Done; strict bounded NPC context plus a pure deterministic seek, take, return, reinforce, or Wait proposal policy at version `0.40.0` |
-| [TASK-042](tasks/TASK-042-local-functional-model-gateway.md): local functional model gateway | Ready; structured-output preflight, accepted Gemma request policy, and existing `httpx2` foundation |
+| TASK-042: local functional model gateway | Done; synchronous fakeable `httpx2` boundary with thinking disabled, strict content-only validation, one repair, and typed attempt evidence at version `0.41.0` |
 | Player input interpreter | Local model gateway and action contracts |
 | Memory-free LLM courier policy | Local model gateway and actor runtime |
 | Narrator | Perception snapshots and local model gateway |

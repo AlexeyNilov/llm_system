@@ -7,6 +7,15 @@ from llm_system.application.npc_decision import (
     NpcDecisionContext,
     decide_greybridge_caretaker,
 )
+from llm_system.application.model_gateway import (
+    FunctionalGenerationAttempt,
+    FunctionalGenerationDisposition,
+    FunctionalGenerationResult,
+    FunctionalModelFailureKind,
+    FunctionalModelGateway,
+    HttpLocalModelGateway,
+    ModelMessage,
+)
 from llm_system.application.world_lifecycle import (
     ActiveWorld,
     WorldPackageKindError,
@@ -19,6 +28,13 @@ from llm_system.application.world_lifecycle import (
 __all__ = [
     "ActiveWorld",
     "CompletedActorActionStep",
+    "FunctionalGenerationAttempt",
+    "FunctionalGenerationDisposition",
+    "FunctionalGenerationResult",
+    "FunctionalModelFailureKind",
+    "FunctionalModelGateway",
+    "HttpLocalModelGateway",
+    "ModelMessage",
     "NpcDecisionContext",
     "WorldPackageKindError",
     "WorldPackageMismatchError",
